@@ -157,6 +157,7 @@ export type ProductCategory = Audited &
     code: string;
     group: CategoryGroup;
     parent: number | null;
+    image_url: string | null;
     is_active: boolean;
     product_count: number;
   };
@@ -197,6 +198,7 @@ export type Product = Audited &
     lifetime_hours: number | null;
     warranty_months: number | null;
     weight_kg: string | null;
+    image_url: string | null;
     is_active: boolean;
     notes: string;
   };
@@ -393,4 +395,176 @@ export type Ledger = {
     credit: string;
     balance: string;
   }[];
+};
+
+// --- Inventory ------------------------------------------------------------------------------
+
+export type StockStatus = "available" | "in_transit" | "damaged" | "returned";
+
+export type StockRow = {
+  warehouse: number;
+  warehouse_name: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  available: string;
+  in_transit: string;
+  damaged: string;
+  returned: string;
+  reserved: string;
+  free: string;
+  average_cost: string;
+  value: string;
+};
+
+export type StockLevels = { currency: string; as_of: string; rows: StockRow[] };
+
+export type StockMove = {
+  id: number;
+  date: string;
+  warehouse: number;
+  warehouse_name: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  status: StockStatus;
+  quantity: string;
+  unit_cost: string;
+  value: string;
+  move_type: "adjustment" | "count" | "transfer_out" | "transfer_in" | "receipt" | "issue" | "status";
+  reference: string;
+  note: string;
+  created_at: string;
+};
+
+export type AdjustmentLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  status: StockStatus;
+  quantity: string;
+  unit_cost: string | null;
+};
+
+export type Adjustment = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  warehouse: number;
+  warehouse_name: string;
+  reason: "opening" | "correction" | "damage" | "status";
+  counter_account: number | null;
+  note: string;
+  status: "draft" | "posted";
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: AdjustmentLine[];
+};
+
+export type TransferLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  quantity: string;
+  received_quantity?: string;
+};
+
+export type Transfer = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  from_warehouse: number;
+  from_warehouse_name: string;
+  to_warehouse: number;
+  to_warehouse_name: string;
+  note: string;
+  status: "draft" | "in_transit" | "partial" | "received";
+  dispatched_at: string | null;
+  received_at: string | null;
+  lines: TransferLine[];
+};
+
+export type CountLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  expected_quantity?: string;
+  counted_quantity: string;
+};
+
+export type StockCount = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  warehouse: number;
+  warehouse_name: string;
+  note: string;
+  status: "draft" | "posted";
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: CountLine[];
+};
+
+export type Reservation = Audited & {
+  id: number;
+  company: number;
+  warehouse: number;
+  warehouse_name: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  quantity: string;
+  status: "active" | "released" | "fulfilled";
+  reference: string;
+};
+
+export type ReorderRule = Audited & {
+  id: number;
+  company: number;
+  warehouse: number;
+  warehouse_name: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  min_quantity: string;
+  reorder_quantity: string;
+  is_active: boolean;
+};
+
+export type ReorderRow = {
+  rule: number;
+  warehouse: number;
+  warehouse_name: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  free: string;
+  min_quantity: string;
+  suggested: string;
+};
+
+export type SlowMovingRow = {
+  product: number;
+  sku: string;
+  product_name: string;
+  quantity: string;
+  value: string;
+  last_out: string | null;
+  last_in: string | null;
+  days_idle: number;
 };

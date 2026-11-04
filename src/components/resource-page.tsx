@@ -28,7 +28,25 @@ export type Values = Record<string, string | boolean>;
 export type Field = {
   name: string;
   label: string;
-  type?: "text" | "email" | "url" | "date" | "number" | "textarea" | "select" | "checkbox" | "country";
+  type?:
+    | "text"
+    | "email"
+    | "url"
+    | "date"
+    | "number"
+    | "textarea"
+    | "select"
+    | "checkbox"
+    | "country"
+    | "custom";
+  /** For type "custom": render your own control. */
+  render?: (props: {
+    value: string | boolean | undefined;
+    onChange: (value: string | boolean) => void;
+    error?: string;
+    disabled: boolean;
+    label: string;
+  }) => ReactNode;
   options?: [string, string][];
   required?: boolean;
   hint?: string;
@@ -383,6 +401,9 @@ function FieldInput({
   const { t } = useWorkspace();
   const label = t(field.label);
 
+  if (field.type === "custom" && field.render) {
+    return <>{field.render({ value, onChange, error, disabled, label })}</>;
+  }
   if (field.type === "country") {
     return (
       <CountryPicker

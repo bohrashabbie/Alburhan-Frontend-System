@@ -1,8 +1,12 @@
 "use client";
 
+import { useSWRConfig } from "swr";
+
+import { FamilyPicker, useFamilies } from "@/components/family-picker";
+import { PhotoThumb, PhotoUpload } from "@/components/photo-upload";
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { useResource } from "@/lib/hooks";
-import type { Brand, Page, Product, ProductCategory, Unit } from "@/lib/types";
+import type { Brand, Page, Product, Unit } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const TYPES: [Product["product_type"], string][] = [
@@ -44,13 +48,15 @@ const text = (value: string | number | null | undefined) =>
   value === null || value === undefined ? "" : String(value);
 
 export default function ProductsPage() {
-  const { name } = useWorkspace();
-  const categories = useResource<Page<ProductCategory>>("/catalog/categories?page_size=500&is_active=true");
+  const { can, name } = useWorkspace();
+  const { mutate } = useSWRConfig();
+  const families = useFamilies();
+  const refresh = () => mutate((key) => typeof key === "string" && key.startsWith("/catalog/products"));
   const brands = useResource<Page<Brand>>("/catalog/brands?page_size=500&is_active=true");
   const units = useResource<Page<Unit>>("/catalog/units?page_size=500&is_active=true");
   const options = <T extends { id: number; name: string; name_ar?: string }>(data?: Page<T>) =>
     (data?.results ?? []).map((item) => [String(item.id), name(item)] as [string, string]);
-  const categoryOptions = options(categories.data);
+  const categoryOptions = families.map((item) => [String(item.id), name(item)] as [string, string]);
   const brandOptions = options(brands.data);
   const unitOptions = (units.data?.results ?? []).map(
     (item) => [String(item.id), `${item.code} · ${name(item)}`] as [string, string],
@@ -70,13 +76,16 @@ export default function ProductsPage() {
         { name: "product_type", label: "Type", options: TYPES },
       ]}
       columns={[
-        { label: "SKU", render: (row) => <span className="font-mono text-xs">{row.sku}</span> },
         {
-          label: "Name",
+          label: "Product",
           render: (row) => (
-            <span className="block min-w-0">
-              <span className="block font-medium">{name(row)}</span>
-              <span className="block text-xs text-ink-soft tabular-nums">{specLine(row) || "—"}</span>
+            <span className="flex items-center gap-3">
+              <PhotoThumb url={row.image_url} name={row.name} size="size-12" />
+              <span className="min-w-0">
+                <span className="block font-medium">{name(row)}</span>
+                <span className="block font-mono text-xs text-ink-soft">{row.sku}</span>
+                <span className="block text-xs text-ink-soft tabular-nums">{specLine(row) || "—"}</span>
+              </span>
             </span>
           ),
         },
@@ -90,7 +99,15 @@ export default function ProductsPage() {
         { name: "model_code", label: "Model", hint: "Groups variants of one model, e.g. MS-DL-R01." },
         { name: "name", label: "Name", required: true },
         { name: "name_ar", label: "Name (Arabic)" },
-        { name: "category", label: "Family", type: "select", required: true, options: categoryOptions },
+        {
+          name: "category",
+          label: "Family",
+          type: "custom",
+          required: true,
+          render: ({ value, onChange, error, disabled, label }) => (
+            <FamilyPicker label={label} value={String(value ?? "")} onChange={onChange} error={error} disabled={disabled} />
+          ),
+        },
         { name: "brand", label: "Brand", type: "select", nullable: true, options: brandOptions },
         { name: "product_type", label: "Type", type: "select", required: true, options: TYPES },
         { name: "uom", label: "Unit", type: "select", required: true, options: unitOptions },
@@ -153,6 +170,17 @@ export default function ProductsPage() {
         notes: row?.notes ?? "",
         is_active: row?.is_active ?? true,
       })}
+      drawerExtra={(row) => (
+        <PhotoUpload
+          endpoint={`/catalog/products/${row.id}/image`}
+          name={row.name}
+          initialUrl={row.image_url}
+          canEdit={can("catalog.product.update")}
+          onChanged={refresh}
+          title="Photo"
+          hint="PNG, JPEG or WebP, up to 2 MB. Upload a file or take a photo with the camera. Save the product first, then add its photo."
+        />
+      )}
     />
   );
 }

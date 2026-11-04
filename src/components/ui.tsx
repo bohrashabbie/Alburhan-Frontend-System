@@ -18,7 +18,7 @@ import {
 import { ApiError } from "@/lib/api";
 
 const BUTTON_BASE =
-  "inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+  "inline-flex shrink-0 items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-50";
 
 const BUTTON_VARIANTS = {
   primary: "bg-accent text-white hover:bg-accent-strong",
@@ -214,7 +214,7 @@ export function PageHeader({
   actions,
 }: {
   title: string;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
 }) {
   return (

@@ -3,7 +3,7 @@
 import { useSWRConfig } from "swr";
 
 import { CountryLabel } from "@/components/country";
-import { LogoThumb, LogoUpload } from "@/components/logo-upload";
+import { PhotoThumb, PhotoUpload } from "@/components/photo-upload";
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { useResource } from "@/lib/hooks";
 import type { Company, Currency, Page } from "@/lib/types";
@@ -31,7 +31,7 @@ export default function CompaniesPage() {
           label: "Company",
           render: (row) => (
             <span className="flex items-center gap-3">
-              <LogoThumb url={row.logo_url} name={row.name} />
+              <PhotoThumb url={row.logo_url} name={row.name} size="size-9" />
               <span className="min-w-0">
                 <span className="block font-medium">{name(row)}</span>
                 <span className="block font-mono text-xs text-ink-soft">{row.code}</span>
@@ -74,12 +74,15 @@ export default function CompaniesPage() {
         is_active: row?.is_active ?? true,
       })}
       drawerExtra={(row) => (
-        <LogoUpload
+        <PhotoUpload
           endpoint={`/organization/companies/${row.id}/logo`}
           name={row.name}
           initialUrl={row.logo_url}
           canEdit={can("organization.company.update")}
           onChanged={refreshCompanies}
+          title="Logo"
+          hint="PNG, JPEG or WebP, up to 2 MB. A square logo looks best."
+          shape="rounded-lg"
         />
       )}
     />

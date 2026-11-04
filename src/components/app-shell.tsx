@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Boxes,
   ChevronLeft,
   Contact,
   House,
@@ -38,6 +39,7 @@ const NAV: NavItem[] = [
   { href: "/overview", label: "Home", icon: House },
   { href: "/catalog", label: "Catalog", icon: Lightbulb, section: "catalog" },
   { href: "/partners", label: "Customers & suppliers", icon: Contact, section: "partners" },
+  { href: "/inventory", label: "Inventory", icon: Boxes, section: "inventory" },
   { href: "/accounts", label: "Accounts", icon: Landmark, section: "accounts" },
   { href: "/settings", label: "Settings", icon: Settings, section: "settings" },
 ];

@@ -114,6 +114,31 @@ grants its `.view` permission in the current company/branch.
 - Before calling a screen done, screenshot it with the panel open (both a new and an existing
   record) and check that labels, inputs and hints line up.
 
+## Documents with lines (`DocumentList`, `src/components/document-list.tsx`)
+
+Transfers, adjustments, counts, journal entries and (later) quotations, invoices and orders all
+follow one pattern: a `DocumentList` (search, status and date filters, "New …" button) that opens
+a **wide drawer**. Drafts open an *Editor* (header fields in a two-column grid, then a `Lines`
+table with `LINE_INPUT` controls and a footer of totals); posted/sent documents open a read-only
+*Viewer* (a `Facts` strip, the lines, then an action section such as Receive or Reverse).
+Rules: the footer has Cancel · Save draft · the posting action (primary, on the end side);
+Delete sits on the start side and only for drafts; line tables are `table-fixed` with set column
+widths so inputs never jump; numbers are `text-end tabular-nums`; the first line is always
+present; removal is an `IconButton` with a bin icon.
+
+## Photos and pickers
+
+- `PhotoUpload` (`src/components/photo-upload.tsx`): upload a file **or take a photo with the
+  camera** (square centre-crop), replace, remove. Used for company logos, product families and
+  products. `PhotoThumb` shows the photo or initials in lists (`size-9` logos, `size-11`/`size-12`
+  products).
+- `FamilyPicker` (`src/components/family-picker.tsx`): a searchable grid of family cards with
+  photos, grouped Indoor / Outdoor / Magnetic & linear / …; used wherever a product family is
+  chosen. `ProductPicker` searches products by SKU, model or name.
+- `ResourcePage` fields may be `type: "custom"` with a `render` callback to drop these pickers
+  into a standard form.
+- Buttons never wrap (`whitespace-nowrap`, `shrink-0`); keep labels short.
+
 ## Sign-in page
 
 The form sits on white at the start. The end half is `CountrySlides`: the group's country

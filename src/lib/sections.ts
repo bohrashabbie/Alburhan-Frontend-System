@@ -4,9 +4,35 @@
  */
 export type SectionLink = { href: string; label: string; permission?: string; exact?: boolean };
 export type SectionGroup = { title: string; links: SectionLink[] };
-export type Area = "accounts" | "catalog" | "partners" | "settings";
+export type Area = "accounts" | "catalog" | "inventory" | "partners" | "settings";
 
 const AREAS: Record<Area, SectionGroup[]> = {
+  inventory: [
+    {
+      title: "Stock",
+      links: [
+        { href: "/inventory/stock", label: "Stock levels", permission: "inventory.stock.view" },
+        { href: "/inventory/moves", label: "Movements", permission: "inventory.stock.view" },
+      ],
+    },
+    {
+      title: "Documents",
+      links: [
+        { href: "/inventory/transfers", label: "Transfers", permission: "inventory.transfer.view" },
+        { href: "/inventory/adjustments", label: "Adjustments", permission: "inventory.adjustment.view" },
+        { href: "/inventory/counts", label: "Stock counts", permission: "inventory.count.view" },
+        { href: "/inventory/reservations", label: "Reservations", permission: "inventory.reservation.view" },
+      ],
+    },
+    {
+      title: "Planning",
+      links: [
+        { href: "/inventory/reorder", label: "Reorder alerts", permission: "inventory.report.view" },
+        { href: "/inventory/slow-moving", label: "Slow-moving stock", permission: "inventory.report.view" },
+        { href: "/inventory/reorder-rules", label: "Reorder rules", permission: "inventory.reorder_rule.view" },
+      ],
+    },
+  ],
   accounts: [
     {
       title: "Bookkeeping",
