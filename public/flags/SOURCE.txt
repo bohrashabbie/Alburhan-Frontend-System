@@ -1,0 +1,2 @@
+Flag images: country-flag-icons (gitlab.com/catamphetamine/country-flag-icons), MIT License.
+Shown with <img>, so they never run scripts.

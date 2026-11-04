@@ -1,0 +1,353 @@
+@import "tailwindcss";
+
+:root {
+  /* Al-Burhan: black and white with neutral greys. Only danger and warning carry colour. */
+  --canvas: #f7f7f7;
+  --surface: #ffffff;
+  --surface-muted: #f0f0f0;
+  --ink: #0a0a0a;
+  --ink-soft: #525252;
+  --ink-faint: #8a8a8a;
+  --line: #e5e5e5;
+  --line-strong: #d0d0d0;
+  --accent: #0a0a0a;
+  --accent-strong: #2b2b2b;
+  --accent-soft: #ececec;
+  --panel: #0a0a0a;
+  --panel-soft: #2b2b2b;
+  --panel-ink: #ffffff;
+  --panel-ink-soft: #a8a8a8;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --warning: #8a5a00;
+  --warning-soft: #fdf3dc;
+  --focus: #6950f3;
+  /* Text links, the active rail item and the focused-field ring. */
+  --link: #6950f3;
+  /* Light blue for appointments and team headings on the calendar. */
+  --sky: #dbeafe;
+  --sky-strong: #60a5fa;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-link: var(--link);
+  --color-sky: var(--sky);
+  --color-sky-strong: var(--sky-strong);
+  --color-panel: var(--panel);
+  --color-panel-soft: var(--panel-soft);
+  --color-panel-ink: var(--panel-ink);
+  --color-panel-ink-soft: var(--panel-ink-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --font-sans: var(--font-inter), var(--font-arabic);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-inter), var(--font-arabic), system-ui, sans-serif;
+}
+
+/*
+ * Keyboard focus shows as a soft purple ring rather than a hard black box. Text fields show it
+ * through their border instead, so typing never draws a box around the text.
+ */
+:focus-visible {
+  outline: 2px solid rgb(105 80 243 / 0.45);
+  outline-offset: 2px;
+}
+/* Panels and pop-ups take focus when they open; that should never draw a line round them. */
+dialog:focus,
+dialog:focus-visible,
+[role="dialog"]:focus-visible,
+[role="menu"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px rgb(105 80 243 / 0.15);
+}
+/* A search box drawn as a pill puts the ring on the pill, not on the bare input inside it. */
+label:has(> input:focus) {
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px rgb(105 80 243 / 0.15);
+}
+label:has(> input:focus) > input:focus {
+  border-color: transparent;
+  box-shadow: none !important;
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+/* A side panel that slides in from the right and slides back out. */
+@keyframes panel-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes panel-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* The client profile fades up as the panel widens, and each section does the same. */
+@keyframes profile-in {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/*
+ * Entrances fill "backwards" only: a transform left behind after the animation would make the
+ * panel the reference for fixed pop-ups, so every menu inside it would open in the wrong place.
+ */
+.profile-section > * {
+  animation: section-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+/*
+ * Page header actions (Options, Add new, Export and so on) share one size, wherever they sit:
+ * a plain button, a link, or the button that opens a menu.
+ */
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.page-actions > a,
+.page-actions > button,
+.page-actions > div > button {
+  display: inline-flex;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  padding: 0 1.25rem;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* An area's pages slide out from behind the sidebar. */
+@keyframes flyout-in {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.rail-flyout {
+  animation: flyout-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* The full-screen new client form rises into place. */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+dialog.new-client {
+  animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+dialog.slide-panel {
+  animation: panel-in 0.34s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+dialog.slide-panel::backdrop {
+  background: rgb(0 0 0 / 0.25);
+  animation: backdrop-in 0.3s ease-out both;
+}
+dialog.slide-panel[data-closing] {
+  animation: panel-out 0.24s cubic-bezier(0.4, 0, 1, 1) both;
+}
+dialog.slide-panel[data-closing]::backdrop {
+  animation: backdrop-out 0.24s ease-in both;
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.slide-panel,
+  dialog.slide-panel::backdrop,
+  .profile-section > * {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* No outline box on the black panels: the hover and active backgrounds already show where you are. */
+.bg-panel :focus-visible {
+  outline: none;
+}
+.bg-panel a:focus-visible,
+.bg-panel button:focus-visible {
+  background-color: rgb(255 255 255 / 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
+
+/* ---- Arabic / right-to-left: panels and flyouts enter from the other side. ---- */
+@keyframes panel-in-rtl {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes panel-out-rtl {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes flyout-in-rtl {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+[dir="rtl"] dialog.slide-panel {
+  animation-name: panel-in-rtl;
+}
+[dir="rtl"] dialog.slide-panel[data-closing] {
+  animation-name: panel-out-rtl;
+}
+[dir="rtl"] .rail-flyout {
+  animation-name: flyout-in-rtl;
+}
+
+/* ---- Sign-in slideshow: each photo slowly zooms; the caption and country name rise in. ---- */
+@keyframes hero-zoom {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes caption-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero-photo {
+  animation: hero-zoom 9s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.hero-caption {
+  animation: caption-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.5s backwards;
+}
+@keyframes slide-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.slide-progress {
+  animation: slide-progress linear both;
+}
+.country-in {
+  animation: caption-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo,
+  .hero-caption,
+  .slide-progress,
+  .country-in {
+    animation: none !important;
+  }
+}
+
+/* Dropdowns match text fields: same height and border, with a quiet chevron on the end side. */
+select.control-select {
+  appearance: none;
+  padding-inline-end: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23525252' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  background-position: right 0.75rem center;
+}
+[dir="rtl"] select.control-select {
+  background-position: left 0.75rem center;
+}
