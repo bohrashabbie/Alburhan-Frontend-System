@@ -160,6 +160,7 @@ export function PhotoUpload({
   title,
   hint = "PNG, JPEG or WebP, up to 2 MB. A square photo looks best.",
   shape = "rounded-xl",
+  compact = false,
 }: {
   endpoint: string;
   name: string;
@@ -169,6 +170,8 @@ export function PhotoUpload({
   title: string;
   hint?: string;
   shape?: string;
+  /** Buttons only, centred: for pages that already show the photo large. */
+  compact?: boolean;
 }) {
   const { t } = useWorkspace();
   const input = useRef<HTMLInputElement>(null);
@@ -183,8 +186,8 @@ export function PhotoUpload({
     if (!ACCEPT.split(",").includes(file.type)) return setLocalError("Use a PNG, JPEG or WebP image.");
     if (file.size > MAX_BYTES) return setLocalError("The image must be 2 MB or smaller.");
     action.run(async () => {
-      const result = await upload<{ image_url?: string | null; logo_url?: string | null }>(endpoint, { image: file });
-      setUrl(result.image_url ?? result.logo_url ?? null);
+      const result = await upload<{ image_url?: string | null; logo_url?: string | null; avatar_url?: string | null }>(endpoint, { image: file });
+      setUrl(result.image_url ?? result.logo_url ?? result.avatar_url ?? null);
       onChanged();
     });
   };
@@ -197,13 +200,17 @@ export function PhotoUpload({
     });
 
   return (
-    <section className="border-t border-line pt-6">
-      <h3 className="text-base font-bold">{title}</h3>
-      <p className="mt-1 text-sm text-ink-soft">{hint}</p>
-      <div className="mt-4 flex items-start gap-5">
-        <PhotoThumb url={url} name={name} size="size-28" rounded={shape} />
+    <section className={compact ? "" : "border-t border-line pt-6"}>
+      {compact ? null : (
+        <>
+          <h3 className="text-base font-bold">{title}</h3>
+          <p className="mt-1 text-sm text-ink-soft">{hint}</p>
+        </>
+      )}
+      <div className={compact ? "flex justify-center" : "mt-4 flex items-start gap-5"}>
+        {compact ? null : <PhotoThumb url={url} name={name} size="size-28" rounded={shape} />}
         {canEdit ? (
-          <div className="flex flex-col gap-2">
+          <div className={`flex flex-col gap-2 ${compact ? "items-center" : ""}`}>
             <input
               ref={input}
               type="file"
@@ -215,7 +222,7 @@ export function PhotoUpload({
                 if (file) send(file);
               }}
             />
-            <div className="flex flex-wrap gap-2">
+            <div className={`flex flex-wrap gap-2 ${compact ? "justify-center" : ""}`}>
               <Button variant="secondary" pending={action.pending} onClick={() => input.current?.click()}>
                 <ImageUp aria-hidden className="size-4" />
                 {url ? t("Replace photo") : t("Upload photo")}
@@ -228,7 +235,7 @@ export function PhotoUpload({
               ) : null}
             </div>
             {url ? (
-              <Button variant="ghost" disabled={action.pending} onClick={remove} className="self-start">
+              <Button variant="ghost" disabled={action.pending} onClick={remove} className={compact ? "" : "self-start"}>
                 <Trash2 aria-hidden className="size-4" />
                 {t("Remove photo")}
               </Button>

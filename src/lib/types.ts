@@ -118,6 +118,7 @@ export type User = {
   default_branch: number | null;
   last_login: string | null;
   date_joined: string;
+  avatar_url?: string | null;
 };
 
 export type AccessGrant = {
@@ -136,6 +137,7 @@ export type Me = {
   last_name: string;
   phone: string;
   preferred_language: "en" | "ar";
+  avatar_url: string | null;
   is_superuser: boolean;
   default_company: number | null;
   default_branch: number | null;

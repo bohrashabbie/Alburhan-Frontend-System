@@ -4,6 +4,7 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
+import { UserAvatar } from "@/components/user-avatar";
 import { Button, ErrorBanner, IconButton, SelectField } from "@/components/ui";
 import { api, withQuery } from "@/lib/api";
 import { formatDate, fullName } from "@/lib/format";
@@ -108,7 +109,7 @@ export default function UsersPage() {
       noun="user"
       wide
       columns={[
-        { label: "Name", render: (row) => <span className="font-medium">{fullName(row)}</span> },
+        { label: "Name", render: (row) => <span className="flex items-center gap-3"><UserAvatar url={row.avatar_url} name={fullName(row)} size="size-9" text="text-xs" ring={false} /><span className="font-medium">{fullName(row)}</span></span> },
         { label: "Email", render: (row) => row.email },
         {
           label: "Last sign-in",

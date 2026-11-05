@@ -291,6 +291,7 @@ function ResourcePageInner<T extends { id: number }>({
           wide={wide}
           onClose={() => setEditing(null)}
           onSaved={() => list.mutate()}
+          onCreated={drawerExtra ? (created) => setEditing(created) : undefined}
         />
       ) : null}
     </>
@@ -319,6 +320,7 @@ function EditDrawer<T extends { id: number }>({
   wide,
   onClose,
   onSaved,
+  onCreated,
 }: {
   wide: boolean;
   row?: T;
@@ -336,6 +338,8 @@ function EditDrawer<T extends { id: number }>({
   toPayload?: (values: Values) => Record<string, unknown>;
   onClose: () => void;
   onSaved: () => void;
+  /** When set, a newly created row stays open (e.g. so a new user can be given roles at once). */
+  onCreated?: (row: T) => void;
 }) {
   const { can, t } = useWorkspace();
   const [values, setValues] = useState<Values>(() => initial(row));
@@ -348,7 +352,14 @@ function EditDrawer<T extends { id: number }>({
     save.run(async () => {
       const payload = { ...defaultPayload(fields, values), ...toPayload?.(values) };
       if (row) await api.patch(`${endpoint}/${row.id}`, payload);
-      else await api.post(endpoint, payload);
+      else {
+        const created = await api.post<T>(endpoint, payload);
+        if (onCreated) {
+          onSaved();
+          onCreated(created);
+          return;
+        }
+      }
       onSaved();
       onClose();
     });

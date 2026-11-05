@@ -213,7 +213,7 @@ export function SaveBar({
   labels?: { unsaved: string; saved: string; clean: string; discard: string; save: string };
 }) {
   return (
-    <div className="sticky bottom-4 z-20 mt-2 flex items-center gap-3 rounded-xl border border-line bg-surface/95 px-4 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+    <div className={`z-20 mt-2 flex items-center gap-3 rounded-xl border border-line px-4 py-3 transition-shadow duration-300 ${dirty ? "sticky bottom-4 bg-surface/95 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface/80" : "bg-surface"}`}>
       <span className={`flex items-center gap-2 text-sm ${dirty ? "font-medium text-ink" : "text-ink-soft"}`}>
         {dirty ? <span aria-hidden className="size-2 rounded-full bg-warning" /> : saved ? <Check aria-hidden className="size-4 text-[#2e7d32]" /> : null}
         {dirty ? labels.unsaved : saved ? labels.saved : labels.clean}

@@ -7,13 +7,16 @@ import {
   FolderKanban,
   House,
   Landmark,
+  Languages,
   Lightbulb,
+  LogOut,
   type LucideIcon,
   Search,
   Settings,
   ShoppingCart,
   Tag,
   Truck,
+  UserRound,
   Wrench,
 } from "lucide-react";
 import Link from "next/link";
@@ -21,11 +24,12 @@ import { usePathname, useRouter } from "next/navigation";
 import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { Brand } from "@/components/brand";
-import { Loading, Menu, MenuDivider, MenuHeading, MenuItem } from "@/components/ui";
+import { Loading, Menu, MenuDivider, MenuHeading, MenuItem, MenuLink } from "@/components/ui";
+import { UserAvatar } from "@/components/user-avatar";
 import { CommandPalette } from "@/components/command-palette";
 import { Flag } from "@/components/country";
 import { session } from "@/lib/api";
-import { fullName, initials } from "@/lib/format";
+import { fullName } from "@/lib/format";
 import { useFreshStart, useMe } from "@/lib/hooks";
 import type { Locale } from "@/lib/i18n";
 import { type Area, areaGroups, isActiveLink } from "@/lib/sections";
@@ -223,26 +227,32 @@ function Flyout({
 }
 
 export function AccountMenu() {
-  const { me, company, branch, companies, branches, companyWide, setCompany, setBranch, locale, setLocale, t, name } =
+  const { me, company, branch, companies, branches, companyWide, canSee, setCompany, setBranch, locale, setLocale, t, name } =
     useWorkspace();
   const freshStart = useFreshStart();
   const display = fullName(me);
+  const roles = me.is_superuser
+    ? [t("Administrator")]
+    : [...new Set(me.access.filter((grant) => grant.company === company.id).map((grant) => grant.role_name))];
+  const openSearch = () => document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true }));
 
   const signOut = async () => {
     await session.logout().catch(() => null);
     await freshStart("/login");
   };
 
+  const go: [string, string, LucideIcon, boolean][] = [
+    ["/profile", t("My profile"), UserRound, true],
+    ["/overview", t("Home"), House, true],
+    ["/till", t("Full-screen till"), ShoppingCart, canSee("pos.sale.create")],
+    ["/settings/companies", t("Settings"), Settings, canSee("organization.company.view") || canSee("users.user.view")],
+  ];
+
   return (
     <Menu
       label={
         <>
-          <span
-            aria-hidden
-            className="flex size-9 items-center justify-center rounded-full border-2 border-[#a8dcf5] bg-[#e6f6fd] text-sm font-semibold text-[#0b7cab]"
-          >
-            {initials(display)}
-          </span>
+          <UserAvatar url={me.avatar_url} name={display} />
           <span className="sr-only">{display}</span>
         </>
       }
@@ -250,35 +260,48 @@ export function AccountMenu() {
       variant="ghost"
       chevron={false}
       title={display}
-      className="!rounded-full !p-0.5"
-      menuClassName="!w-[22rem] !rounded-2xl !p-4 !shadow-xl [&_[role=menuitem]]:!px-3 [&_[role=menuitem]]:!py-2.5 [&_[role=menuitem]]:!text-[15px]"
+      className="!rounded-full !p-0.5 transition-transform hover:scale-105"
+      menuClassName="!w-[22rem] !rounded-2xl !p-2 !shadow-xl [&_[role=menuitem]]:!px-3 [&_[role=menuitem]]:!py-2.5 [&_[role=menuitem]]:!text-[15px]"
     >
-      <div className="flex items-center gap-4 px-3 pt-2 pb-4">
-        <span
-          aria-hidden
-          className="flex size-14 shrink-0 items-center justify-center rounded-full bg-[#e6f6fd] text-lg font-semibold text-[#0b7cab]"
-        >
-          {initials(display)}
-        </span>
-        <span className="min-w-0">
-          <span className="block truncate text-lg font-bold">{display}</span>
-          <span className="block truncate text-sm text-ink-soft">
-            {name(company)}
-            {branch ? ` · ${name(branch)}` : ""}
+      <Link href="/profile" className="flex items-center gap-3.5 rounded-xl p-3 transition-colors hover:bg-surface-muted">
+        <UserAvatar url={me.avatar_url} name={display} size="size-14" text="text-lg" />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-lg leading-6 font-bold">{display}</span>
+          <span className="block truncate text-sm text-ink-soft">{me.email}</span>
+          <span className="mt-1 flex flex-wrap gap-1">
+            {roles.slice(0, 3).map((role) => (
+              <span key={role} className="rounded-full bg-[#f0ecff] px-2 py-0.5 text-[11px] font-medium text-link">
+                {role}
+              </span>
+            ))}
           </span>
         </span>
-      </div>
+      </Link>
+      <p className="px-3 pb-1 text-xs text-ink-soft">
+        {name(company)}
+        {branch ? ` · ${name(branch)}` : ` · ${t("All branches")}`}
+      </p>
+      <MenuDivider />
+      {go
+        .filter(([, , , show]) => show)
+        .map(([href, label, Icon]) => (
+          <MenuLink key={href} href={href}>
+            <Icon aria-hidden className="me-3 inline size-[18px] align-[-3px] text-ink-soft" strokeWidth={1.75} />
+            {label}
+          </MenuLink>
+        ))}
+      <MenuItem onClick={openSearch}>
+        <Search aria-hidden className="me-3 inline size-[18px] align-[-3px] text-ink-soft" strokeWidth={1.75} />
+        {t("Search or jump to…")}
+        <kbd className="float-end rounded-md border border-line px-1.5 text-xs text-ink-soft">Ctrl K</kbd>
+      </MenuItem>
       {companies.length > 1 ? (
         <>
           <MenuDivider />
           <MenuHeading>{t("Switch company")}</MenuHeading>
           {companies.map((item) => (
-            <MenuItem
-              key={item.id}
-              aria-checked={item.id === company.id}
-              onClick={() => setCompany(item.id)}
-            >
-              <span className="me-2 font-mono text-xs text-ink-soft">{item.code}</span>
+            <MenuItem key={item.id} aria-checked={item.id === company.id} onClick={() => setCompany(item.id)}>
+              <Flag code={item.country} className="me-2.5 inline h-3 rounded-[2px] align-[-1px]" />
               {name(item)}
             </MenuItem>
           ))}
@@ -294,29 +317,36 @@ export function AccountMenu() {
             </MenuItem>
           ) : null}
           {branches.map((item) => (
-            <MenuItem
-              key={item.id}
-              aria-checked={item.id === branch?.id}
-              onClick={() => setBranch(item.id)}
-            >
+            <MenuItem key={item.id} aria-checked={item.id === branch?.id} onClick={() => setBranch(item.id)}>
               {name(item)}
             </MenuItem>
           ))}
         </>
       ) : null}
       <MenuDivider />
-      <MenuHeading>{t("Language")}</MenuHeading>
-      {(["en", "ar"] as Locale[]).map((option) => (
-        <MenuItem
-          key={option}
-          aria-checked={locale === option}
-          onClick={() => setLocale(option)}
-        >
-          {option === "en" ? "English" : "العربية"}
-        </MenuItem>
-      ))}
+      <div className="flex items-center justify-between gap-3 px-3 py-1.5">
+        <span className="flex items-center text-[15px]">
+          <Languages aria-hidden className="me-3 size-[18px] text-ink-soft" strokeWidth={1.75} />
+          {t("Language")}
+        </span>
+        <span className="inline-flex rounded-full border border-line-strong p-0.5">
+          {(["en", "ar"] as Locale[]).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setLocale(option)}
+              className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${locale === option ? "bg-accent text-white" : "text-ink-soft hover:text-ink"}`}
+            >
+              {option === "en" ? "EN" : "عربي"}
+            </button>
+          ))}
+        </span>
+      </div>
       <MenuDivider />
-      <MenuItem onClick={signOut}>{t("Log out")}</MenuItem>
+      <MenuItem onClick={signOut}>
+        <LogOut aria-hidden className="me-3 inline size-[18px] align-[-3px] text-danger" strokeWidth={1.75} />
+        <span className="text-danger">{t("Log out")}</span>
+      </MenuItem>
     </Menu>
   );
 }
