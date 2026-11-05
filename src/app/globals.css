@@ -392,3 +392,94 @@ input.input-bare:focus {
   border-color: transparent;
   box-shadow: none !important;
 }
+
+/* ---- Navigation motion: flyout in/out, dimmed backdrop, staggered links, page entrance. ---- */
+@keyframes flyout-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+@keyframes flyout-out-rtl {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+.rail-flyout[data-closing] {
+  animation: flyout-out 0.18s cubic-bezier(0.4, 0, 1, 1) both;
+}
+[dir="rtl"] .rail-flyout[data-closing] {
+  animation-name: flyout-out-rtl;
+}
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.rail-scrim {
+  animation: scrim-in 0.22s ease-out both;
+}
+.rail-scrim[data-closing] {
+  animation: backdrop-out 0.18s ease-in both;
+}
+/* Links fade in one after another (delay set inline per link). */
+@keyframes link-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes link-in-rtl {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.link-in {
+  animation: link-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+[dir="rtl"] .link-in {
+  animation-name: link-in-rtl;
+}
+/* Each page rises in gently when you navigate. */
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.page-in {
+  animation: page-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-flyout,
+  .rail-scrim,
+  .link-in,
+  .page-in {
+    animation: none !important;
+  }
+}

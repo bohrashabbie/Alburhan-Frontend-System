@@ -82,7 +82,7 @@ function RailLink({
     setTip(bounds.top + bounds.height / 2);
   };
 
-  const className = `relative flex size-12 shrink-0 items-center justify-center rounded-xl text-white transition-colors hover:bg-link active:bg-link ${
+  const className = `group/rail relative flex size-12 shrink-0 items-center justify-center rounded-xl text-white transition-[background-color,transform] duration-200 hover:bg-link active:scale-95 active:bg-link ${
     active ? "bg-link" : ""
   } ${open ? "bg-link" : ""}`;
   const hover = {
@@ -119,7 +119,7 @@ function RailLink({
         className={className}
         {...hover}
       >
-        <Icon aria-hidden className="size-6" strokeWidth={1.5} />
+        <Icon aria-hidden className="size-6 transition-transform duration-200 group-hover/rail:scale-110" strokeWidth={1.5} />
         {bubble}
       </button>
     );
@@ -133,7 +133,7 @@ function RailLink({
       className={className}
       {...hover}
     >
-      <Icon aria-hidden className="size-6" strokeWidth={1.5} />
+      <Icon aria-hidden className="size-6 transition-transform duration-200 group-hover/rail:scale-110" strokeWidth={1.5} />
       {bubble}
     </Link>
   );
@@ -144,14 +144,21 @@ function Flyout({
   item,
   pathname,
   onClose,
+  closing = false,
 }: {
   item: NavItem;
   pathname: string;
   onClose: () => void;
+  closing?: boolean;
 }) {
   const { canSee, t } = useWorkspace();
   const box = useRef<HTMLDivElement>(null);
-  const groups = areaGroups(item.section as Area, canSee);
+  // Each group knows where its links start, so they can fade in one after another.
+  const raw = areaGroups(item.section as Area, canSee);
+  const groups = raw.map((group, index) => ({
+    ...group,
+    order: raw.slice(0, index).reduce((count, previous) => count + previous.links.length + 1, 0),
+  }));
 
   useEffect(() => {
     const outside = (event: Event) => {
@@ -171,7 +178,7 @@ function Flyout({
   }, [onClose]);
 
   return (
-    <div ref={box} className="rail-flyout fixed top-16 bottom-0 start-[4.5rem] z-[45] w-56">
+    <div ref={box} data-closing={closing ? "" : undefined} className="rail-flyout fixed top-16 bottom-0 start-[4.5rem] z-[45] w-56">
       <button
         type="button"
         aria-label={t("Close menu")}
@@ -189,7 +196,7 @@ function Flyout({
         {groups.map((group, index) => (
           <div key={group.title}>
             {index > 0 ? <hr className="mx-5 my-3 border-line" /> : null}
-            <p className="px-6 pt-4 pb-2 text-[17px] font-semibold">{t(group.title)}</p>
+            <p className="link-in px-6 pt-4 pb-2 text-[17px] font-semibold" style={{ animationDelay: `${60 + group.order * 24}ms` }}>{t(group.title)}</p>
             {group.links.map((link) => {
               const current = isActiveLink(link, pathname);
               return (
@@ -199,7 +206,8 @@ function Flyout({
                   role="menuitem"
                   aria-current={current ? "page" : undefined}
                   onClick={onClose}
-                  className={`mx-3 block rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
+                  style={{ animationDelay: `${60 + (group.order + group.links.indexOf(link) + 1) * 24}ms` }}
+                  className={`link-in mx-3 block rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
                     current ? "bg-[#f0ecff] font-medium" : "hover:bg-surface-muted"
                   }`}
                 >
@@ -374,7 +382,17 @@ function Shell({ children }: { children: ReactNode }) {
   const flyout = flyoutState?.at === pathname ? flyoutState.href : null;
   const setFlyout = (href: string | null) =>
     setFlyoutState(href ? { href, at: pathname } : null);
-  const closeFlyout = useCallback(() => setFlyoutState(null), []);
+  // The flyout plays its exit before it unmounts.
+  const [leaving, setLeaving] = useState<string | null>(null);
+  const closeFlyout = useCallback(() => {
+    setFlyoutState((current) => {
+      if (current) {
+        setLeaving(current.href);
+        window.setTimeout(() => setLeaving((href) => (href === current.href ? null : href)), 180);
+      }
+      return null;
+    });
+  }, []);
 
   const links = NAV.filter(
     (item) =>
@@ -382,6 +400,8 @@ function Shell({ children }: { children: ReactNode }) {
       (!item.section || areaGroups(item.section, canSee).length > 0),
   );
   const openItem = links.find((item) => item.href === flyout && item.section) ?? null;
+  const leavingItem = !openItem && leaving ? (links.find((item) => item.href === leaving && item.section) ?? null) : null;
+  const shownItem = openItem ?? leavingItem;
   // Areas with their own side menu take the full width.
   const inSection = links.some((item) => item.section && isActive(item, pathname));
 
@@ -402,7 +422,12 @@ function Shell({ children }: { children: ReactNode }) {
           ))}
         </nav>
       </aside>
-      {openItem ? <Flyout key={openItem.href} item={openItem} pathname={pathname} onClose={closeFlyout} /> : null}
+      {shownItem ? (
+        <>
+          <div aria-hidden data-closing={leavingItem ? "" : undefined} className="rail-scrim fixed inset-0 top-16 start-[4.5rem] z-[44] bg-black/10" />
+          <Flyout key={shownItem.href} item={shownItem} pathname={pathname} onClose={closeFlyout} closing={Boolean(leavingItem)} />
+        </>
+      ) : null}
 
       <header className="sticky top-0 z-40 -ms-[4.5rem] flex h-16 items-center justify-between gap-3 border-b border-line bg-surface ps-5 pe-4 sm:pe-6">
         <Link href="/overview" aria-label="Al-Burhan home" className="shrink-0 text-ink">
@@ -424,7 +449,7 @@ function Shell({ children }: { children: ReactNode }) {
       </header>
       <CommandPalette open={palette} onClose={() => setPalette(false)} />
 
-      <main className={inSection ? "px-4 py-5 sm:px-6" : "mx-auto max-w-[100rem] px-4 py-5 sm:px-6"}>
+      <main key={inSection ? "area" : pathname} className={inSection ? "px-4 py-5 sm:px-6" : "page-in mx-auto max-w-[100rem] px-4 py-5 sm:px-6"}>
         {children}
       </main>
     </div>
