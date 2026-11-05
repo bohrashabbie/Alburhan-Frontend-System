@@ -87,7 +87,7 @@ export default function ProductsPage() {
               <span className="min-w-0">
                 <span className="block font-medium">{name(row)}</span>
                 <span className="block font-mono text-xs text-ink-soft">{row.sku}</span>
-                <span className="block text-xs text-ink-soft tabular-nums">{specLine(row) || "—"}</span>
+                {specLine(row) ? <span className="block text-xs text-ink-soft tabular-nums">{specLine(row)}</span> : null}
               </span>
             </span>
           ),

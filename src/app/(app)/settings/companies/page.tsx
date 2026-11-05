@@ -43,20 +43,21 @@ export default function CompaniesPage() {
         { label: "Currency", render: (row) => row.currency },
         { label: "Status", render: (row) => <ActiveBadge active={row.is_active} /> },
       ]}
+      wide
       fields={[
         { name: "name", label: "Name", required: true },
         { name: "name_ar", label: "Name (Arabic)" },
         { name: "code", label: "Code", required: true, lockOnEdit: true, hint: "Used in document numbers, e.g. KW." },
         { name: "legal_name", label: "Legal name" },
-        { name: "country", label: "Country", type: "country", required: true },
+        { name: "country", label: "Country", type: "country", required: true, section: "Country and books" },
         { name: "currency", label: "Currency", type: "select", required: true, options: currencyOptions, hint: "The currency this company keeps its books in." },
         { name: "timezone", label: "Time zone", required: true },
-        { name: "tax_registration_number", label: "Tax registration no." },
-        { name: "commercial_registration_number", label: "Commercial registration no." },
-        { name: "phone", label: "Phone" },
+        { name: "tax_registration_number", label: "Tax registration no.", section: "Registration", hint: "Printed on invoices; used for VAT returns." },
+        { name: "commercial_registration_number", label: "Commercial registration no.", hint: "Used as the XBRL filing identifier." },
+        { name: "phone", label: "Phone", section: "Contact" },
         { name: "email", label: "Email", type: "email" },
-        { name: "address", label: "Address", type: "textarea" },
-        { name: "is_active", label: "Active", type: "checkbox" },
+        { name: "address", label: "Address", type: "textarea", wide: true },
+        { name: "is_active", label: "Active", type: "checkbox", wide: true },
       ]}
       initial={(row) => ({
         code: row?.code ?? "",

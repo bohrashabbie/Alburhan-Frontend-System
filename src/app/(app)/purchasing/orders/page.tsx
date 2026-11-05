@@ -1,7 +1,7 @@
 "use client";
 
 import { FileText, PackageCheck, Send, XCircle } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import { DocumentList, Facts } from "@/components/document-list";
@@ -136,12 +136,6 @@ function Viewer({ doc, onDone }: { doc: PurchaseOrder; onDone: () => void }) {
 
 function OrdersList() {
   const { locale, t } = useWorkspace();
-  const params = useSearchParams();
-  const openId = params.get("open");
-  const requested = useResource<PurchaseOrder>(openId ? `/purchasing/orders/${openId}` : null);
-  const [dismissed, setDismissed] = useState<number | null>(null);
-  const initial = requested.data && requested.data.id !== dismissed ? requested.data : null;
-  const dismiss = (id: number) => { setDismissed(id); window.history.replaceState(null, "", "/purchasing/orders"); };
 
   return (
     <>
@@ -163,7 +157,6 @@ function OrdersList() {
         ]}
         renderOpen={(open, close) => (open === "new" ? <Editor onDone={close} /> : open.status === "draft" ? <Editor key={open.id} doc={open} onDone={close} /> : <Viewer key={open.id} doc={open} onDone={close} />)}
       />
-      {initial ? (initial.status === "draft" ? <Editor key={`q-${initial.id}`} doc={initial} onDone={() => dismiss(initial.id)} /> : <Viewer key={`q-${initial.id}`} doc={initial} onDone={() => dismiss(initial.id)} />) : null}
     </>
   );
 }

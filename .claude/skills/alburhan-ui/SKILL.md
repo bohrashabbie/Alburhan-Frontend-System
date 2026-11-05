@@ -99,6 +99,36 @@ ERP rail areas (icon from lucide): Home (`House`), Sales (`Tag`), POS (`Shopping
 (`Landmark`), Reports (`ChartLine`), Settings (`Settings`). Show an item only if `/me` `access`
 grants its `.view` permission in the current company/branch.
 
+## Navigation (every place in two clicks)
+
+- **Top bar:** brand · a centred pill **"Search or jump to… Ctrl K"** that opens the
+  `CommandPalette` (`src/components/command-palette.tsx`) · the **workspace chip** (flag, company,
+  "· branch", switches company/branch in place) · the avatar menu.
+- **Command palette:** Ctrl/⌘+K anywhere, or "/" when not typing. Groups: Recent (last 5, in
+  localStorage), Create (permission-filtered "New …" links), live record results (customers,
+  invoices, products, purchase orders, projects; 2+ characters) and Go to (every page the user can
+  see, with its area as the hint). ↑ ↓ to move, ↵ to open, Esc to close. Add any new page to
+  `sections.ts` and it appears here automatically; add a create shortcut to `CREATE`.
+- **Deep links:** every `DocumentList` and `ResourcePage` opens a record with `?open=<id>` and a
+  blank form with `?new=1`; closing clears the query. Custom list pages use `useDeepLink()`
+  (`src/lib/deep-link.ts`). Never re-implement `?open` in a page.
+- **Empty lists** say what the page is for and offer the create button; filtered-to-nothing lists
+  say "No matches" with **Clear filters**.
+- **Search boxes** are `SearchField` (magnifier on the start side, translated "Search…"
+  placeholder), never a bare `TextField type="search"`.
+
+## Settings forms
+
+Cards of `max-w-3xl` with `Card title`, two-column grids, and one **`SaveBar`** at the end of the
+form: sticky at the bottom of the screen, an amber dot and "You have unsaved changes." when dirty,
+**Discard** (ghost) and **Save changes** (primary, disabled when clean), "All changes saved." with a
+green tick after saving. Track `base` vs `values` to know when it is dirty; labels via `saveLabels(t)`.
+
+## Numbers in Arabic
+
+Use Western digits everywhere (`ar-KW-u-nu-latn` in `Intl` formatters) so money, dates, counts
+and tables never mix digit systems on one screen.
+
 ## Forms in side panels (`ResourcePage`, `src/components/resource-page.tsx`)
 
 - **Normal panel (460px): one column.** **Wide panel (760px, `wide`): two columns**, used for big

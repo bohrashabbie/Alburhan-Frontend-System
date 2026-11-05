@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 
-import { Button, Card, ErrorBanner, Loading, PageHeader, SelectField } from "@/components/ui";
+import { Card, ErrorBanner, Loading, PageHeader, SaveBar, SelectField } from "@/components/ui";
 import { api } from "@/lib/api";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import type { Account, AccountType } from "@/lib/types";
 import { useAccounts } from "@/lib/accounting";
+import { saveLabels } from "@/lib/i18n";
 import { useWorkspace } from "@/lib/workspace";
 
 
@@ -48,9 +49,11 @@ type Settings = Record<string, number | null> & { id: number; company: number };
 
 function SettingsForm({ settings, accounts }: { settings: Settings; accounts: Account[] }) {
   const { can, name, t } = useWorkspace();
-  const [values, setValues] = useState<Record<string, string>>(() =>
+  const [base, setBase] = useState<Record<string, string>>(() =>
     Object.fromEntries(FIELDS.flatMap((g) => g.items).map(([field]) => [field, settings[field] ? String(settings[field]) : ""])),
   );
+  const [values, setValues] = useState<Record<string, string>>(base);
+  const dirty = JSON.stringify(values) !== JSON.stringify(base);
   const [saved, setSaved] = useState(false);
   const action = useAction();
   const editable = can("accounting.settings.update");
@@ -62,6 +65,7 @@ function SettingsForm({ settings, accounts }: { settings: Settings; accounts: Ac
         `/accounting/settings/${settings.company}`,
         Object.fromEntries(Object.entries(values).map(([key, value]) => [key, value ? Number(value) : null])),
       );
+      setBase(values);
       setSaved(true);
     });
 
@@ -96,14 +100,7 @@ function SettingsForm({ settings, accounts }: { settings: Settings; accounts: Ac
           </div>
         </Card>
       ))}
-      {editable ? (
-        <div className="flex items-center gap-3">
-          <Button type="submit" pending={action.pending}>
-            {t("Save")}
-          </Button>
-          {saved ? <span className="text-sm text-ink-soft">{t("Saved.")}</span> : null}
-        </div>
-      ) : null}
+      {editable ? <SaveBar dirty={dirty} saved={saved} pending={action.pending} onDiscard={() => setValues(base)} labels={saveLabels(t)} /> : null}
     </form>
   );
 }

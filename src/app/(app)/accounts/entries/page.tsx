@@ -1,23 +1,12 @@
 "use client";
 
 import { Plus, Trash2, Undo2 } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
-import {
-  Badge,
-  Button,
-  Drawer,
-  EmptyState,
-  ErrorBanner,
-  IconButton,
-  Loading,
-  PageHeader,
-  SelectField,
-  Table,
-  TextField,
-} from "@/components/ui";
+import { Badge, Button, Drawer, EmptyState, ErrorBanner, IconButton, Loading, PageHeader, SearchField, SelectField, Table, TextField } from "@/components/ui";
 import { useAccounts, useJournals } from "@/lib/accounting";
 import { api, withQuery } from "@/lib/api";
+import { useDeepLink } from "@/lib/deep-link";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { decimalsOf, formatAmount, toMinor } from "@/lib/money";
@@ -399,7 +388,7 @@ function PostedView({ entry, onDone }: { entry: JournalEntry; onDone: () => void
   );
 }
 
-export default function EntriesPage() {
+function EntriesList() {
   const { company, can, locale, name, t } = useWorkspace();
   const journals = useJournals();
   const [search, setSearch] = useState("");
@@ -426,6 +415,13 @@ export default function EntriesPage() {
     setOpen(null);
     list.mutate();
   };
+  const link = useDeepLink<JournalEntry>("/accounting/entries", can("accounting.entry.create"));
+  const closeLink = () => {
+    link.clear();
+    list.mutate();
+  };
+  const shown = open ?? (link.wantsNew ? "new" : link.linked);
+  const done = open ? close : closeLink;
 
   return (
     <>
@@ -442,7 +438,7 @@ export default function EntriesPage() {
         }
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <TextField label={t("Search")} type="search" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+        <SearchField label={t("Search")} placeholder={t("Search…")} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         <SelectField label={t("Status")} value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}>
           <option value="">{t("All")}</option>
           <option value="draft">{t("Draft")}</option>
@@ -492,10 +488,18 @@ export default function EntriesPage() {
         </>
       )}
 
-      {open === "new" ? <DraftEditor onDone={close} /> : null}
-      {open && open !== "new" && open.status === "draft" ? <DraftEditor key={open.id} entry={open} onDone={close} /> : null}
-      {open && open !== "new" && open.status !== "draft" ? <PostedView key={open.id} entry={open} onDone={close} /> : null}
+      {shown === "new" ? <DraftEditor onDone={done} /> : null}
+      {shown && shown !== "new" && shown.status === "draft" ? <DraftEditor key={shown.id} entry={shown} onDone={done} /> : null}
+      {shown && shown !== "new" && shown.status !== "draft" ? <PostedView key={shown.id} entry={shown} onDone={done} /> : null}
     </>
+  );
+}
+
+export default function EntriesPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <EntriesList />
+    </Suspense>
   );
 }
 

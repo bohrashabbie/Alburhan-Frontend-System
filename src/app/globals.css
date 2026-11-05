@@ -386,3 +386,9 @@ select.control-select {
 .pos-tile:active {
   transform: scale(0.97);
 }
+
+/* Inputs that sit bare inside a larger box (command palette) show no ring of their own. */
+input.input-bare:focus {
+  border-color: transparent;
+  box-shadow: none !important;
+}

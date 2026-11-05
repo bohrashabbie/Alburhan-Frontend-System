@@ -1,7 +1,7 @@
 "use client";
 
 import { Boxes, FileText, Plus, Receipt, Trash2, Wrench } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import { CustomerPicker } from "@/components/customer-picker";
@@ -254,11 +254,6 @@ function InvoiceForm({ projectId, onDone }: { projectId: number; onDone: (invoic
 
 function ProjectsList() {
   const { company, locale } = useWorkspace();
-  const params = useSearchParams();
-  const openId = params.get("open");
-  const requested = useResource<Project>(openId ? `/projects/projects/${openId}` : null);
-  const [dismissed, setDismissed] = useState<number | null>(null);
-  const initial = requested.data && requested.data.id !== dismissed ? requested.data : null;
   const money = (value: string) => formatMoney(value, company.currency, locale);
   return (
     <>
@@ -281,7 +276,6 @@ function ProjectsList() {
         ]}
         renderOpen={(open, close) => (open === "new" ? <Editor onDone={close} /> : <ProjectLoader key={open.id} id={open.id} onDone={close} />)}
       />
-      {initial ? <Editor key={`q-${initial.id}`} doc={initial} onDone={() => { setDismissed(initial.id); window.history.replaceState(null, "", "/projects/list"); }} /> : null}
     </>
   );
 }

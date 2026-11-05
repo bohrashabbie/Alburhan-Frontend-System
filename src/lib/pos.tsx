@@ -40,7 +40,7 @@ export function PosStatus({ status }: { status: string }) {
 
 export function formatTime(value: string | null | undefined, locale: "en" | "ar") {
   if (!value) return "—";
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
 /** "12" for whole units, "2.5" for fractions. */

@@ -1,7 +1,7 @@
 "use client";
 
 import { Banknote, Truck, Undo2, XCircle } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense, useState } from "react";
 
 import { CustomerPicker } from "@/components/customer-picker";
@@ -196,12 +196,6 @@ function Viewer({ doc, onDone }: { doc: Invoice; onDone: () => void }) {
 
 function InvoicesList() {
   const { locale } = useWorkspace();
-  const params = useSearchParams();
-  const openId = params.get("open");
-  const requested = useResource<Invoice>(openId ? `/sales/invoices/${openId}` : null);
-  const [dismissed, setDismissed] = useState<number | null>(null);
-  const initial = requested.data && requested.data.id !== dismissed ? requested.data : null;
-
   return (
     <>
       <DocumentList<Invoice>
@@ -224,9 +218,6 @@ function InvoicesList() {
           open === "new" ? <Editor onDone={close} /> : open.status === "draft" ? <Editor key={open.id} doc={open} onDone={close} /> : <Viewer key={open.id} doc={open} onDone={close} />
         }
       />
-      {initial ? (
-        initial.status === "draft" ? <Editor key={`q-${initial.id}`} doc={initial} onDone={() => { setDismissed(initial.id); window.history.replaceState(null, "", "/sales/invoices"); }} /> : <Viewer key={`q-${initial.id}`} doc={initial} onDone={() => { setDismissed(initial.id); window.history.replaceState(null, "", "/sales/invoices"); }} />
-      ) : null}
     </>
   );
 }

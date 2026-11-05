@@ -36,7 +36,7 @@ export default function SchedulePage() {
   const todayIso = iso(new Date());
   const techName = technicians.find((item) => String(item.id) === technician);
   const close = () => { setOpenId(null); setCreating(false); days.mutate(); };
-  const weekLabel = (from: Date) => `${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", { day: "numeric", month: "short" }).format(from)} – ${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(from.getTime() + 6 * DAY))}`;
+  const weekLabel = (from: Date) => `${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short" }).format(from)} – ${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(from.getTime() + 6 * DAY))}`;
 
   return (
     <>
@@ -66,7 +66,7 @@ export default function SchedulePage() {
                     return (
                       <div key={key} className={`flex min-h-36 flex-col gap-1.5 p-2 ${offset >= 5 ? "bg-surface-muted/30" : ""}`}>
                         <div className={`flex items-baseline justify-between text-xs ${isToday ? "font-bold text-link" : "text-ink-soft"}`}>
-                          <span>{new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", { weekday: "short" }).format(date)}</span>
+                          <span>{new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { weekday: "short" }).format(date)}</span>
                           <span className={`tabular-nums ${isToday ? "rounded-full bg-link px-1.5 text-white" : ""}`}>{date.getDate()}</span>
                         </div>
                         {jobs.map((job) => (

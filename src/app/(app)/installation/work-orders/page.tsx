@@ -23,12 +23,9 @@ function WorkOrdersList() {
   const { locale } = useWorkspace();
   const params = useSearchParams();
   const projectId = params.get("project");
-  const openId = params.get("open");
   const preset = useResource<Project>(projectId ? `/projects/projects/${projectId}` : null);
-  const requested = useResource<WorkOrder>(openId ? `/installation/work-orders/${openId}` : null);
   const [dismissed, setDismissed] = useState<string | null>(null);
   const starter = preset.data && dismissed !== `p${preset.data.id}` ? preset.data : null;
-  const initial = requested.data && dismissed !== `o${requested.data.id}` ? requested.data : null;
   const clear = (key: string) => { setDismissed(key); window.history.replaceState(null, "", "/installation/work-orders"); };
   return (
     <>
@@ -50,7 +47,6 @@ function WorkOrdersList() {
         renderOpen={(open, close) => (open === "new" ? <WorkOrderEditor onDone={close} /> : <Opened key={open.id} doc={open} onDone={close} />)}
       />
       {starter ? <WorkOrderEditor key={`p-${starter.id}`} presetProject={starter} onDone={() => clear(`p${starter.id}`)} /> : null}
-      {initial ? <Opened key={`o-${initial.id}`} doc={initial} onDone={() => clear(`o${initial.id}`)} /> : null}
     </>
   );
 }

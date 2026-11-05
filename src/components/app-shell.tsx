@@ -9,6 +9,7 @@ import {
   Landmark,
   Lightbulb,
   type LucideIcon,
+  Search,
   Settings,
   ShoppingCart,
   Tag,
@@ -21,6 +22,8 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 
 import { Brand } from "@/components/brand";
 import { Loading, Menu, MenuDivider, MenuHeading, MenuItem } from "@/components/ui";
+import { CommandPalette } from "@/components/command-palette";
+import { Flag } from "@/components/country";
 import { session } from "@/lib/api";
 import { fullName, initials } from "@/lib/format";
 import { useFreshStart, useMe } from "@/lib/hooks";
@@ -310,9 +313,62 @@ function AccountMenu() {
   );
 }
 
+/** The company and branch every screen works in; switch here without opening the account menu. */
+function WorkspaceChip() {
+  const { company, branch, companies, branches, companyWide, setCompany, setBranch, name, t } = useWorkspace();
+  const switchable = companies.length > 1 || branches.length > 1 || companyWide;
+  const label = (
+    <span className="flex min-w-0 items-center gap-2">
+      <Flag code={company.country} className="h-3.5 shrink-0 rounded-[2px]" />
+      <span className="truncate font-medium">{name(company)}</span>
+      <span className="hidden shrink-0 text-ink-soft lg:inline">· {branch ? name(branch) : t("All branches")}</span>
+    </span>
+  );
+  if (!switchable) return <span className="hidden h-9 items-center rounded-full border border-line px-3 text-sm sm:flex">{label}</span>;
+  return (
+    <Menu label={label} align="end" variant="secondary" title={t("Switch company")} className="!h-9 !max-w-[30rem] !rounded-full !px-3" wrapperClassName="hidden sm:inline-block" menuClassName="!w-72">
+      {companies.length > 1 ? (
+        <>
+          <MenuHeading>{t("Company")}</MenuHeading>
+          {companies.map((item) => (
+            <MenuItem key={item.id} aria-checked={item.id === company.id} onClick={() => setCompany(item.id)}>
+              <Flag code={item.country} className="me-2 inline h-3 rounded-[2px] align-[-1px]" />
+              {name(item)}
+            </MenuItem>
+          ))}
+        </>
+      ) : null}
+      {branches.length > 1 || companyWide ? (
+        <>
+          {companies.length > 1 ? <MenuDivider /> : null}
+          <MenuHeading>{t("Branch")}</MenuHeading>
+          {companyWide ? <MenuItem aria-checked={branch === null} onClick={() => setBranch(null)}>{t("All branches")}</MenuItem> : null}
+          {branches.map((item) => (
+            <MenuItem key={item.id} aria-checked={item.id === branch?.id} onClick={() => setBranch(item.id)}>{name(item)}</MenuItem>
+          ))}
+        </>
+      ) : null}
+    </Menu>
+  );
+}
+
 function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { canSee } = useWorkspace();
+  const { canSee, t } = useWorkspace();
+  const [palette, setPalette] = useState(false);
+
+  // Ctrl/⌘+K anywhere, or "/" when not typing, opens the search.
+  useEffect(() => {
+    const key = (event: KeyboardEvent) => {
+      const typing = event.target instanceof HTMLElement && (event.target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName));
+      if ((event.key.toLowerCase() === "k" && (event.ctrlKey || event.metaKey)) || (event.key === "/" && !typing)) {
+        event.preventDefault();
+        setPalette(true);
+      }
+    };
+    document.addEventListener("keydown", key);
+    return () => document.removeEventListener("keydown", key);
+  }, []);
   // Remembers the page it opened on, so going anywhere else closes it.
   const [flyoutState, setFlyoutState] = useState<{ href: string; at: string } | null>(null);
   const flyout = flyoutState?.at === pathname ? flyoutState.href : null;
@@ -349,13 +405,24 @@ function Shell({ children }: { children: ReactNode }) {
       {openItem ? <Flyout key={openItem.href} item={openItem} pathname={pathname} onClose={closeFlyout} /> : null}
 
       <header className="sticky top-0 z-40 -ms-[4.5rem] flex h-16 items-center justify-between gap-3 border-b border-line bg-surface ps-5 pe-4 sm:pe-6">
-        <Link href="/overview" aria-label="Al-Burhan home" className="text-ink">
+        <Link href="/overview" aria-label="Al-Burhan home" className="shrink-0 text-ink">
           <Brand large />
         </Link>
+        <button
+          type="button"
+          onClick={() => setPalette(true)}
+          className="mx-auto flex h-10 w-full max-w-md min-w-0 items-center gap-2.5 rounded-full border border-line-strong bg-surface-muted/50 px-4 text-sm text-ink-faint transition-colors hover:border-ink-faint hover:bg-surface"
+        >
+          <Search aria-hidden className="size-4 shrink-0" />
+          <span className="truncate">{t("Search or jump to…")}</span>
+          <kbd className="ms-auto hidden shrink-0 rounded-md border border-line bg-surface px-1.5 py-0.5 text-xs text-ink-soft sm:block">Ctrl K</kbd>
+        </button>
         <div className="flex shrink-0 items-center gap-2">
+          <WorkspaceChip />
           <AccountMenu />
         </div>
       </header>
+      <CommandPalette open={palette} onClose={() => setPalette(false)} />
 
       <main className={inSection ? "px-4 py-5 sm:px-6" : "mx-auto max-w-[100rem] px-4 py-5 sm:px-6"}>
         {children}

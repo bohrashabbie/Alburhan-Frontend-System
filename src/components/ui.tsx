@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, X } from "lucide-react";
+import { Check, ChevronDown, Search, X } from "lucide-react";
 import Link from "next/link";
 import {
   type ButtonHTMLAttributes,
@@ -129,6 +129,25 @@ export function TextField({
   );
 }
 
+/** A search box: same height and border as a text field, with a magnifier on the start side. */
+export function SearchField({
+  label,
+  hint,
+  error,
+  placeholder = "Search…",
+  ...props
+}: FieldProps & InputHTMLAttributes<HTMLInputElement>) {
+  const id = useId();
+  return (
+    <FieldShell id={id} label={label} hint={hint} error={error}>
+      <div className="relative">
+        <Search aria-hidden className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-ink-faint" />
+        <input id={id} type="search" autoComplete="off" placeholder={placeholder} aria-invalid={Boolean(error)} className={`${CONTROL} ps-9`} {...props} />
+      </div>
+    </FieldShell>
+  );
+}
+
 export function TextAreaField({
   label,
   hint,
@@ -173,6 +192,36 @@ export function CheckboxField({
         {hint ? <span className="block text-ink-soft">{hint}</span> : null}
       </span>
     </label>
+  );
+}
+
+/**
+ * The footer of a settings form: stays at the bottom of the screen while the form scrolls, says
+ * whether anything changed, and offers Discard and Save. Put it last inside the <form>.
+ */
+export function SaveBar({
+  dirty,
+  saved,
+  pending,
+  onDiscard,
+  labels = { unsaved: "You have unsaved changes.", saved: "All changes saved.", clean: "No changes yet.", discard: "Discard", save: "Save changes" },
+}: {
+  dirty: boolean;
+  saved: boolean;
+  pending: boolean;
+  onDiscard: () => void;
+  labels?: { unsaved: string; saved: string; clean: string; discard: string; save: string };
+}) {
+  return (
+    <div className="sticky bottom-4 z-20 mt-2 flex items-center gap-3 rounded-xl border border-line bg-surface/95 px-4 py-3 shadow-lg backdrop-blur supports-[backdrop-filter]:bg-surface/80">
+      <span className={`flex items-center gap-2 text-sm ${dirty ? "font-medium text-ink" : "text-ink-soft"}`}>
+        {dirty ? <span aria-hidden className="size-2 rounded-full bg-warning" /> : saved ? <Check aria-hidden className="size-4 text-[#2e7d32]" /> : null}
+        {dirty ? labels.unsaved : saved ? labels.saved : labels.clean}
+      </span>
+      <span className="flex-1" />
+      {dirty ? <Button variant="ghost" onClick={onDiscard}>{labels.discard}</Button> : null}
+      <Button type="submit" pending={pending} disabled={!dirty}>{labels.save}</Button>
+    </div>
   );
 }
 

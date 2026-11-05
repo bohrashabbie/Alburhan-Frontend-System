@@ -41,7 +41,7 @@ export default function OverviewPage() {
   if (!data.data) return <>{header}<Loading label={t("Loading…")} /></>;
   const d = data.data;
   const change = d.sales.change_percent === null ? null : `${Number(d.sales.change_percent) >= 0 ? "+" : ""}${d.sales.change_percent}% ${t("vs last month")}`;
-  const dayFormat = new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", { day: "numeric", month: "short" });
+  const dayFormat = new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short" });
   const series = d.sales.series.map((p) => {
     const date = new Date(`${p.date}T00:00:00`);
     return { label: String(date.getDate()), value: Number(p.amount), hint: dayFormat.format(date) };

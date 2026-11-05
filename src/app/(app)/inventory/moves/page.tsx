@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Badge, Button, EmptyState, ErrorBanner, Loading, PageHeader, SelectField, Table, TextField } from "@/components/ui";
+import { Badge, Button, EmptyState, ErrorBanner, Loading, PageHeader, SearchField, SelectField, Table, TextField } from "@/components/ui";
 import { withQuery } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
@@ -49,7 +49,7 @@ export default function MovesPage() {
     <>
       <PageHeader title={t("Movements")} description={`Every stock movement of ${name(company)}, newest first. Nothing here can be edited: corrections are new documents.`} />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <TextField label={t("Search")} type="search" value={search} onChange={set(setSearch)} />
+        <SearchField label={t("Search")} placeholder={t("Search…")} value={search} onChange={set(setSearch)} />
         <SelectField label={t("Warehouse")} value={warehouse} onChange={set(setWarehouse)}>
           <option value="">{t("All")}</option>
           {warehouses.map((item) => <option key={item.id} value={item.id}>{name(item)}</option>)}

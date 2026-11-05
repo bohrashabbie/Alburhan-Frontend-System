@@ -2,29 +2,33 @@
 
 import { useState } from "react";
 
-import { Button, Card, ErrorBanner, Loading, PageHeader, TextAreaField, TextField } from "@/components/ui";
+import { Card, ErrorBanner, Loading, PageHeader, SaveBar, TextAreaField, TextField } from "@/components/ui";
 import { api } from "@/lib/api";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import type { SalesSettings } from "@/lib/types";
+import { saveLabels } from "@/lib/i18n";
 import { useWorkspace } from "@/lib/workspace";
 
 function Form({ settings }: { settings: SalesSettings }) {
   const { company, can, t } = useWorkspace();
   const editable = can("sales.settings.update");
-  const [values, setValues] = useState({
+  const initial = {
     default_tax_rate: String(Number(settings.default_tax_rate)),
     quotation_valid_days: String(settings.quotation_valid_days),
     default_payment_terms_days: String(settings.default_payment_terms_days),
     max_line_discount_percent: String(Number(settings.max_line_discount_percent)),
     invoice_notes: settings.invoice_notes,
-  });
+  };
+  const [base, setBase] = useState(initial);
+  const [values, setValues] = useState(initial);
+  const dirty = JSON.stringify(values) !== JSON.stringify(base);
   const [saved, setSaved] = useState(false);
   const action = useAction();
   const set = (key: keyof typeof values) => (event: { target: { value: string } }) => {
     setValues({ ...values, [key]: event.target.value });
     setSaved(false);
   };
-  const save = () => action.run(async () => { await api.patch(`/sales/settings/${company.id}`, values); setSaved(true); });
+  const save = () => action.run(async () => { await api.patch(`/sales/settings/${company.id}`, values); setBase(values); setSaved(true); });
 
   return (
     <form onSubmit={onSubmit(save)} className="flex max-w-3xl flex-col gap-4">
@@ -40,12 +44,7 @@ function Form({ settings }: { settings: SalesSettings }) {
       <Card title={t("Printing")}>
         <TextAreaField label={t("Invoice footer notes")} disabled={!editable} value={values.invoice_notes} onChange={set("invoice_notes")} hint="Bank details, warranty terms, thank-you line…" />
       </Card>
-      {editable ? (
-        <div className="flex items-center gap-3">
-          <Button type="submit" pending={action.pending}>{t("Save")}</Button>
-          {saved ? <span className="text-sm text-ink-soft">{t("Saved.")}</span> : null}
-        </div>
-      ) : null}
+      {editable ? <SaveBar dirty={dirty} saved={saved} pending={action.pending} onDiscard={() => setValues(base)} labels={saveLabels(t)} /> : null}
     </form>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { type ReactNode, Suspense, useState } from "react";
 
-import { Button, EmptyState, ErrorBanner, Loading, PageHeader, SelectField, Table, TextField } from "@/components/ui";
+import { Button, EmptyState, ErrorBanner, Loading, PageHeader, SearchField, SelectField, Table, TextField } from "@/components/ui";
 import { withQuery } from "@/lib/api";
 import { useResource } from "@/lib/hooks";
 import type { Page } from "@/lib/types";
@@ -11,11 +12,33 @@ import { useWorkspace } from "@/lib/workspace";
 
 export type DocColumn<T> = { label: string; render: (row: T) => ReactNode; align?: "start" | "end" };
 
+type DocumentListProps<T> = {
+  title: string;
+  description: string;
+  endpoint: string;
+  createPermission: string;
+  newLabel: string;
+  statuses: [string, string][];
+  columns: DocColumn<T>[];
+  extraFilters?: ReactNode;
+  renderOpen: (open: T | "new", close: () => void) => ReactNode;
+};
+
 /**
  * A list of documents (transfers, adjustments, counts…) with search, status and date filters,
  * and a "New" button. The caller renders the editor/viewer for the open row.
+ * Deep links: `?open=<id>` opens that document, `?new=1` opens a blank one (the command palette
+ * and cross-page buttons use these).
  */
-export function DocumentList<T extends { id: number; status: string }>({
+export function DocumentList<T extends { id: number; status: string }>(props: DocumentListProps<T>) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <DocumentListInner<T> {...props} />
+    </Suspense>
+  );
+}
+
+function DocumentListInner<T extends { id: number; status: string }>({
   title,
   description,
   endpoint,
@@ -25,19 +48,8 @@ export function DocumentList<T extends { id: number; status: string }>({
   columns,
   extraFilters,
   renderOpen,
-}: {
-  title: string;
-  description: string;
-  endpoint: string;
-  createPermission: string;
-  newLabel: string;
-  statuses: [string, string][];
-  columns: DocColumn<T>[];
-  extraFilters?: ReactNode;
-  /** Draw the drawer for a row or "new"; call `close` when done (it refreshes the list). */
-  renderOpen: (open: T | "new", close: () => void) => ReactNode;
-}) {
-  const { company, can, t } = useWorkspace();
+}: DocumentListProps<T>) {
+  const { company, can, locale, t } = useWorkspace();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [from, setFrom] = useState("");
@@ -49,8 +61,18 @@ export function DocumentList<T extends { id: number; status: string }>({
   );
   const rows = list.data?.results ?? [];
   const pages = list.data ? Math.max(1, Math.ceil(list.data.count / 50)) : 1;
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const linkedId = params.get("open");
+  const wantsNew = params.get("new") === "1" && can(createPermission);
+  const linked = useResource<T>(linkedId ? `${endpoint}/${linkedId}` : null);
   const close = () => {
     setOpen(null);
+    list.mutate();
+  };
+  const closeLink = () => {
+    router.replace(pathname, { scroll: false });
     list.mutate();
   };
   const set = (setter: (value: string) => void) => (event: { target: { value: string } }) => {
@@ -62,7 +84,7 @@ export function DocumentList<T extends { id: number; status: string }>({
     <>
       <PageHeader
         title={t(title)}
-        description={description}
+        description={t(description)}
         actions={
           can(createPermission) ? (
             <Button onClick={() => setOpen("new")}>
@@ -73,7 +95,7 @@ export function DocumentList<T extends { id: number; status: string }>({
         }
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        <TextField label={t("Search")} type="search" value={search} onChange={set(setSearch)} />
+        <SearchField label={t("Search")} placeholder={t("Search…")} value={search} onChange={set(setSearch)} />
         <SelectField label={t("Status")} value={status} onChange={set(setStatus)}>
           <option value="">{t("All")}</option>
           {statuses.map(([value, label]) => (
@@ -90,7 +112,15 @@ export function DocumentList<T extends { id: number; status: string }>({
       {!list.data ? (
         list.error ? null : <Loading label={t("Loading…")} />
       ) : rows.length === 0 ? (
-        <EmptyState title={t("Nothing here yet")} description="No documents match." />
+        search || status || from || to ? (
+          <EmptyState title={t("No matches")} description={t("Nothing matches these filters. Clear them to see everything.")} action={<Button variant="secondary" onClick={() => { setSearch(""); setStatus(""); setFrom(""); setTo(""); setPage(1); }}>{t("Clear filters")}</Button>} />
+        ) : (
+          <EmptyState
+            title={locale === "ar" ? `لا توجد ${t(title)} بعد` : `No ${title.toLowerCase()} yet`}
+            description={t(description)}
+            action={can(createPermission) ? <Button onClick={() => setOpen("new")}><Plus aria-hidden className="size-5" />{t(newLabel)}</Button> : undefined}
+          />
+        )
       ) : (
         <>
           <Table head={columns.map((column) => t(column.label))}>
@@ -113,7 +143,7 @@ export function DocumentList<T extends { id: number; status: string }>({
           ) : null}
         </>
       )}
-      {open ? renderOpen(open, close) : null}
+      {open ? renderOpen(open, close) : wantsNew ? renderOpen("new", closeLink) : linkedId && linked.data ? renderOpen(linked.data, closeLink) : null}
     </>
   );
 }

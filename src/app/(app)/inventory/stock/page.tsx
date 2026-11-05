@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { Card, EmptyState, ErrorBanner, Loading, PageHeader, SelectField, TextField } from "@/components/ui";
+import { Card, EmptyState, ErrorBanner, Loading, PageHeader, SearchField, SelectField } from "@/components/ui";
 import { withQuery } from "@/lib/api";
 import { useResource } from "@/lib/hooks";
 import { qty, useWarehouses } from "@/lib/inventory";
@@ -34,7 +34,7 @@ export default function StockLevelsPage() {
         description={`What ${name(company)} holds in each warehouse right now, by status. Free = available − reserved.`}
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <TextField label={t("Search")} type="search" value={search} onChange={(e) => setSearch(e.target.value)} />
+        <SearchField label={t("Search")} placeholder={t("Search…")} value={search} onChange={(e) => setSearch(e.target.value)} />
         <SelectField label={t("Warehouse")} value={warehouse} onChange={(e) => setWarehouse(e.target.value)}>
           <option value="">{t("All")}</option>
           {warehouses.map((item) => (

@@ -1,7 +1,8 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { Fragment, type ReactNode, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Fragment, type ReactNode, Suspense, useState } from "react";
 
 import {
   Badge,
@@ -12,6 +13,7 @@ import {
   ErrorBanner,
   Loading,
   PageHeader,
+  SearchField,
   SelectField,
   Table,
   TextAreaField,
@@ -65,11 +67,22 @@ export type Filter = { name: string; label: string; options: [string, string][] 
 
 export type Column<T> = { label: string; render: (row: T) => ReactNode };
 
+type ResourcePageProps<T> = Parameters<typeof ResourcePageInner<T & { id: number }>>[0];
+
 /**
  * A list page with search, paging and a slide-in drawer to create, edit and delete rows.
  * Buttons show only when the user holds `<permission>.create|update|delete` in the current company.
+ * Deep links: `?open=<id>` opens that row, `?new=1` opens a blank form.
  */
-export function ResourcePage<T extends { id: number }>({
+export function ResourcePage<T extends { id: number }>(props: ResourcePageProps<T>) {
+  return (
+    <Suspense fallback={<Loading />}>
+      <ResourcePageInner<T> {...props} />
+    </Suspense>
+  );
+}
+
+function ResourcePageInner<T extends { id: number }>({
   title,
   description,
   endpoint,
@@ -134,6 +147,13 @@ export function ResourcePage<T extends { id: number }>({
 
   const canCreate = can(`${permission}.create`);
   const canUpdate = can(`${permission}.update`);
+  const params = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const linkedId = params.get("open");
+  const wantsNew = params.get("new") === "1" && canCreate;
+  const linked = useResource<T>(linkedId && canUpdate ? `${endpoint}/${linkedId}` : null);
+  const linkedRow = linkedId && linked.data ? linked.data : null;
   const rows = list.data?.results ?? [];
   const pages = list.data ? Math.max(1, Math.ceil(list.data.count / 50)) : 1;
 
@@ -141,7 +161,7 @@ export function ResourcePage<T extends { id: number }>({
     <>
       <PageHeader
         title={t(title)}
-        description={description}
+        description={description ? t(description) : undefined}
         actions={
           headerActions || canCreate ? (
             <>
@@ -157,9 +177,9 @@ export function ResourcePage<T extends { id: number }>({
         }
       />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <TextField
+        <SearchField
           label={t("Search")}
-          type="search"
+          placeholder={t("Search…")}
           value={search}
           onChange={(event) => {
             setSearch(event.target.value);
@@ -192,9 +212,15 @@ export function ResourcePage<T extends { id: number }>({
         )
       ) : rows.length === 0 ? (
         <EmptyState
-          title={t("Nothing here yet")}
-          description={search ? "No results match your search." : `No ${noun}s have been added.`}
-          action={search ? undefined : emptyAction}
+          title={search || Object.values(filterValues).some(Boolean) ? t("No matches") : t("Nothing here yet")}
+          description={search || Object.values(filterValues).some(Boolean) ? t("Nothing matches these filters. Clear them to see everything.") : `No ${noun}s have been added.`}
+          action={
+            search || Object.values(filterValues).some(Boolean) ? (
+              <Button variant="secondary" onClick={() => { setSearch(""); setFilterValues({}); setPage(1); }}>{t("Clear filters")}</Button>
+            ) : (
+              emptyAction ?? (canCreate ? <Button onClick={() => setEditing("new")}><Plus aria-hidden className="size-5" />{t("Add")} {t(noun)}</Button> : undefined)
+            )
+          }
         />
       ) : (
         <>
@@ -233,6 +259,23 @@ export function ResourcePage<T extends { id: number }>({
         </>
       )}
 
+      {!editing && (wantsNew || linkedRow) ? (
+        <EditDrawer
+          key={wantsNew ? "link-new" : `link-${linkedRow!.id}`}
+          row={wantsNew ? undefined : linkedRow!}
+          endpoint={endpoint}
+          permission={permission}
+          noun={noun}
+          fields={fields}
+          initial={initial}
+          extraForm={extraForm}
+          drawerExtra={drawerExtra}
+          toPayload={toPayload}
+          wide={wide}
+          onClose={() => router.replace(pathname, { scroll: false })}
+          onSaved={() => list.mutate()}
+        />
+      ) : null}
       {editing ? (
         <EditDrawer
           key={editing === "new" ? "new" : editing.id}

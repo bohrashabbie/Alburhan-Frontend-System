@@ -3,16 +3,24 @@
 import { type InputHTMLAttributes, useEffect, useRef } from "react";
 
 import { ActiveBadge, ResourcePage, type Values } from "@/components/resource-page";
-import { Badge } from "@/components/ui";
+import { Badge, Loading } from "@/components/ui";
 import { useResource } from "@/lib/hooks";
 import type { Permission, Role } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const MODULE_NAMES: Record<string, string> = {
   access: "Access",
+  accounting: "Accounts",
   catalog: "Catalog",
+  installation: "Installation",
+  inventory: "Inventory",
   organization: "Organization",
   partners: "Customers & suppliers",
+  pos: "POS",
+  projects: "Projects",
+  purchasing: "Purchasing",
+  reports: "Reports",
+  sales: "Sales",
   users: "Users",
 };
 
@@ -119,6 +127,7 @@ function PermissionGrid({
         </p>
       ) : null}
 
+      {!catalogue.data ? <Loading label={t("Loading…")} /> : null}
       {modules.map(({ module, rows }) => {
         const moduleCodes = rows.flatMap((row) => [...row.byVerb.values()].map((p) => p.code));
         const moduleState = state(moduleCodes);

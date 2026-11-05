@@ -11,7 +11,7 @@ export function formatMoney(amount: string | number, currency: string, locale: L
   const decimals = DECIMALS[currency] ?? 2;
   const value = typeof amount === "number" ? amount : Number(amount);
   if (!Number.isFinite(value)) return String(amount);
-  return new Intl.NumberFormat(locale === "ar" ? "ar-KW" : "en-KW", {
+  return new Intl.NumberFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-KW", {
     style: "currency",
     currency,
     minimumFractionDigits: decimals,
@@ -22,7 +22,7 @@ export function formatMoney(amount: string | number, currency: string, locale: L
 export function formatDate(value: string | null | undefined, locale: Locale = "en") {
   if (!value) return "—";
   const date = value.length === 10 ? new Date(`${value}T00:00:00`) : new Date(value);
-  return new Intl.DateTimeFormat(locale === "ar" ? "ar-KW" : "en-GB", {
+  return new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", {
     day: "numeric",
     month: "short",
     year: "numeric",
