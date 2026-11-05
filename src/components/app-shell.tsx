@@ -11,6 +11,7 @@ import {
   Settings,
   ShoppingCart,
   Tag,
+  Truck,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -44,6 +45,7 @@ const NAV: NavItem[] = [
   { href: "/catalog", label: "Catalog", icon: Lightbulb, section: "catalog" },
   { href: "/partners", label: "Customers & suppliers", icon: Contact, section: "partners" },
   { href: "/inventory", label: "Inventory", icon: Boxes, section: "inventory" },
+  { href: "/purchasing", label: "Purchasing", icon: Truck, section: "purchasing" },
   { href: "/accounts", label: "Accounts", icon: Landmark, section: "accounts" },
   { href: "/settings", label: "Settings", icon: Settings, section: "settings" },
 ];

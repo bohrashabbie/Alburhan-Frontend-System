@@ -199,6 +199,8 @@ export type Product = Audited &
     warranty_months: number | null;
     weight_kg: string | null;
     image_url: string | null;
+    income_account: number | null;
+    expense_account: number | null;
     is_active: boolean;
     notes: string;
   };
@@ -866,3 +868,160 @@ export type PosCatalog = {
   categories: { id: number; name: string; name_ar: string; image: string | null }[];
   products: PosProduct[];
 };
+
+// --- Purchasing ----------------------------------------------------------------------------------
+
+export type PurchaseLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  product_type?: "stock" | "non_stock" | "service";
+  description: string;
+  quantity: string;
+  unit_cost: string;
+  discount_percent: string;
+  tax_rate: string;
+  net_amount?: string;
+  tax_amount?: string;
+  total_amount?: string;
+  received_quantity?: string;
+  invoiced_quantity?: string;
+  receipt_line?: number | null;
+  receipt_number?: string | null;
+  account?: number | null;
+  account_code?: string | null;
+};
+
+type PurchaseHeader = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  supplier: number;
+  supplier_name: string;
+  currency: string;
+  exchange_rate: string;
+  reference: string;
+  notes: string;
+  subtotal: string;
+  tax_total: string;
+  total: string;
+};
+
+export type PurchaseOrder = PurchaseHeader & {
+  status: "draft" | "sent" | "partial" | "received" | "closed" | "cancelled";
+  branch: number | null;
+  branch_name: string | null;
+  warehouse: number;
+  warehouse_name: string;
+  supplier_currency: string;
+  expected_date: string | null;
+  intercompany: boolean;
+  receipt_status: "pending" | "partial" | "received";
+  sent_at: string | null;
+  lines: PurchaseLine[];
+};
+
+export type ReceivableRow = {
+  order_line: number;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  ordered_quantity: string;
+  received_before: string;
+  quantity: string;
+};
+
+export type BillableRow = {
+  receipt_line: number;
+  receipt_number: string;
+  product: number;
+  sku: string;
+  product_name: string;
+  uom: string;
+  quantity: string;
+  unit_cost: string;
+  discount_percent: string;
+  tax_rate: string;
+};
+
+export type GoodsReceiptLine = {
+  id?: number;
+  order_line: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  ordered_quantity?: string;
+  received_before?: string;
+  quantity: string;
+  unit_cost?: string;
+  goods_value?: string;
+  invoiced_quantity?: string;
+};
+
+export type GoodsReceipt = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  order: number;
+  order_number: string;
+  supplier: number;
+  supplier_name: string;
+  warehouse: number;
+  warehouse_name: string;
+  supplier_reference: string;
+  freight_cost: string;
+  customs_cost: string;
+  goods_value: string;
+  notes: string;
+  status: "draft" | "posted";
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: GoodsReceiptLine[];
+};
+
+export type SupplierBill = PurchaseHeader & {
+  status: "draft" | "posted" | "partially_paid" | "paid" | "cancelled";
+  supplier_number: string;
+  due_date: string | null;
+  order: number | null;
+  order_number: string | null;
+  amount_paid: string;
+  amount_due: string;
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  cancelled_at: string | null;
+  lines: PurchaseLine[];
+};
+
+export type SupplierPayment = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  supplier: number;
+  supplier_name: string;
+  method: "bank_transfer" | "cheque" | "cash" | "letter_of_credit";
+  journal: number;
+  journal_name: string;
+  reference: string;
+  currency: string;
+  exchange_rate: string;
+  amount: string;
+  allocated_amount: string;
+  unallocated_amount: string;
+  notes: string;
+  status: "draft" | "posted";
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  allocations: { id?: number; invoice: number; invoice_number?: string; supplier_number?: string; amount: string }[];
+};
+
+export type SupplierBalance = { open_bills: number; amount_due: string; advances: string; currency: string };

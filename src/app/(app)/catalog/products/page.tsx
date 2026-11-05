@@ -5,6 +5,7 @@ import { useSWRConfig } from "swr";
 import { FamilyPicker, useFamilies } from "@/components/family-picker";
 import { PhotoThumb, PhotoUpload } from "@/components/photo-upload";
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
+import { useAccounts } from "@/lib/accounting";
 import { useResource } from "@/lib/hooks";
 import type { Brand, Page, Product, Unit } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
@@ -54,6 +55,8 @@ export default function ProductsPage() {
   const refresh = () => mutate((key) => typeof key === "string" && key.startsWith("/catalog/products"));
   const brands = useResource<Page<Brand>>("/catalog/brands?page_size=500&is_active=true");
   const units = useResource<Page<Unit>>("/catalog/units?page_size=500&is_active=true");
+  const accounts = useAccounts().filter((item) => !item.is_group && item.is_active);
+  const accountOptions = (types: string[]): [string, string][] => accounts.filter((item) => types.includes(item.account_type)).map((item) => [String(item.id), `${item.code} ${item.name}`]);
   const options = <T extends { id: number; name: string; name_ar?: string }>(data?: Page<T>) =>
     (data?.results ?? []).map((item) => [String(item.id), name(item)] as [string, string]);
   const categoryOptions = families.map((item) => [String(item.id), name(item)] as [string, string]);
@@ -135,6 +138,8 @@ export default function ProductsPage() {
         { name: "warranty_months", label: "Warranty (months)", type: "number", nullable: true },
 
         { name: "notes", label: "Internal notes", type: "textarea", section: "Other" },
+        { name: "income_account", label: "Income account", type: "select", nullable: true, section: "Accounting", options: [["", "Company sales account"], ...accountOptions(["income"])], hint: "Credited when sold, e.g. Installation income. Applies in the current company." },
+        { name: "expense_account", label: "Expense account", type: "select", nullable: true, options: [["", "Freight and customs (default)"], ...accountOptions(["expense"])], hint: "Debited when bought as a service or expense." },
         { name: "is_active", label: "Active", type: "checkbox" },
       ]}
       initial={(row) => ({
@@ -168,6 +173,8 @@ export default function ProductsPage() {
         lifetime_hours: text(row?.lifetime_hours),
         warranty_months: text(row?.warranty_months),
         notes: row?.notes ?? "",
+        income_account: row?.income_account ? String(row.income_account) : "",
+        expense_account: row?.expense_account ? String(row.expense_account) : "",
         is_active: row?.is_active ?? true,
       })}
       drawerExtra={(row) => (

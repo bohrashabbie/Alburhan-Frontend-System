@@ -28,6 +28,8 @@ const FIELDS: { group: string; items: [string, string, AccountType[]][] }[] = [
     items: [
       ["payable", "Supplier balances (payable)", ["liability"]],
       ["supplier_advances", "Advances to suppliers", ["asset"]],
+      ["grni", "Goods received not invoiced", ["liability"]],
+      ["purchase_expenses", "Freight, customs and purchase price differences", ["expense"]],
       ["inventory", "Inventory", ["asset"]],
       ["cost_of_sales", "Cost of goods sold", ["expense"]],
       ["vat_input", "VAT on purchases", ["asset"]],

@@ -20,6 +20,9 @@ export type LineDraft = {
   unit_price: string;
   discount_percent: string;
   tax_rate: string;
+  /** Purchasing: the goods-receipt line this bill line clears (kept through edits). */
+  receipt_line?: number | null;
+  account?: number | null;
 };
 
 export const newLine = (tax = "0"): LineDraft => ({
@@ -90,6 +93,7 @@ export function SalesLinesEditor({
   priceListId,
   defaultTax,
   error,
+  priceLabel = "Unit price",
 }: {
   lines: LineDraft[];
   onChange: (lines: LineDraft[]) => void;
@@ -97,6 +101,8 @@ export function SalesLinesEditor({
   priceListId: number | null;
   defaultTax: string;
   error?: string;
+  /** "Unit cost" on purchasing documents. */
+  priceLabel?: string;
 }) {
   const { t } = useWorkspace();
   const decimals = decimalsOf(currency);
@@ -151,7 +157,7 @@ export function SalesLinesEditor({
             <tr>
               <th scope="col" className="px-3 py-2.5 text-start font-medium">{t("Product")}</th>
               <th scope="col" className="px-2 py-2.5 text-end font-medium">{t("Quantity")}</th>
-              <th scope="col" className="px-2 py-2.5 text-end font-medium">{t("Unit price")}</th>
+              <th scope="col" className="px-2 py-2.5 text-end font-medium">{t(priceLabel)}</th>
               <th scope="col" className="px-2 py-2.5 text-end font-medium">{t("Disc. %")}</th>
               <th scope="col" className="px-2 py-2.5 text-end font-medium">{t("VAT %")}</th>
               <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("Total")}</th>
@@ -184,7 +190,7 @@ export function SalesLinesEditor({
                   <input aria-label={`${t("Quantity")} ${index + 1}`} inputMode="decimal" value={line.quantity} onChange={(e) => setLine(index, { quantity: e.target.value })} className={`${LINE_INPUT} text-end tabular-nums`} />
                 </td>
                 <td className="px-1.5 py-2">
-                  <input aria-label={`${t("Unit price")} ${index + 1}`} inputMode="decimal" value={line.unit_price} onChange={(e) => setLine(index, { unit_price: e.target.value })} className={`${LINE_INPUT} text-end tabular-nums`} />
+                  <input aria-label={`${t(priceLabel)} ${index + 1}`} inputMode="decimal" value={line.unit_price} onChange={(e) => setLine(index, { unit_price: e.target.value })} className={`${LINE_INPUT} text-end tabular-nums`} />
                 </td>
                 <td className="px-1.5 py-2">
                   <input aria-label={`${t("Discount %")} ${index + 1}`} inputMode="decimal" value={line.discount_percent} onChange={(e) => setLine(index, { discount_percent: e.target.value })} className={`${LINE_INPUT} text-end tabular-nums`} />
@@ -226,7 +232,7 @@ export function SalesLinesEditor({
 }
 
 /** Read-only lines of a posted sales document. */
-export function SalesLinesView({ lines, currency, extra }: { lines: SalesLine[]; currency: string; extra?: (line: SalesLine) => React.ReactNode }) {
+export function SalesLinesView({ lines, currency, extra, priceLabel = "Unit price", extraLabel = "Delivered" }: { lines: SalesLine[]; currency: string; extra?: (line: SalesLine) => React.ReactNode; priceLabel?: string; extraLabel?: string }) {
   const { t } = useWorkspace();
   const decimals = decimalsOf(currency);
   return (
@@ -236,11 +242,11 @@ export function SalesLinesView({ lines, currency, extra }: { lines: SalesLine[];
           <tr>
             <th scope="col" className="px-4 py-2.5 text-start font-medium">{t("Product")}</th>
             <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("Quantity")}</th>
-            <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("Unit price")}</th>
+            <th scope="col" className="px-3 py-2.5 text-end font-medium">{t(priceLabel)}</th>
             <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("Discount %")}</th>
             <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("VAT %")}</th>
             <th scope="col" className="px-4 py-2.5 text-end font-medium">{t("Total")}</th>
-            {extra ? <th scope="col" className="px-3 py-2.5 text-end font-medium">{t("Delivered")}</th> : null}
+            {extra ? <th scope="col" className="px-3 py-2.5 text-end font-medium">{t(extraLabel)}</th> : null}
           </tr>
         </thead>
         <tbody className="divide-y divide-line">
