@@ -214,7 +214,7 @@ function Flyout({
   );
 }
 
-function AccountMenu() {
+export function AccountMenu() {
   const { me, company, branch, companies, branches, companyWide, setCompany, setBranch, locale, setLocale, t, name } =
     useWorkspace();
   const freshStart = useFreshStart();
@@ -314,7 +314,7 @@ function AccountMenu() {
 }
 
 /** The company and branch every screen works in; switch here without opening the account menu. */
-function WorkspaceChip() {
+export function WorkspaceChip() {
   const { company, branch, companies, branches, companyWide, setCompany, setBranch, name, t } = useWorkspace();
   const switchable = companies.length > 1 || branches.length > 1 || companyWide;
   const label = (

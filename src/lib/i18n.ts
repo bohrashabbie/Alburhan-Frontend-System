@@ -639,6 +639,9 @@ const AR: Record<string, string> = {
   "The installation crew. Their hourly cost gives each completed job its labour cost.": "فريق التركيب. تكلفة ساعتهم تحدد تكلفة العمالة لكل مهمة منجزة.",
   "Villas, towers and fit-outs: a BOQ per project, stock reserved and issued to the site, progress invoices and the margin as it builds.": "فلل وأبراج وتجهيزات: جدول كميات لكل مشروع، ومخزون محجوز ومصروف للموقع، وفواتير مرحلية، والهامش أولاً بأول.",
   "When free stock in a warehouse drops below the minimum, the product appears in Reorder alerts with a suggested quantity.": "عندما ينخفض المخزون الحر في مستودع عن الحد الأدنى، يظهر المنتج في تنبيهات إعادة الطلب مع كمية مقترحة.",
+  "Back office": "الإدارة",
+  "Open full-screen till": "فتح الصندوق بملء الشاشة",
+  "Your role can't sell at the till. Ask an administrator for the 'Sell at the POS' permission.": "دورك لا يسمح بالبيع في الصندوق. اطلب من مدير النظام صلاحية 'البيع في نقاط البيع'.",
 };
 
 export function translate(locale: Locale, text: string) {

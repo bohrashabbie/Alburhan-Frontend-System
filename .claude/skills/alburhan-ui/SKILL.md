@@ -274,6 +274,18 @@ The reference is LTR-only. In Al-Burhan:
 - API base: `/api/v1/` (JWT `auth/token/`, `auth/token/refresh/`). As in the reference, proxy it
   through Next route handlers so tokens stay in httpOnly cookies.
 
+## Two websites from one codebase
+
+- **ERP** (e.g. `erp.alburhanregional.com`, `localhost:3000`): everything, including the POS area
+  inside the rail (`/pos/…`).
+- **POS** (any host starting with `pos.`, e.g. `pos.alburhanregional.com`, `pos.localhost:3000`):
+  `src/proxy.ts` rewrites `/` to `/till` and sends every ERP page back to the till; `/login` and
+  `/api/` pass through. `/till` uses its own layout (`TillShell`): a slim bar with the brand, a
+  black "POS" pill, **Back office** (only for users with back-office permissions; jumps to the ERP
+  host), the workspace chip and the avatar menu. No rail, no area menus.
+- The till itself is one component, `TillScreen` (`src/components/pos-till.tsx`), used by both.
+  The ERP's `/pos/till` adds an "Open full-screen till" link.
+
 ## POS (`/pos/till`, `src/lib/pos.tsx`)
 
 Same tokens, fonts and motion, inside the normal shell (POS is a rail area with Sell · Sales ·
