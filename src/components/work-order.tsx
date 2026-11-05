@@ -8,7 +8,7 @@ import { CustomerPicker } from "@/components/customer-picker";
 import { Facts } from "@/components/document-list";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, Modal, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { qty } from "@/lib/inventory";
@@ -34,7 +34,7 @@ export function WorkOrderEditor({ doc, presetProject, onDone }: { doc?: WorkOrde
   const set = (key: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [key]: e.target.value });
   const toggle = (id: number) => setChosen(chosen.includes(id) ? chosen.filter((item) => item !== id) : [...chosen, id]);
   const payload = () => ({
-    company: company.id, title: form.title, customer: customerId, project: project?.id ?? doc?.project ?? null, branch: Number(form.branch), site_address: form.site_address,
+    company: company.id, title: form.title, customer: customerId, project: project?.id ?? doc?.project ?? null, branch: idOrNull(form.branch), site_address: form.site_address,
     contact_name: form.contact_name, contact_phone: form.contact_phone, scheduled_date: form.scheduled_date, scheduled_time: form.scheduled_time || null,
     duration_hours: form.duration_hours || "1", technicians: chosen, description: form.description,
   });

@@ -8,7 +8,7 @@ import { CustomerPicker } from "@/components/customer-picker";
 import { DocumentList, Facts } from "@/components/document-list";
 import { type LineDraft, SalesLinesEditor, SalesLinesView, fromSalesLines, newLine, toPayload, useSalesDefaults } from "@/components/sales-lines";
 import { Button, Drawer, ErrorBanner, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { decimalsOf, formatAmount } from "@/lib/money";
@@ -34,7 +34,7 @@ function Editor({ doc, onDone }: { doc?: Quotation; onDone: () => void }) {
   const remove = useAction();
 
   const payload = () => ({
-    company: company.id, branch: Number(branchId), customer: customerId, date, valid_until: validUntil || null,
+    company: company.id, branch: idOrNull(branchId), customer: customerId, date, valid_until: validUntil || null,
     currency, reference, notes, price_list: priceList?.id ?? null, lines: toPayload(lines),
   });
   const persist = async () => (doc ? api.patch<Quotation>(`/sales/quotations/${doc.id}`, payload()) : api.post<Quotation>("/sales/quotations", payload()));

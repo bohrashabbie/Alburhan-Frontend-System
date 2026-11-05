@@ -8,7 +8,7 @@ import { DocumentList, Facts } from "@/components/document-list";
 import { type LineDraft, SalesLinesEditor, SalesLinesView, newLine } from "@/components/sales-lines";
 import { SupplierPicker } from "@/components/supplier-picker";
 import { Badge, Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { qty, useWarehouses } from "@/lib/inventory";
@@ -42,7 +42,7 @@ function Editor({ doc, onDone }: { doc?: PurchaseOrder; onDone: () => void }) {
     if (picked) setCurrency(picked.currency);
   };
   const payload = () => ({
-    company: company.id, branch: branchId ? Number(branchId) : null, supplier: supplierId, warehouse: Number(warehouseValue), date,
+    company: company.id, branch: branchId ? idOrNull(branchId) : null, supplier: supplierId, warehouse: idOrNull(warehouseValue), date,
     expected_date: expected || null, currency, reference, notes, lines: toPurchasePayload(lines),
   });
   const persist = async () => (doc ? api.patch<PurchaseOrder>(`/purchasing/orders/${doc.id}`, payload()) : api.post<PurchaseOrder>("/purchasing/orders", payload()));

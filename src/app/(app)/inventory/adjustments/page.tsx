@@ -7,7 +7,7 @@ import { DocumentList, Facts } from "@/components/document-list";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, IconButton, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { useAccounts } from "@/lib/accounting";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction } from "@/lib/hooks";
 import { DocStatus, LINE_INPUT, STOCK_STATUSES, qty, useWarehouses } from "@/lib/inventory";
@@ -53,7 +53,7 @@ function Editor({ doc, onDone }: { doc?: Adjustment; onDone: () => void }) {
 
   const payload = () => ({
     company: company.id,
-    warehouse: Number(warehouseValue),
+    warehouse: idOrNull(warehouseValue),
     date,
     reason,
     counter_account: counter ? Number(counter) : null,

@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { DocumentList, Facts } from "@/components/document-list";
 import { InvoicePicker } from "@/components/invoice-picker";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
@@ -49,7 +49,7 @@ function Editor({ doc, presetInvoice, onDone }: { doc?: DeliveryNote; presetInvo
     if (picked?.warehouse) setWarehouse(String(picked.warehouse));
   };
   const payload = () => ({
-    company: company.id, date, invoice: invoice?.id ?? doc?.invoice, warehouse: Number(warehouseValue), delivered_to: deliveredTo, address, driver, notes,
+    company: company.id, date, invoice: invoice?.id ?? doc?.invoice, warehouse: idOrNull(warehouseValue), delivered_to: deliveredTo, address, driver, notes,
     lines: rows.filter((row) => Number(row.quantity) > 0).map((row) => ({ invoice_line: row.invoice_line, quantity: row.quantity })),
   });
   const persist = async () => (doc ? api.patch<DeliveryNote>(`/sales/deliveries/${doc.id}`, payload()) : api.post<DeliveryNote>("/sales/deliveries", payload()));

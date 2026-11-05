@@ -6,7 +6,7 @@ import { useState } from "react";
 import { DocumentList, Facts } from "@/components/document-list";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, IconButton, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction } from "@/lib/hooks";
 import { DocStatus, LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
@@ -36,8 +36,8 @@ function Editor({ doc, onDone }: { doc?: Transfer; onDone: () => void }) {
 
   const payload = () => ({
     company: company.id,
-    from_warehouse: Number(sourceValue),
-    to_warehouse: Number(target),
+    from_warehouse: idOrNull(sourceValue),
+    to_warehouse: idOrNull(target),
     date,
     note,
     lines: lines.filter((line) => line.productId).map((line) => ({ product: line.productId, quantity: line.quantity || "0" })),

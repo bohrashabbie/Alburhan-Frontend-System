@@ -5,7 +5,7 @@ import { Suspense, useState } from "react";
 
 import { Badge, Button, Drawer, EmptyState, ErrorBanner, IconButton, Loading, PageHeader, SearchField, SelectField, Table, TextField } from "@/components/ui";
 import { useAccounts, useJournals } from "@/lib/accounting";
-import { api, withQuery } from "@/lib/api";
+import { api, idOrNull, withQuery } from "@/lib/api";
 import { useDeepLink } from "@/lib/deep-link";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
@@ -67,7 +67,7 @@ function DraftEditor({ entry, onDone }: { entry?: JournalEntry; onDone: () => vo
 
   const payload = () => ({
     company: company.id,
-    journal: Number(journalValue),
+    journal: idOrNull(journalValue),
     date,
     reference,
     description,

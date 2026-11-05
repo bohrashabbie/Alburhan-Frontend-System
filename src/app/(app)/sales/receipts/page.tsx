@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { CustomerPicker } from "@/components/customer-picker";
 import { DocumentList, Facts } from "@/components/document-list";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api, withQuery } from "@/lib/api";
+import { api, idOrNull, withQuery } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT } from "@/lib/inventory";
@@ -47,7 +47,7 @@ function Editor({ doc, presetInvoice, onDone }: { doc?: Receipt; presetInvoice?:
   const unallocated = received - allocated;
 
   const payload = () => ({
-    company: company.id, branch: Number(branchId), customer: customerId, date, method, journal: Number(journalValue), reference, currency, amount: amount || "0", notes,
+    company: company.id, branch: idOrNull(branchId), customer: customerId, date, method, journal: idOrNull(journalValue), reference, currency, amount: amount || "0", notes,
     allocations: Object.entries(allocations).filter(([, value]) => Number(value) > 0).map(([invoice, value]) => ({ invoice: Number(invoice), amount: value })),
   });
   const persist = async () => (doc ? api.patch<Receipt>(`/sales/receipts/${doc.id}`, payload()) : api.post<Receipt>("/sales/receipts", payload()));

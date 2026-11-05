@@ -4,7 +4,7 @@ import { Printer } from "lucide-react";
 import { Fragment, useState } from "react";
 
 import { Badge, Button, ErrorBanner, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api, withQuery } from "@/lib/api";
+import { api, idOrNull, withQuery } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { decimalsOf, fromMinor, toMinor } from "@/lib/money";
@@ -175,7 +175,7 @@ export function OpenShiftForm({ registers, presetRegister, onDone, onCancel }: {
   const action = useAction();
   const submit = () =>
     action.run(async () => {
-      const shift = await api.post<Shift>("/pos/shifts/open", { register: Number(registerId), opening_cash: openingCash || "0" });
+      const shift = await api.post<Shift>("/pos/shifts/open", { register: idOrNull(registerId), opening_cash: openingCash || "0" });
       onDone(shift);
     });
   return (

@@ -5,7 +5,7 @@ import { Suspense, useState } from "react";
 
 import { DocumentList, Facts } from "@/components/document-list";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
@@ -37,7 +37,7 @@ function Editor({ doc, presetOrder, onDone }: { doc?: GoodsReceipt; presetOrder?
   const setQuantity = (index: number, value: string) => setRows(shown.map((row, i) => (i === index ? { ...row, quantity: value } : row)));
 
   const payload = () => ({
-    company: company.id, date, order: order?.id ?? doc?.order, warehouse: Number(warehouseValue), supplier_reference: supplierRef,
+    company: company.id, date, order: order?.id ?? doc?.order, warehouse: idOrNull(warehouseValue), supplier_reference: supplierRef,
     freight_cost: freight || "0", customs_cost: customs || "0", notes,
     lines: shown.filter((row) => Number(row.quantity) > 0).map((row) => ({ order_line: row.order_line, quantity: row.quantity })),
   });

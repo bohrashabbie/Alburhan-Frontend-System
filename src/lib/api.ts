@@ -97,3 +97,8 @@ export function withQuery(path: string, query: Record<string, string | number | 
   const text = params.toString();
   return text ? `${path}?${text}` : path;
 }
+
+/** A dropdown's value as an id, or null while nothing is chosen (never 0, which the API rejects
+ * with a cryptic "invalid pk" instead of "this field is required"). */
+export const idOrNull = (value: string | number | null | undefined) =>
+  value === "" || value === null || value === undefined ? null : Number(value);

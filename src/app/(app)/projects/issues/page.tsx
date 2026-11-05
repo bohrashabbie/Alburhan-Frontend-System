@@ -7,7 +7,7 @@ import { Suspense, useState } from "react";
 import { DocumentList, Facts } from "@/components/document-list";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, IconButton, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
@@ -41,7 +41,7 @@ function Editor({ doc, presetProject, onDone }: { doc?: MaterialIssue; presetPro
   const addExtra = (product: Product | null) => { setExtra(null); if (product) setRows([...shown, { boq_line: null, product: product.id, label: `${product.sku} · ${product.name}`, uom: product.uom_code, remaining: null, quantity: "1" }]); };
 
   const payload = () => ({
-    company: company.id, date, project: project?.id ?? doc?.project, warehouse: Number(warehouseValue), issued_to: issuedTo, notes,
+    company: company.id, date, project: project?.id ?? doc?.project, warehouse: idOrNull(warehouseValue), issued_to: issuedTo, notes,
     lines: shown.filter((row) => Number(row.quantity) > 0).map((row) => ({ boq_line: row.boq_line, product: row.product, quantity: row.quantity })),
   });
   const persist = async () => (doc ? api.patch<MaterialIssue>(`/projects/issues/${doc.id}`, payload()) : api.post<MaterialIssue>("/projects/issues", payload()));

@@ -1,6 +1,7 @@
 "use client";
 
 import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 import { ProductPicker } from "@/components/product-picker";
 import { Badge, Button, IconButton } from "@/components/ui";
@@ -107,25 +108,35 @@ export function SalesLinesEditor({
   const { t } = useWorkspace();
   const decimals = decimalsOf(currency);
   const sums = totals(lines, decimals);
-  const setLine = (index: number, patch: Partial<LineDraft>) => onChange(lines.map((line, i) => (i === index ? { ...line, ...patch } : line)));
+  // The latest lines, so a price that arrives after the user has added a line updates the
+  // current list instead of an old copy (which would drop the new line).
+  const latest = useRef(lines);
+  useEffect(() => {
+    latest.current = lines;
+  }, [lines]);
+  const setLine = (index: number, patch: Partial<LineDraft>) => {
+    const next = latest.current.map((line, i) => (i === index ? { ...line, ...patch } : line));
+    latest.current = next;
+    onChange(next);
+  };
 
   const pick = async (index: number, product: Product | null) => {
-    const patch: Partial<LineDraft> = {
+    // Show the chosen product at once; the price follows when the lookup returns.
+    setLine(index, {
       product,
       productId: product?.id ?? null,
       label: product ? `${product.sku} · ${product.name}` : "",
-    };
-    if (product && priceListId) {
-      try {
-        const quote = await api.get<{ unit_price: string | null }>(
-          `/catalog/price-lists/${priceListId}/price?product=${product.id}&quantity=${lines[index].quantity || "1"}`,
-        );
-        if (quote.unit_price !== null) patch.unit_price = quote.unit_price;
-      } catch {
-        // No price in the list: the salesperson types one.
-      }
+    });
+    if (!product || !priceListId) return;
+    try {
+      const quote = await api.get<{ unit_price: string | null }>(
+        `/catalog/price-lists/${priceListId}/price?product=${product.id}&quantity=${latest.current[index]?.quantity || "1"}`,
+      );
+      // Only if the line still holds that product (it may have been changed or removed).
+      if (quote.unit_price !== null && latest.current[index]?.productId === product.id) setLine(index, { unit_price: quote.unit_price });
+    } catch {
+      // No price in the list: the salesperson types one.
     }
-    setLine(index, patch);
   };
 
   const lineTotal = (line: LineDraft) => {

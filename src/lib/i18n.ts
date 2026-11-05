@@ -667,6 +667,19 @@ const AR: Record<string, string> = {
   "Administrator": "مدير النظام",
   "First name": "الاسم الأول",
   "Last name": "اسم العائلة",
+  "Your areas": "أقسامك",
+  "Welcome": "مرحباً",
+  "Everything you can open, one click away. Press Ctrl K to search anywhere.": "كل ما يمكنك فتحه على بُعد نقرة. اضغط Ctrl K للبحث من أي مكان.",
+  "Quotations, invoices, deliveries, payments and returns.": "عروض الأسعار والفواتير والتسليم والمدفوعات والمرتجعات.",
+  "The showroom till, shifts and receipts.": "صندوق المعرض والورديات والإيصالات.",
+  "Bills of quantities, stock to site and progress invoices.": "جداول الكميات وصرف المواد للموقع والفواتير المرحلية.",
+  "Products, families, brands and price lists.": "المنتجات والعائلات والعلامات وقوائم الأسعار.",
+  "Customers and suppliers with their contacts.": "العملاء والموردون وجهات الاتصال.",
+  "Stock levels, transfers, counts and reorder alerts.": "أرصدة المخزون والتحويلات والجرد وتنبيهات إعادة الطلب.",
+  "Purchase orders, goods receipts, supplier bills and payments.": "أوامر الشراء واستلام البضاعة وفواتير الموردين ومدفوعاتهم.",
+  "Installation jobs, the schedule board and technicians.": "مهام التركيب وجدول المواعيد والفنيون.",
+  "Journals, statements, VAT and filings.": "القيود والقوائم المالية والضريبة والإقرارات.",
+  "Companies, branches, users and roles.": "الشركات والفروع والمستخدمون والأدوار.",
 };
 
 export function translate(locale: Locale, text: string) {

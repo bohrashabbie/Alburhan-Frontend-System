@@ -8,7 +8,7 @@ import { CustomerPicker } from "@/components/customer-picker";
 import { DocumentList, Facts } from "@/components/document-list";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, IconButton, Loading, Modal, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, idOrNull } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
@@ -63,7 +63,7 @@ function Editor({ doc, onDone }: { doc?: Project; onDone: () => void }) {
   const locked = project ? project.status === "closed" || project.status === "lost" : false;
 
   const payload = () => ({
-    company: company.id, customer: customerId, name: form.name, name_ar: form.name_ar, branch: Number(form.branch), manager: form.manager ? Number(form.manager) : null,
+    company: company.id, customer: customerId, name: form.name, name_ar: form.name_ar, branch: idOrNull(form.branch), manager: form.manager ? Number(form.manager) : null,
     site_address: form.site_address, start_date: form.start_date || null, end_date: form.end_date || null, contract_value: form.contract_value || "0",
     retention_percent: form.retention_percent || "0", notes: form.notes,
     boq: lines.filter((line) => line.productId).map((line) => ({ id: line.id, product: line.productId, description: line.description, quantity: line.quantity || "1", unit_price: line.unit_price || "0", unit_cost: line.unit_cost || "0" })),

@@ -3,7 +3,8 @@
 import Link from "next/link";
 
 import { BarList, ColumnChart, StatTile } from "@/components/charts";
-import { EmptyState, ErrorBanner, Loading, PageHeader } from "@/components/ui";
+import { ErrorBanner, Loading, PageHeader } from "@/components/ui";
+import { YourAreas } from "@/components/your-areas";
 import { withQuery } from "@/lib/api";
 import { formatMoney, fullName } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
@@ -32,8 +33,8 @@ export default function OverviewPage() {
   if (!allowed) {
     return (
       <>
-        {header}
-        <EmptyState title={t("Welcome to Al-Burhan ERP")} description="Use the icons on the left to open your areas." />
+        <PageHeader title={`${t("Welcome")}, ${me.first_name || fullName(me)}`} description={`${name(company)}${branch ? ` · ${name(branch)}` : ""} · ${t("Everything you can open, one click away. Press Ctrl K to search anywhere.")}`} />
+        <YourAreas />
       </>
     );
   }

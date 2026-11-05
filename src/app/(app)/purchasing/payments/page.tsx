@@ -6,7 +6,7 @@ import { Suspense, useState } from "react";
 import { DocumentList, Facts } from "@/components/document-list";
 import { SupplierPicker } from "@/components/supplier-picker";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
-import { api, withQuery } from "@/lib/api";
+import { api, idOrNull, withQuery } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { LINE_INPUT } from "@/lib/inventory";
@@ -46,7 +46,7 @@ function Editor({ doc, presetBill, onDone }: { doc?: SupplierPayment; presetBill
 
   const pickSupplier = (picked: Supplier | null) => { setSupplier(picked); setSupplierId(picked?.id ?? null); setAllocations({}); if (picked) setCurrency(picked.currency); };
   const payload = () => ({
-    company: company.id, supplier: supplierId, date, method, journal: Number(journalValue), reference, currency, amount: amount || "0", notes,
+    company: company.id, supplier: supplierId, date, method, journal: idOrNull(journalValue), reference, currency, amount: amount || "0", notes,
     allocations: Object.entries(allocations).filter(([, value]) => Number(value) > 0).map(([invoice, value]) => ({ invoice: Number(invoice), amount: value })),
   });
   const persist = async () => (doc ? api.patch<SupplierPayment>(`/purchasing/payments/${doc.id}`, payload()) : api.post<SupplierPayment>("/purchasing/payments", payload()));

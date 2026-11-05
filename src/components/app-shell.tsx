@@ -35,7 +35,7 @@ import type { Locale } from "@/lib/i18n";
 import { type Area, areaGroups, isActiveLink } from "@/lib/sections";
 import { useWorkspace, WorkspaceProvider } from "@/lib/workspace";
 
-type NavItem = {
+export type NavItem = {
   href: string;
   label: string;
   icon: LucideIcon;
@@ -47,7 +47,7 @@ type NavItem = {
 
 // Areas appear here as they are built: Sales, POS, Projects, Inventory, Purchasing,
 // Installation, Accounts, Reports (see the alburhan-ui skill for their icons).
-const NAV: NavItem[] = [
+export const NAV: NavItem[] = [
   { href: "/overview", label: "Home", icon: House },
   { href: "/sales", label: "Sales", icon: Tag, section: "sales" },
   { href: "/pos", label: "POS", icon: ShoppingCart, section: "pos" },
