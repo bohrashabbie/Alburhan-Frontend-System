@@ -4,7 +4,7 @@
  */
 export type SectionLink = { href: string; label: string; permission?: string; exact?: boolean };
 export type SectionGroup = { title: string; links: SectionLink[] };
-export type Area = "accounts" | "catalog" | "inventory" | "partners" | "pos" | "purchasing" | "sales" | "settings";
+export type Area = "accounts" | "catalog" | "installation" | "inventory" | "partners" | "pos" | "projects" | "purchasing" | "sales" | "settings";
 
 const AREAS: Record<Area, SectionGroup[]> = {
   pos: [
@@ -43,6 +43,28 @@ const AREAS: Record<Area, SectionGroup[]> = {
     {
       title: "Setup",
       links: [{ href: "/sales/settings", label: "Sales settings", permission: "sales.settings.view" }],
+    },
+  ],
+  projects: [
+    {
+      title: "Projects",
+      links: [
+        { href: "/projects/list", label: "Projects", permission: "projects.project.view" },
+        { href: "/projects/issues", label: "Materials to site", permission: "projects.issue.view" },
+      ],
+    },
+  ],
+  installation: [
+    {
+      title: "Jobs",
+      links: [
+        { href: "/installation/schedule", label: "Schedule", permission: "installation.work_order.view" },
+        { href: "/installation/work-orders", label: "Work orders", permission: "installation.work_order.view" },
+      ],
+    },
+    {
+      title: "Setup",
+      links: [{ href: "/installation/technicians", label: "Technicians", permission: "installation.technician.view" }],
     },
   ],
   purchasing: [

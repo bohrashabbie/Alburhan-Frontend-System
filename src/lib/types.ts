@@ -1025,3 +1025,164 @@ export type SupplierPayment = Audited & {
 };
 
 export type SupplierBalance = { open_bills: number; amount_due: string; advances: string; currency: string };
+
+// --- Projects ------------------------------------------------------------------------------------
+
+export type BOQLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  product_type?: "stock" | "non_stock" | "service";
+  description: string;
+  quantity: string;
+  unit_price: string;
+  unit_cost: string;
+  amount?: string;
+  issued_quantity?: string;
+};
+
+export type ProjectSummary = {
+  boq_value: string;
+  boq_cost: string;
+  invoiced: string;
+  received: string;
+  outstanding: string;
+  materials_cost: string;
+  labour_cost: string;
+  margin: string;
+  margin_percent: string | null;
+  reserved_units: string;
+  invoice_count: number;
+};
+
+export type ProjectStatus = "lead" | "quoted" | "won" | "in_progress" | "completed" | "closed" | "lost";
+
+export type Project = Audited &
+  Named & {
+    id: number;
+    company: number;
+    number: string;
+    customer: number;
+    customer_name: string;
+    branch: number;
+    branch_name: string;
+    manager: number | null;
+    manager_name: string | null;
+    site_address: string;
+    status: ProjectStatus;
+    start_date: string | null;
+    end_date: string | null;
+    contract_value: string;
+    retention_percent: string;
+    notes: string;
+    boq_value: string;
+    summary?: ProjectSummary | null;
+    boq?: BOQLine[];
+  };
+
+export type BOQProgress = BOQLine & { id: number; invoiced_quantity: string; issued_quantity: string };
+
+export type MaterialIssueLine = {
+  id?: number;
+  boq_line: number | null;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  quantity: string;
+  unit_cost?: string;
+  value?: string;
+};
+
+export type MaterialIssue = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  project: number;
+  project_number: string;
+  project_name: string;
+  customer_name: string;
+  warehouse: number;
+  warehouse_name: string;
+  issued_to: string;
+  notes: string;
+  status: "draft" | "posted";
+  cost_total: string;
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: MaterialIssueLine[];
+};
+
+// --- Installation --------------------------------------------------------------------------------
+
+export type Technician = Audited &
+  Named & {
+    id: number;
+    company: number;
+    phone: string;
+    user: number | null;
+    branch: number | null;
+    branch_name: string | null;
+    skills: string;
+    hourly_cost: string;
+    is_active: boolean;
+    open_jobs: number;
+  };
+
+export type WorkOrderStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+
+export type WorkOrder = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  title: string;
+  customer: number;
+  customer_name: string;
+  customer_mobile: string;
+  project: number | null;
+  project_number: string | null;
+  project_name: string | null;
+  source_invoice: number | null;
+  source_invoice_number: string | null;
+  branch: number;
+  branch_name: string;
+  site_address: string;
+  contact_name: string;
+  contact_phone: string;
+  scheduled_date: string;
+  scheduled_time: string | null;
+  duration_hours: string;
+  technicians: number[];
+  technician_names: string[];
+  description: string;
+  status: WorkOrderStatus;
+  started_at: string | null;
+  completed_at: string | null;
+  completion_notes: string;
+  signed_by: string;
+  labour_hours: string;
+  labour_cost: string;
+  cancel_reason: string;
+  invoice_numbers: string[];
+};
+
+export type CalendarDay = {
+  date: string;
+  jobs: {
+    id: number;
+    number: string;
+    title: string;
+    customer_name: string;
+    project_number: string | null;
+    branch_name: string;
+    time: string | null;
+    duration_hours: string;
+    status: WorkOrderStatus;
+    technicians: string[];
+    site_address: string;
+  }[];
+};

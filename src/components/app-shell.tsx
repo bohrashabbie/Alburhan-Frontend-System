@@ -4,6 +4,7 @@ import {
   Boxes,
   ChevronLeft,
   Contact,
+  FolderKanban,
   House,
   Landmark,
   Lightbulb,
@@ -12,6 +13,7 @@ import {
   ShoppingCart,
   Tag,
   Truck,
+  Wrench,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -42,10 +44,12 @@ const NAV: NavItem[] = [
   { href: "/overview", label: "Home", icon: House },
   { href: "/sales", label: "Sales", icon: Tag, section: "sales" },
   { href: "/pos", label: "POS", icon: ShoppingCart, section: "pos" },
+  { href: "/projects", label: "Projects", icon: FolderKanban, section: "projects" },
   { href: "/catalog", label: "Catalog", icon: Lightbulb, section: "catalog" },
   { href: "/partners", label: "Customers & suppliers", icon: Contact, section: "partners" },
   { href: "/inventory", label: "Inventory", icon: Boxes, section: "inventory" },
   { href: "/purchasing", label: "Purchasing", icon: Truck, section: "purchasing" },
+  { href: "/installation", label: "Installation", icon: Wrench, section: "installation" },
   { href: "/accounts", label: "Accounts", icon: Landmark, section: "accounts" },
   { href: "/settings", label: "Settings", icon: Settings, section: "settings" },
 ];
