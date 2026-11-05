@@ -139,6 +139,22 @@ present; removal is an `IconButton` with a bin icon.
   into a standard form.
 - Buttons never wrap (`whitespace-nowrap`, `shrink-0`); keep labels short.
 
+## Sales documents
+
+- Header grid: Customer (full width, `CustomerPicker`, with the customer's amount due / advance /
+  credit limit under it), then Branch · Deliver from, Date · Due date, Currency · Reference, Notes.
+- Lines use `SalesLinesEditor` (product search → price auto-filled from the customer's price list or
+  the company default; quantity · unit price · disc. % · VAT % · total; description as a quiet
+  second row; footer Subtotal / VAT / Grand total). `SalesLinesView` for posted documents.
+- A posted invoice is a *Viewer* with four tiles (Total, Paid, Credited, Amount due), the delivery
+  status, and actions on the end side in this order: Cancel (ghost, start side) · Credit note ·
+  Deliver · **Record payment** (primary).
+- Hand-offs between pages go through the URL: `/sales/deliveries?invoice=12`,
+  `/sales/receipts?invoice=12`, `/sales/credit-notes?invoice=12`, `/sales/invoices?open=12`. The
+  target page opens the prefilled editor and clears the query when it closes.
+- Status badges: `SalesStatus` (Draft, Sent, Accepted, Invoiced, Unpaid, Partly paid, Paid,
+  Cancelled) and `DeliveryStatus` (Not delivered, Partly delivered, Delivered).
+
 ## Sign-in page
 
 The form sits on white at the start. The end half is `CountrySlides`: the group's country

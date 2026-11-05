@@ -568,3 +568,151 @@ export type SlowMovingRow = {
   last_in: string | null;
   days_idle: number;
 };
+
+// --- Sales ----------------------------------------------------------------------------------
+
+export type SalesLine = {
+  id?: number;
+  product: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  product_type?: "stock" | "non_stock" | "service";
+  description: string;
+  quantity: string;
+  unit_price: string;
+  discount_percent: string;
+  tax_rate: string;
+  net_amount?: string;
+  tax_amount?: string;
+  total_amount?: string;
+};
+
+type SalesHeader = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  branch: number;
+  branch_name: string;
+  customer: number;
+  customer_name: string;
+  salesperson: number | null;
+  salesperson_name: string | null;
+  currency: string;
+  exchange_rate: string;
+  reference: string;
+  notes: string;
+  subtotal: string;
+  tax_total: string;
+  total: string;
+};
+
+export type Quotation = SalesHeader & {
+  status: "draft" | "sent" | "accepted" | "invoiced" | "expired" | "cancelled";
+  valid_until: string | null;
+  price_list: number | null;
+  sent_at: string | null;
+  invoice: number | null;
+  invoice_number: string | null;
+  lines: SalesLine[];
+};
+
+export type InvoiceLine = SalesLine & { delivered_quantity?: string; returned_quantity?: string };
+
+export type Invoice = SalesHeader & {
+  status: "draft" | "posted" | "partially_paid" | "paid" | "cancelled";
+  due_date: string | null;
+  warehouse: number | null;
+  amount_paid: string;
+  amount_credited: string;
+  amount_due: string;
+  delivery_status: "not_required" | "pending" | "partial" | "delivered";
+  quotation_number: string | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: InvoiceLine[];
+};
+
+export type DeliveryLine = {
+  id?: number;
+  invoice_line: number;
+  sku?: string;
+  product_name?: string;
+  uom?: string;
+  ordered_quantity?: string;
+  delivered_before?: string;
+  quantity: string;
+};
+
+export type DeliveryNote = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  invoice: number;
+  invoice_number: string;
+  customer_name: string;
+  warehouse: number;
+  warehouse_name: string;
+  delivered_to: string;
+  address: string;
+  driver: string;
+  notes: string;
+  status: "draft" | "posted";
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: DeliveryLine[];
+};
+
+export type Allocation = { id?: number; invoice: number; invoice_number?: string; invoice_total?: string; invoice_due?: string; amount: string };
+
+export type Receipt = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  date: string;
+  branch: number;
+  branch_name: string;
+  customer: number;
+  customer_name: string;
+  method: "cash" | "knet" | "card" | "bank_transfer" | "cheque";
+  journal: number;
+  journal_code: string;
+  reference: string;
+  currency: string;
+  exchange_rate: string;
+  amount: string;
+  allocated_amount: string;
+  unallocated_amount: string;
+  notes: string;
+  status: "draft" | "posted";
+  journal_number: string | null;
+  posted_at: string | null;
+  allocations: Allocation[];
+};
+
+export type CreditNoteLine = SalesLine & { invoice_line: number; restock: boolean };
+
+export type CreditNote = SalesHeader & {
+  status: "draft" | "posted";
+  invoice: number;
+  invoice_number: string;
+  warehouse: number | null;
+  reason: string;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: CreditNoteLine[];
+};
+
+export type SalesSettings = {
+  id: number;
+  company: number;
+  default_tax_rate: string;
+  quotation_valid_days: number;
+  default_payment_terms_days: number;
+  max_line_discount_percent: string;
+  invoice_notes: string;
+};
+
+export type CustomerBalance = { open_invoices: number; amount_due: string; advances: string; credit_limit: string };

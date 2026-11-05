@@ -9,6 +9,7 @@ import {
   Lightbulb,
   type LucideIcon,
   Settings,
+  Tag,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -37,6 +38,7 @@ type NavItem = {
 // Installation, Accounts, Reports (see the alburhan-ui skill for their icons).
 const NAV: NavItem[] = [
   { href: "/overview", label: "Home", icon: House },
+  { href: "/sales", label: "Sales", icon: Tag, section: "sales" },
   { href: "/catalog", label: "Catalog", icon: Lightbulb, section: "catalog" },
   { href: "/partners", label: "Customers & suppliers", icon: Contact, section: "partners" },
   { href: "/inventory", label: "Inventory", icon: Boxes, section: "inventory" },
