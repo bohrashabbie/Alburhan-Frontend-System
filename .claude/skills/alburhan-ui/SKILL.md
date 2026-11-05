@@ -244,11 +244,35 @@ The reference is LTR-only. In Al-Burhan:
 - API base: `/api/v1/` (JWT `auth/token/`, `auth/token/refresh/`). As in the reference, proxy it
   through Next route handlers so tokens stay in httpOnly cookies.
 
-## POS web app differences
+## POS (`/pos/till`, `src/lib/pos.tsx`)
 
-Same tokens, fonts and motion. Larger touch targets: buttons at least `h-12`, product tiles in a
-grid, the cart in a right-hand panel (start side in RTL), and the pay button full-width primary
-`h-14`. No rail; a slim top bar shows the branch, shift status and cashier.
+Same tokens, fonts and motion, inside the normal shell (POS is a rail area with Sell · Sales ·
+Shifts · Registers). Built for touch:
+- **Shift bar** on top: register (a dropdown when the branch has several), shift number with the
+  time it opened and the cashier, three live figures (sales count, net sales, expected cash) and
+  **Open shift** / **Close shift**. No shift → an `EmptyState` with Open shift, never the grid.
+- **Catalogue** (start side): a 48px search box with a start-side magnifier (`Scan or search`;
+  Enter adds the exact barcode/SKU match or the only result), round category chips with the family
+  photo (active = black), then a grid of `pos-tile` buttons: square photo (or a `Lightbulb` icon on
+  `surface-muted`), stock pill on the photo's start corner (grey, amber ≤ 3, red out of stock and
+  disabled), the quantity-in-cart badge in purple on the end corner, 2-line clamped name, mono
+  SKU, bold price. Grid: 2 / 3 / 4 / 5 columns at sm / xl / 2xl.
+- **Cart** (end side, `lg:sticky`, 380px): customer row (walk-in by default, **Change** opens
+  `CustomerPicker` inline), lines with a − qty + stepper, a small `Disc. %` input and a bin
+  `IconButton`, then Subtotal · VAT · **Total** and two `h-14` buttons: a secondary bin (clear) and
+  the primary **Charge KWD 16.500**.
+- **Charge modal**: the total in a black band (`bg-panel`), one card per payment with a segmented
+  Cash / KNET / Card control (`bg-accent` when selected), amount, a reference field for cards, and
+  quick cash buttons (Exact, then the total rounded up to 1, 5, 10, 20). The summary shows Paid and
+  either **Change** (bold) or a red **Remaining** / "KNET / card can't be more than the total";
+  **Complete sale** (`h-12`, full width) is disabled until it balances.
+- **Sale complete** modal: the `ReceiptSlip` (80 mm, mono, dashed separators, VOIDED banner when
+  voided) inside `.print-area`, the change in large type, then **Print** (`window.print()`, the
+  print CSS hides everything else) and **New sale** (autofocus, returns focus to the search box).
+- Money maths in the cart use BigInt via `lineTotals()` (half-up rounding like the backend); the
+  backend reprices every line from the register's price list anyway.
+- Records: **Sales** and **Shifts** are `DocumentList`s whose drawers reuse the slip, `Facts` and
+  tiles; **Registers** is a wide `ResourcePage` (Selling · Money · Receipt sections).
 
 ## Checklist before finishing any UI change
 

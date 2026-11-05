@@ -4,9 +4,26 @@
  */
 export type SectionLink = { href: string; label: string; permission?: string; exact?: boolean };
 export type SectionGroup = { title: string; links: SectionLink[] };
-export type Area = "accounts" | "catalog" | "inventory" | "partners" | "sales" | "settings";
+export type Area = "accounts" | "catalog" | "inventory" | "partners" | "pos" | "sales" | "settings";
 
 const AREAS: Record<Area, SectionGroup[]> = {
+  pos: [
+    {
+      title: "Till",
+      links: [{ href: "/pos/till", label: "Sell", permission: "pos.sale.create" }],
+    },
+    {
+      title: "Records",
+      links: [
+        { href: "/pos/sales", label: "Sales", permission: "pos.sale.view" },
+        { href: "/pos/shifts", label: "Shifts", permission: "pos.shift.view" },
+      ],
+    },
+    {
+      title: "Setup",
+      links: [{ href: "/pos/registers", label: "Registers", permission: "pos.register.view" }],
+    },
+  ],
   sales: [
     {
       title: "Selling",

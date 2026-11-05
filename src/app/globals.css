@@ -351,3 +351,38 @@ select.control-select {
 [dir="rtl"] select.control-select {
   background-position: left 0.75rem center;
 }
+
+/* Till receipts: window.print() prints only the slip inside .print-area, at 80 mm. */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible !important;
+  }
+  .print-area {
+    position: fixed;
+    inset-inline-start: 0;
+    top: 0;
+    width: 80mm;
+    background: #fff;
+  }
+  .print-area .receipt-slip {
+    max-width: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+  dialog::backdrop {
+    display: none;
+  }
+}
+
+/* Product tiles on the till. */
+.pos-tile {
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s;
+}
+.pos-tile:active {
+  transform: scale(0.97);
+}

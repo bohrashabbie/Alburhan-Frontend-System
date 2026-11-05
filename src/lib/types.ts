@@ -716,3 +716,153 @@ export type SalesSettings = {
 };
 
 export type CustomerBalance = { open_invoices: number; amount_due: string; advances: string; credit_limit: string };
+
+// --- Point of sale ------------------------------------------------------------------------------
+
+export type Register = Audited &
+  Named & {
+    id: number;
+    company: number;
+    branch: number;
+    branch_name: string;
+    code: string;
+    warehouse: number;
+    warehouse_name: string;
+    price_list: number | null;
+    price_list_name: string | null;
+    cash_journal: number;
+    cash_journal_name: string;
+    card_journal: number;
+    card_journal_name: string;
+    walk_in_customer: number;
+    walk_in_customer_name: string;
+    walk_in_customer_name_ar: string;
+    cash_difference_account: number | null;
+    receipt_header: string;
+    receipt_footer: string;
+    is_active: boolean;
+    open_shift: { id: number; number: string; opened_at: string; opened_by: number } | null;
+  };
+
+export type PosMethod = "cash" | "knet" | "card";
+
+export type ShiftTotals = {
+  sales_count: string;
+  voided_count: string;
+  sales_total: string;
+  refunds_total: string;
+  net_total: string;
+  by_method: Record<PosMethod, string>;
+  expected_cash: string;
+};
+
+export type Shift = {
+  id: number;
+  company: number;
+  register: number;
+  register_code: string;
+  register_name: string;
+  branch: number;
+  branch_name: string;
+  number: string;
+  status: "open" | "closed";
+  opened_by: number;
+  opened_by_name: string | null;
+  opened_at: string;
+  opening_cash: string;
+  closed_by: number | null;
+  closed_by_name: string | null;
+  closed_at: string | null;
+  closing_cash: string;
+  expected_cash: string;
+  cash_difference: string;
+  sales_count: number;
+  sales_total: string;
+  refunds_total: string;
+  notes: string;
+  difference_entry: number | null;
+  totals: ShiftTotals;
+};
+
+export type PosPayment = {
+  id: number;
+  method: PosMethod;
+  method_label: string;
+  amount: string;
+  reference: string;
+  receipt: number | null;
+  receipt_number: string | null;
+};
+
+export type PosSaleLine = {
+  product: number;
+  sku: string;
+  name: string;
+  name_ar: string;
+  uom: string;
+  quantity: string;
+  unit_price: string;
+  discount_percent: string;
+  tax_rate: string;
+  net_amount: string;
+  tax_amount: string;
+  total_amount: string;
+};
+
+export type PosSale = {
+  id: number;
+  company: number;
+  shift: number;
+  shift_number: string;
+  register_code: string;
+  register_name: string;
+  branch: number;
+  branch_name: string;
+  number: string;
+  date: string;
+  customer: number;
+  customer_name: string;
+  customer_mobile: string;
+  invoice: number;
+  delivery: number | null;
+  credit_note: number | null;
+  credit_note_number: string | null;
+  currency: string;
+  subtotal: string;
+  tax_total: string;
+  total: string;
+  tendered: string;
+  change_given: string;
+  status: "completed" | "voided";
+  voided_at: string | null;
+  voided_by: number | null;
+  void_reason: string;
+  cashier: string | null;
+  receipt_header: string;
+  receipt_footer: string;
+  lines: PosSaleLine[];
+  payments: PosPayment[];
+  created_at: string;
+};
+
+export type PosProduct = {
+  id: number;
+  sku: string;
+  barcode: string | null;
+  name: string;
+  name_ar: string;
+  uom: string;
+  allow_decimal: boolean;
+  product_type: "stock" | "non_stock" | "service";
+  category: number;
+  image: string | null;
+  price: string;
+  stock: string | null;
+};
+
+export type PosCatalog = {
+  price_list: { id: number; name: string } | null;
+  currency: string;
+  categories: { id: number; name: string; name_ar: string; image: string | null }[];
+  products: PosProduct[];
+};
