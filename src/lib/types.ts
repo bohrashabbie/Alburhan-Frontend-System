@@ -1186,3 +1186,66 @@ export type CalendarDay = {
     site_address: string;
   }[];
 };
+
+// --- Reports -------------------------------------------------------------------------------------
+
+export type Dashboard = {
+  currency: string;
+  today: string;
+  sales: {
+    today: string;
+    today_count: number;
+    month: string;
+    month_count: number;
+    previous_month: string;
+    change_percent: string | null;
+    series: { date: string; amount: string }[];
+    by_branch: { branch: number; name: string; amount: string }[];
+    top_products: { product: number; sku: string; name: string; quantity: string; amount: string }[];
+  };
+  receivables: { total: string; count: number; overdue: string; overdue_count: number };
+  payables: { total: string; count: number; overdue: string };
+  cash: { total: string; accounts: { account: number; code: string; name: string; balance: string }[] };
+  stock_value: string;
+  projects: { active: number; contract_value: string };
+  jobs_today: number;
+  open_shifts: number;
+  purchase_orders: { open: number; value: string };
+};
+
+export type ReportGroup = { code: string; name: string; name_ar: string; rows: { account: number; code: string; name: string; name_ar: string; amount: string }[]; total: string };
+
+export type ProfitAndLoss = {
+  currency: string;
+  date_from: string;
+  date_to: string;
+  income: ReportGroup[];
+  cost_of_sales: ReportGroup[];
+  expenses: ReportGroup[];
+  totals: { income: string; cost_of_sales: string; gross_profit: string; expenses: string; net_profit: string; gross_margin_percent: string | null };
+};
+
+export type BalanceSheet = {
+  currency: string;
+  as_of: string;
+  assets: ReportGroup[];
+  liabilities: ReportGroup[];
+  equity: ReportGroup[];
+  current_earnings: string;
+  totals: { assets: string; liabilities: string; equity: string; liabilities_and_equity: string; balanced: boolean };
+};
+
+export type AgeingRow = { partner: number; code: string; name: string; count: number; total: string; current: string; "1_30": string; "31_60": string; "61_90": string; over_90: string };
+
+export type Ageing = { currency: string; kind: "receivable" | "payable"; as_of: string; rows: AgeingRow[]; totals: Omit<AgeingRow, "partner" | "code" | "name" | "count"> };
+
+export type VatReturn = {
+  currency: string;
+  country: string;
+  tax_registration_number: string;
+  date_from: string;
+  date_to: string;
+  sales: { standard_rated_net: string; standard_rated_tax: string; zero_rated_net: string; credit_notes_net: string; credit_notes_tax: string; by_branch: { branch: number; name: string; net: string; tax: string }[] };
+  purchases: { taxable_net: string; input_tax: string; untaxed_net: string };
+  totals: { output_tax: string; input_tax: string; net_payable: string };
+};

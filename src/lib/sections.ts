@@ -117,8 +117,18 @@ const AREAS: Record<Area, SectionGroup[]> = {
     {
       title: "Reports",
       links: [
+        { href: "/accounts/profit-and-loss", label: "Profit & loss", permission: "accounting.report.view" },
+        { href: "/accounts/balance-sheet", label: "Balance sheet", permission: "accounting.report.view" },
+        { href: "/accounts/ageing", label: "Ageing", permission: "accounting.report.view" },
         { href: "/accounts/trial-balance", label: "Trial balance", permission: "accounting.report.view" },
         { href: "/accounts/ledger", label: "General ledger", permission: "accounting.report.view" },
+      ],
+    },
+    {
+      title: "Compliance",
+      links: [
+        { href: "/accounts/vat-return", label: "VAT return", permission: "reports.compliance.view" },
+        { href: "/accounts/filings", label: "Filings & e-invoicing", permission: "reports.compliance.view" },
       ],
     },
     {
