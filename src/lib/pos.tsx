@@ -84,6 +84,10 @@ export function ReceiptSlip({ sale }: { sale: PosSale }) {
   const money = (value: string) => formatMoney(value, sale.currency, locale);
   const label = (line: { name: string; name_ar: string }) => (locale === "ar" && line.name_ar ? line.name_ar : line.name);
   const paid = sale.payments.filter((payment) => Number(payment.amount) > 0);
+  // Change only comes out of cash, so the first cash line shows what was handed over (applied + change).
+  const tenderedId = Number(sale.change_given) > 0 ? paid.find((payment) => payment.method === "cash")?.id : undefined;
+  const shown = (payment: (typeof paid)[number]) =>
+    payment.id === tenderedId ? fromMinor(toMinor(payment.amount, decimalsOf(sale.currency)) + toMinor(sale.change_given, decimalsOf(sale.currency)), decimalsOf(sale.currency)) : payment.amount;
   return (
     <div className="receipt-slip mx-auto w-full max-w-[320px] rounded-xl border border-line bg-surface px-5 py-6 font-mono text-[13px] leading-5 text-ink">
       <div className="text-center">
@@ -139,7 +143,7 @@ export function ReceiptSlip({ sale }: { sale: PosSale }) {
               {t(payment.method_label)}
               {payment.reference ? <span className="ms-1 text-ink-faint">{payment.reference}</span> : null}
             </dt>
-            <dd className="text-end">{money(payment.amount)}</dd>
+            <dd className="text-end">{money(shown(payment))}</dd>
           </Fragment>
         ))}
         {Number(sale.change_given) > 0 ? (

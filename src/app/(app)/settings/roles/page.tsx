@@ -12,6 +12,7 @@ const MODULE_NAMES: Record<string, string> = {
   access: "Access",
   accounting: "Accounts",
   catalog: "Catalog",
+  hr: "HR",
   installation: "Installation",
   inventory: "Inventory",
   organization: "Organization",

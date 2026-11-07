@@ -4,7 +4,7 @@
  */
 export type SectionLink = { href: string; label: string; permission?: string; exact?: boolean };
 export type SectionGroup = { title: string; links: SectionLink[] };
-export type Area = "accounts" | "catalog" | "installation" | "inventory" | "partners" | "pos" | "projects" | "purchasing" | "sales" | "settings";
+export type Area = "accounts" | "catalog" | "hr" | "installation" | "inventory" | "partners" | "pos" | "projects" | "purchasing" | "sales" | "settings";
 
 const AREAS: Record<Area, SectionGroup[]> = {
   pos: [
@@ -65,6 +65,30 @@ const AREAS: Record<Area, SectionGroup[]> = {
     {
       title: "Setup",
       links: [{ href: "/installation/technicians", label: "Technicians", permission: "installation.technician.view" }],
+    },
+  ],
+  hr: [
+    {
+      title: "People",
+      links: [
+        { href: "/hr/employees", label: "Employees", permission: "hr.employee.view" },
+        { href: "/hr/departments", label: "Departments", permission: "hr.department.view" },
+      ],
+    },
+    {
+      title: "Leave",
+      links: [{ href: "/hr/leave", label: "Leave requests", permission: "hr.leave.view" }],
+    },
+    {
+      title: "Pay",
+      links: [{ href: "/hr/payroll", label: "Payroll", permission: "hr.payroll.view" }],
+    },
+    {
+      title: "Setup",
+      links: [
+        { href: "/hr/leave-types", label: "Leave types", permission: "hr.leave_type.view" },
+        { href: "/hr/settings", label: "HR settings", permission: "hr.settings.view" },
+      ],
     },
   ],
   purchasing: [

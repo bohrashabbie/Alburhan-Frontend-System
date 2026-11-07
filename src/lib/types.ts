@@ -119,6 +119,10 @@ export type User = {
   last_login: string | null;
   date_joined: string;
   avatar_url?: string | null;
+  /** Main administrator: every country and store. */
+  is_superuser?: boolean;
+  /** Where the person works: one entry per role assignment. */
+  access?: { company: number; company_code: string; company_name: string; branch: number | null; branch_name: string | null; role_name: string }[];
 };
 
 export type AccessGrant = {
@@ -818,6 +822,7 @@ export type PosSale = {
   company: number;
   shift: number;
   shift_number: string;
+  shift_status: "open" | "closed";
   register_code: string;
   register_name: string;
   branch: number;
@@ -867,6 +872,8 @@ export type PosProduct = {
 export type PosCatalog = {
   price_list: { id: number; name: string } | null;
   currency: string;
+  /** The company's VAT rate in %, so the till can show tax before checkout. */
+  tax_rate: string;
   categories: { id: number; name: string; name_ar: string; image: string | null }[];
   products: PosProduct[];
 };
@@ -1250,4 +1257,184 @@ export type VatReturn = {
   sales: { standard_rated_net: string; standard_rated_tax: string; zero_rated_net: string; credit_notes_net: string; credit_notes_tax: string; by_branch: { branch: number; name: string; net: string; tax: string }[] };
   purchases: { taxable_net: string; input_tax: string; untaxed_net: string };
   totals: { output_tax: string; input_tax: string; net_payable: string };
+};
+
+// --- HR ------------------------------------------------------------------------------------------
+
+export type HRSettings = Audited & {
+  company: number;
+  hr_email: string;
+  weekend_days: string;
+  pay_days_per_month: number;
+  salary_expense_account: number | null;
+  salary_payable_account: number | null;
+  deductions_account: number | null;
+};
+
+export type Department = Audited & { id: number; company: number; name: string; name_ar: string; is_active: boolean; employee_count: number };
+
+export type LeaveType = Audited & {
+  id: number;
+  company: number;
+  code: string;
+  name: string;
+  name_ar: string;
+  is_paid: boolean;
+  uses_annual_balance: boolean;
+  days_per_year: string;
+  is_active: boolean;
+};
+
+export type Employee = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  first_name: string;
+  last_name: string;
+  full_name: string;
+  name_ar: string;
+  email: string;
+  phone: string;
+  user: number | null;
+  user_email: string | null;
+  branch: number | null;
+  branch_name: string | null;
+  department: number | null;
+  department_name: string | null;
+  job_title: string;
+  manager: number | null;
+  manager_name: string | null;
+  report_count: number;
+  hire_date: string;
+  end_date: string | null;
+  civil_id: string;
+  nationality: string;
+  iban: string;
+  basic_salary: string;
+  housing_allowance: string;
+  transport_allowance: string;
+  other_allowance: string;
+  monthly_pay: string;
+  annual_leave_days: string;
+  is_active: boolean;
+};
+
+export type LeaveBalance = {
+  leave_type: number;
+  code: string;
+  name: string;
+  name_ar: string;
+  is_paid: boolean;
+  entitled: string | null;
+  taken: string;
+  pending: string;
+  remaining: string | null;
+};
+
+export type HRNotification = { id: number; to: string; kind: string; subject: string; sent: boolean; error: string; created_at: string };
+
+export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export type LeaveRequest = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  employee: number;
+  employee_name: string;
+  employee_email: string;
+  leave_type: number;
+  leave_type_name: string;
+  leave_type_name_ar: string;
+  is_paid: boolean;
+  start_date: string;
+  end_date: string;
+  days: string;
+  reason: string;
+  status: LeaveStatus;
+  status_label: string;
+  approver: number | null;
+  approver_name: string | null;
+  approver_email: string | null;
+  decided_by_name: string;
+  decided_at: string | null;
+  decided_via: string;
+  decision_note: string;
+  payroll_run: number | null;
+  payroll_number: string | null;
+  notifications: HRNotification[];
+};
+
+export type MyHR = {
+  employee: { id: number; number: string; name: string; job_title: string; company: number; department: string | null; manager: string | null; manager_email: string | null } | null;
+  balances: LeaveBalance[];
+  requests: LeaveRequest[];
+  leave_types: LeaveType[];
+  approvals: LeaveRequest[];
+  /** Weekend days, 0 = Monday … 6 = Sunday. */
+  weekend: number[];
+};
+
+export type LeaveDecision = {
+  number: string;
+  company: string;
+  employee: string;
+  employee_email: string;
+  job_title: string;
+  leave_type: string;
+  leave_type_ar: string;
+  is_paid: boolean;
+  start_date: string;
+  end_date: string;
+  days: string;
+  reason: string;
+  status: LeaveStatus;
+  status_label: string;
+  approver: string;
+  decided_by_name: string;
+  decided_at: string | null;
+  decision_note: string;
+  balances: LeaveBalance[];
+};
+
+export type Payslip = {
+  id: number;
+  run: number;
+  employee: number;
+  employee_name: string;
+  employee_number: string;
+  job_title: string;
+  iban: string;
+  basic: string;
+  allowances: string;
+  gross: string;
+  paid_leave_days: string;
+  unpaid_leave_days: string;
+  unpaid_leave_deduction: string;
+  additions: string;
+  deductions: string;
+  net: string;
+  notes: string;
+};
+
+export type PayrollRun = Audited & {
+  id: number;
+  company: number;
+  number: string;
+  year: number;
+  month: number;
+  status: "draft" | "posted" | "paid";
+  status_label: string;
+  total_gross: string;
+  total_deductions: string;
+  total_additions: string;
+  total_net: string;
+  employee_count: number;
+  journal_entry: number | null;
+  journal_entry_number: string | null;
+  payment_entry: number | null;
+  payment_entry_number: string | null;
+  posted_at: string | null;
+  paid_at: string | null;
+  notes: string;
+  payslips: Payslip[];
 };

@@ -16,6 +16,7 @@ const ABOUT: Record<Area, string> = {
   inventory: "Stock levels, transfers, counts and reorder alerts.",
   purchasing: "Purchase orders, goods receipts, supplier bills and payments.",
   installation: "Installation jobs, the schedule board and technicians.",
+  hr: "Employees, leave requests and approvals, and monthly payroll.",
   accounts: "Journals, statements, VAT and filings.",
   settings: "Companies, branches, users and roles.",
 };

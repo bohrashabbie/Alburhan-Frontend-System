@@ -115,12 +115,11 @@ function ShiftBar({ registers, register, shift, onPick, onOpen, onClose }: { reg
 function Till({ register, shiftId, onSold }: { register: Register; shiftId: number; onSold: () => void }) {
   const { company, locale, name, t } = useWorkspace();
   const decimals = decimalsOf(company.currency);
-  const settings = useResource<{ default_tax_rate: string }>(`/sales/settings/${company.id}`);
-  const taxRate = settings.data?.default_tax_rate ?? "0";
   const [search, setSearch] = useState("");
   const deferred = useDeferredValue(search);
   const [category, setCategory] = useState<number | null>(null);
   const catalog = useResource<PosCatalog>(withQuery(`/pos/registers/${register.id}/catalog`, { search: deferred.trim(), category, limit: 120 }));
+  const taxRate = catalog.data?.tax_rate ?? "0";
   const [cart, setCart] = useState<CartLine[]>([]);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [pickingCustomer, setPickingCustomer] = useState(false);
@@ -270,7 +269,7 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
               <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-muted text-ink-soft"><UserRound aria-hidden className="size-5" /></span>
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm font-semibold">{customer ? name(customer) : name({ name: register.walk_in_customer_name, name_ar: register.walk_in_customer_name_ar })}</span>
-                <span className="block text-xs text-ink-soft">{customer ? customer.code : t("Walk-in customer")}</span>
+                <span className="block text-xs text-ink-soft">{customer ? customer.code : t("Default customer for this till")}</span>
               </span>
               {customer ? (
                 <IconButton label={t("Clear")} onClick={() => setCustomer(null)}><X aria-hidden className="size-4" /></IconButton>

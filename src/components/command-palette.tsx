@@ -16,6 +16,7 @@ import {
   Tag,
   Truck,
   UserRound,
+  UsersRound,
   Wrench,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -38,6 +39,7 @@ const AREA_ICONS: Record<Area, LucideIcon> = {
   inventory: Boxes,
   purchasing: Truck,
   installation: Wrench,
+  hr: UsersRound,
   accounts: Landmark,
   settings: Settings,
 };
@@ -51,6 +53,7 @@ const AREA_NAMES: Record<Area, string> = {
   inventory: "Inventory",
   purchasing: "Purchasing",
   installation: "Installation",
+  hr: "HR",
   accounts: "Accounts",
   settings: "Settings",
 };

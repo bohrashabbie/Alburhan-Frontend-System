@@ -40,18 +40,18 @@ function SaleDrawer({ sale: initial, onDone }: { sale: PosSale; onDone: () => vo
         />
         <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
           <div className="flex flex-col gap-4">
-            <section className="grid gap-3 sm:grid-cols-3">
-              <Tile label={t("Total")} value={money(sale.total)} strong />
-              <Tile label={t("Paid")} value={money(sale.tendered)} />
-              <Tile label={t("Change")} value={money(sale.change_given)} />
-            </section>
+            <dl className="divide-y divide-line rounded-xl border border-line text-sm tabular-nums">
+              <Row label={t("Total")} value={money(sale.total)} strong />
+              <Row label={t("Paid")} value={money(sale.tendered)} />
+              <Row label={t("Change")} value={money(sale.change_given)} />
+            </dl>
             {sale.status === "voided" ? (
               <section className="rounded-xl border border-danger/30 bg-danger-soft/40 px-4 py-3 text-sm">
                 <div className="font-semibold text-danger">{t("Voided")} · {sale.credit_note_number}</div>
                 <div className="mt-1 text-ink-soft">{sale.void_reason}</div>
                 <div className="mt-1 text-xs text-ink-faint">{formatDate(sale.voided_at, locale)} {formatTime(sale.voided_at, locale)}</div>
               </section>
-            ) : can("pos.sale.void") ? (
+            ) : can("pos.sale.void") && sale.shift_status === "open" ? (
               <section className="rounded-xl border border-line p-4">
                 {voiding ? (
                   <form onSubmit={onSubmit(voidSale)} className="flex flex-col gap-3">
@@ -73,7 +73,10 @@ function SaleDrawer({ sale: initial, onDone }: { sale: PosSale; onDone: () => vo
                 )}
               </section>
             ) : (
-              <div className="flex justify-end"><PrintButton /></div>
+              <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line p-4">
+                <p className="text-sm text-ink-soft">{sale.shift_status === "closed" ? t("The shift is closed. To take goods back, issue a credit note under Sales.") : null}</p>
+                <PrintButton />
+              </section>
             )}
           </div>
           <div className="print-area">
@@ -85,11 +88,11 @@ function SaleDrawer({ sale: initial, onDone }: { sale: PosSale; onDone: () => vo
   );
 }
 
-function Tile({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
+function Row({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
-    <div className="min-w-0 rounded-xl border border-line px-3 py-3">
-      <div className="truncate text-xs tracking-wide text-ink-soft uppercase">{label}</div>
-      <div className={`mt-1 text-base tabular-nums ${strong ? "font-bold" : "font-semibold"}`}>{value}</div>
+    <div className="flex items-center justify-between gap-4 px-4 py-3">
+      <dt className="text-ink-soft">{label}</dt>
+      <dd className={strong ? "text-base font-bold" : "font-semibold"}>{value}</dd>
     </div>
   );
 }

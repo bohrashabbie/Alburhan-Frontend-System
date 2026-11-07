@@ -3,6 +3,7 @@
 import { Plus } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Fragment, type ReactNode, Suspense, useState } from "react";
+import { useSWRConfig } from "swr";
 
 import {
   Badge,
@@ -49,7 +50,8 @@ export type Field = {
     disabled: boolean;
     label: string;
   }) => ReactNode;
-  options?: [string, string][];
+  /** Fixed choices, or choices that depend on other values in the form (e.g. stores of the chosen country). */
+  options?: [string, string][] | ((values: Values) => [string, string][]);
   required?: boolean;
   hint?: string;
   /** Sent as null when empty (nullable foreign keys and dates). */
@@ -144,6 +146,9 @@ function ResourcePageInner<T extends { id: number }>({
     page,
   });
   const list = useResource<Page<T>>(listPath);
+  const { mutate } = useSWRConfig();
+  // Refresh every cached view of this endpoint (the list, and e.g. a manager dropdown built from it).
+  const refreshAll = () => mutate((key) => typeof key === "string" && key.startsWith(endpoint));
 
   const canCreate = can(`${permission}.create`);
   const canUpdate = can(`${permission}.update`);
@@ -273,7 +278,7 @@ function ResourcePageInner<T extends { id: number }>({
           toPayload={toPayload}
           wide={wide}
           onClose={() => router.replace(pathname, { scroll: false })}
-          onSaved={() => list.mutate()}
+          onSaved={refreshAll}
         />
       ) : null}
       {editing ? (
@@ -290,7 +295,7 @@ function ResourcePageInner<T extends { id: number }>({
           toPayload={toPayload}
           wide={wide}
           onClose={() => setEditing(null)}
-          onSaved={() => list.mutate()}
+          onSaved={refreshAll}
           onCreated={drawerExtra ? (created) => setEditing(created) : undefined}
         />
       ) : null}
@@ -422,7 +427,7 @@ function EditDrawer<T extends { id: number }>({
                 }
               >
                 <FieldInput
-                  field={field}
+                  field={typeof field.options === "function" ? { ...field, options: field.options(values) } : field}
                   value={values[field.name]}
                   error={save.field(field.name)}
                   disabled={Boolean(row && field.lockOnEdit)}
@@ -494,7 +499,7 @@ function FieldInput({
         onChange={(event) => onChange(event.target.value)}
       >
         {field.nullable || !field.required ? <option value="">—</option> : null}
-        {field.options?.map(([optionValue, optionLabel]) => (
+        {(Array.isArray(field.options) ? field.options : []).map(([optionValue, optionLabel]) => (
           <option key={optionValue} value={optionValue}>
             {optionLabel}
           </option>

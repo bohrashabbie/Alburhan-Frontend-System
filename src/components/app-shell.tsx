@@ -2,6 +2,7 @@
 
 import {
   Boxes,
+  CalendarDays,
   ChevronLeft,
   Contact,
   FolderKanban,
@@ -17,6 +18,7 @@ import {
   Tag,
   Truck,
   UserRound,
+  UsersRound,
   Wrench,
 } from "lucide-react";
 import Link from "next/link";
@@ -57,6 +59,7 @@ export const NAV: NavItem[] = [
   { href: "/inventory", label: "Inventory", icon: Boxes, section: "inventory" },
   { href: "/purchasing", label: "Purchasing", icon: Truck, section: "purchasing" },
   { href: "/installation", label: "Installation", icon: Wrench, section: "installation" },
+  { href: "/hr", label: "HR", icon: UsersRound, section: "hr" },
   { href: "/accounts", label: "Accounts", icon: Landmark, section: "accounts" },
   { href: "/settings", label: "Settings", icon: Settings, section: "settings" },
 ];
@@ -243,6 +246,7 @@ export function AccountMenu() {
 
   const go: [string, string, LucideIcon, boolean][] = [
     ["/profile", t("My profile"), UserRound, true],
+    ["/my-leave", t("My leave"), CalendarDays, true],
     ["/overview", t("Home"), House, true],
     ["/till", t("Full-screen till"), ShoppingCart, canSee("pos.sale.create")],
     ["/settings/companies", t("Settings"), Settings, canSee("organization.company.view") || canSee("users.user.view")],
