@@ -214,7 +214,7 @@ export default function UsersPage() {
         {
           name: "password",
           label: "Password",
-          type: "text",
+          type: "password",
           hint: "At least 8 characters. Leave empty to keep the current one.",
         },
         { name: "is_active", label: "Active", type: "checkbox" },

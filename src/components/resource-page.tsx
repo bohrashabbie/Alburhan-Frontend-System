@@ -41,6 +41,7 @@ export type Field = {
     | "select"
     | "checkbox"
     | "country"
+    | "password"
     | "custom";
   /** For type "custom": render your own control. */
   render?: (props: {
@@ -528,6 +529,7 @@ function FieldInput({
       required={field.required}
       disabled={disabled}
       step={field.type === "number" ? "any" : undefined}
+      autoComplete={field.type === "password" ? "new-password" : undefined}
       value={String(value ?? "")}
       onChange={(event) => onChange(event.target.value)}
     />
