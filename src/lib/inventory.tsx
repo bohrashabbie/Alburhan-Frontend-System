@@ -13,13 +13,18 @@ export const STOCK_STATUSES: [StockStatus, string][] = [
 ];
 
 /** Active warehouses of the current company, limited to the user's branch where applicable. */
-export function useWarehouses() {
+/**
+ * Warehouses to choose from. Stock documents of a store use that store's warehouses (plus
+ * company-level ones); `countryWide` lists every warehouse of the country, e.g. a projects office
+ * drawing from the Main Warehouse.
+ */
+export function useWarehouses({ countryWide = false }: { countryWide?: boolean } = {}) {
   const { company, branch, companyWide, branches } = useWorkspace();
   const { data } = useResource<Page<Warehouse>>(
     `/organization/warehouses?company=${company.id}&is_active=true&page_size=200`,
   );
   const all = data?.results ?? [];
-  if (companyWide && !branch) return all;
+  if (countryWide || (companyWide && !branch)) return all;
   // A chosen branch (or a branch-only user) works with that branch's warehouses plus company-level ones.
   const allowed = new Set(branch ? [branch.id] : branches.map((item) => item.id));
   return all.filter((item) => item.branch === null || allowed.has(item.branch));

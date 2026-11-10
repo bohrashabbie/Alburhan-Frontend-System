@@ -60,8 +60,8 @@ export default function OverviewPage() {
     <>
       {header}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatTile label={t("Sales today")} value={money(d.sales.today)} hint={`${d.sales.today_count} ${t("invoices")}`} />
-        <StatTile label={t("Sales this month")} value={money(d.sales.month)} delta={change} hint={`${d.sales.month_count} ${t("invoices")}`} />
+        <StatTile label={t("Sales today")} value={money(d.sales.today)} hint={`${d.sales.today_count} ${t(d.sales.today_count === 1 ? "invoice" : "invoices")}`} />
+        <StatTile label={t("Sales this month")} value={money(d.sales.month)} delta={change} hint={`${d.sales.month_count} ${t(d.sales.month_count === 1 ? "invoice" : "invoices")}`} />
         <StatTile label={t("Receivables")} value={money(d.receivables.total)} hint={Number(d.receivables.overdue) > 0 ? `${money(d.receivables.overdue)} ${t("overdue")}` : `${d.receivables.count} ${t("open invoices")}`} tone={Number(d.receivables.overdue) > 0 ? "warning" : undefined} />
         <StatTile label={t("Cash & bank")} value={money(d.cash.total)} hint={d.cash.accounts.map((a) => `${a.name} ${money(a.balance)}`).join(" · ") || undefined} />
       </div>

@@ -21,6 +21,7 @@ const FIELDS: { group: string; items: [string, string, AccountType[]][] }[] = [
       ["sales", "Sales", ["income"]],
       ["sales_returns", "Sales returns", ["income"]],
       ["installation_income", "Installation income", ["income"]],
+      ["project_sales", "Project sales", ["income"]],
       ["vat_output", "VAT on sales", ["liability"]],
     ],
   },

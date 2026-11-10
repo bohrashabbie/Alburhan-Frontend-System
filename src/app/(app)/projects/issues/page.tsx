@@ -21,7 +21,7 @@ type Row = { boq_line: number | null; product: number; label: string; uom: strin
 
 function Editor({ doc, presetProject, onDone }: { doc?: MaterialIssue; presetProject?: Project | null; onDone: () => void }) {
   const { company, can, name, t } = useWorkspace();
-  const warehouses = useWarehouses();
+  const warehouses = useWarehouses({ countryWide: true });
   const [project, setProject] = useState<Project | null>(presetProject ?? null);
   const [warehouse, setWarehouse] = useState(doc?.warehouse ? String(doc.warehouse) : "");
   const [date, setDate] = useState(doc?.date ?? today());

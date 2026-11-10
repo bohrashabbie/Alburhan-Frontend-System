@@ -38,10 +38,11 @@ function boqTotals(lines: BOQDraft[], decimals: number) {
 }
 
 function Editor({ doc, onDone }: { doc?: Project; onDone: () => void }) {
-  const { company, branch, branches, can, locale, name, t } = useWorkspace();
+  const { company, branch, branches, can, locale, me, name, t } = useWorkspace();
   const router = useRouter();
-  const warehouses = useWarehouses();
-  const users = useResource<Page<User>>(`/users?company=${company.id}&page_size=200`);
+  const warehouses = useWarehouses({ countryWide: true });
+  // People who can't list users can still name themselves as the manager.
+  const users = useResource<Page<User>>(can("users.user.view") ? `/users?company=${company.id}&page_size=200` : null);
   const live = useResource<Project>(doc ? `/projects/projects/${doc.id}` : null);
   const project = live.data ?? doc;
   const [customer, setCustomer] = useState<Customer | null>(null);
@@ -123,7 +124,7 @@ function Editor({ doc, onDone }: { doc?: Project; onDone: () => void }) {
           </SelectField>
           <SelectField label={t("Project manager")} value={form.manager} onChange={set("manager")} error={save.field("manager")} disabled={locked}>
             <option value="">—</option>
-            {(users.data?.results ?? []).map((item) => <option key={item.id} value={item.id}>{[item.first_name, item.last_name].filter(Boolean).join(" ") || item.email}</option>)}
+            {(users.data?.results ?? (me ? [me] : [])).map((item) => <option key={item.id} value={item.id}>{[item.first_name, item.last_name].filter(Boolean).join(" ") || item.email}</option>)}
           </SelectField>
           <TextField label={t("Start date")} type="date" value={form.start_date} onChange={set("start_date")} disabled={locked} />
           <TextField label={t("End date")} type="date" value={form.end_date} onChange={set("end_date")} error={save.field("end_date")} disabled={locked} />

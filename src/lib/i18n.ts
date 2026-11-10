@@ -850,6 +850,8 @@ const AR: Record<string, string> = {
   "department": "قسم",
   "leave type": "نوع إجازة",
   "paid": "مدفوعة",
+  "Project sales": "مبيعات المشاريع",
+  "invoice": "فاتورة",
 };
 
 export function translate(locale: Locale, text: string) {
