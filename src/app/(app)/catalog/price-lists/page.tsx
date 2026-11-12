@@ -217,6 +217,7 @@ export default function PriceListsPage() {
         is_active: row?.is_active ?? true,
       })}
       toPayload={() => ({ company: company.id })}
+      keepOpenAfterCreate
       drawerExtra={(row) => <PriceItems priceList={row} />}
     />
   );

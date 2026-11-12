@@ -1438,3 +1438,35 @@ export type PayrollRun = Audited & {
   notes: string;
   payslips: Payslip[];
 };
+
+export type SalaryChange = {
+  id: number;
+  employee: number;
+  effective_from: string;
+  basic_salary: string;
+  housing_allowance: string;
+  transport_allowance: string;
+  other_allowance: string;
+  monthly_pay: string;
+  note: string;
+  created_at: string;
+  created_by_name: string;
+};
+
+export type SalaryRow = {
+  id: number;
+  company: number;
+  number: string;
+  full_name: string;
+  job_title: string;
+  department_name: string | null;
+  branch_name: string | null;
+  basic_salary: string;
+  housing_allowance: string;
+  transport_allowance: string;
+  other_allowance: string;
+  monthly_pay: string;
+  changed_on: string | null;
+  is_active: boolean;
+  history: SalaryChange[];
+};

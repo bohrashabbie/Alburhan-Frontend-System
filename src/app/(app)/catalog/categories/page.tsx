@@ -67,6 +67,7 @@ export default function CategoriesPage() {
         parent: row?.parent ? String(row.parent) : "",
         is_active: row?.is_active ?? true,
       })}
+      keepOpenAfterCreate
       drawerExtra={(row) => (
         <PhotoUpload
           endpoint={`/catalog/categories/${row.id}/image`}

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { Loading } from "@/components/ui";
 import { formatDate, formatMoney } from "@/lib/format";
@@ -7,6 +9,17 @@ import { useResource } from "@/lib/hooks";
 import { BalanceCards } from "@/lib/hr";
 import type { Department, Employee, LeaveBalance, Page, User } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
+
+/** Salaries live on their own page, so every change keeps a history. */
+function SalaryNote() {
+  const { can, t } = useWorkspace();
+  return (
+    <p className="rounded-xl border border-line bg-surface-muted/40 px-4 py-3 text-sm text-ink-soft">
+      {t("Salary is set on the Salaries page, which keeps every change.")}{" "}
+      {can("hr.salary.view") ? <Link href="/hr/salaries" className="font-medium text-link hover:underline">{t("Open Salaries")}</Link> : null}
+    </p>
+  );
+}
 
 function Balances({ employee }: { employee: Employee }) {
   const { t } = useWorkspace();
@@ -61,11 +74,8 @@ export default function EmployeesPage() {
         { name: "civil_id", label: "Civil ID", section: "Personal" },
         { name: "nationality", label: "Nationality", type: "country" },
         { name: "iban", label: "IBAN", hint: "Salary is paid here." },
-        { name: "basic_salary", label: `Basic salary (${company.currency})`, type: "number", section: "Monthly pay" },
-        { name: "housing_allowance", label: `Housing allowance (${company.currency})`, type: "number" },
-        { name: "transport_allowance", label: `Transport allowance (${company.currency})`, type: "number" },
-        { name: "other_allowance", label: `Other allowance (${company.currency})`, type: "number" },
-        { name: "annual_leave_days", label: "Annual leave days", type: "number", hint: "Paid days off per year." },
+        { name: "annual_leave_days", label: "Annual leave days", type: "number", hint: "Paid days off per year.", section: "Leave and pay" },
+        { name: "__salary", label: "Salary", type: "custom", wide: true, render: () => <SalaryNote /> },
         { name: "is_active", label: "Active", type: "checkbox" },
       ]}
       initial={(row) => ({
@@ -85,10 +95,6 @@ export default function EmployeesPage() {
         civil_id: row?.civil_id ?? "",
         nationality: row?.nationality ?? "",
         iban: row?.iban ?? "",
-        basic_salary: row ? String(Number(row.basic_salary)) : "0",
-        housing_allowance: row ? String(Number(row.housing_allowance)) : "0",
-        transport_allowance: row ? String(Number(row.transport_allowance)) : "0",
-        other_allowance: row ? String(Number(row.other_allowance)) : "0",
         annual_leave_days: row ? String(Number(row.annual_leave_days)) : "30",
         is_active: row?.is_active ?? true,
       })}

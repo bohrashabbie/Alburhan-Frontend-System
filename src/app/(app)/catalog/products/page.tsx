@@ -177,6 +177,7 @@ export default function ProductsPage() {
         expense_account: row?.expense_account ? String(row.expense_account) : "",
         is_active: row?.is_active ?? true,
       })}
+      keepOpenAfterCreate
       drawerExtra={(row) => (
         <PhotoUpload
           endpoint={`/catalog/products/${row.id}/image`}

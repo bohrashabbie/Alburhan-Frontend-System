@@ -97,6 +97,7 @@ function ResourcePageInner<T extends { id: number }>({
   noun,
   extraForm,
   drawerExtra,
+  keepOpenAfterCreate = false,
   toPayload,
   wide = false,
   filters = [],
@@ -132,6 +133,8 @@ function ResourcePageInner<T extends { id: number }>({
   ) => ReactNode;
   /** Shown under the form when editing an existing row (e.g. a user's role assignments). */
   drawerExtra?: (row: T) => ReactNode;
+  /** After creating, reopen the new row (e.g. to give a new user their access); otherwise close. */
+  keepOpenAfterCreate?: boolean;
   toPayload?: (values: Values) => Record<string, unknown>;
 }) {
   const { can, t } = useWorkspace();
@@ -297,7 +300,7 @@ function ResourcePageInner<T extends { id: number }>({
           wide={wide}
           onClose={() => setEditing(null)}
           onSaved={refreshAll}
-          onCreated={drawerExtra ? (created) => setEditing(created) : undefined}
+          onCreated={keepOpenAfterCreate ? (created) => setEditing(created) : undefined}
         />
       ) : null}
     </>

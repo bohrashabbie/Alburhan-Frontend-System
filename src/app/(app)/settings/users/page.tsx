@@ -237,6 +237,7 @@ export default function UsersPage() {
       })}
       toPayload={(values) => (values.password ? {} : { password: undefined })}
       drawerExtra={(row) => <Access user={row} />}
+      keepOpenAfterCreate
     />
   );
 }

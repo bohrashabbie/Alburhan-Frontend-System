@@ -74,6 +74,7 @@ export default function CompaniesPage() {
         address: row?.address ?? "",
         is_active: row?.is_active ?? true,
       })}
+      keepOpenAfterCreate
       drawerExtra={(row) => (
         <PhotoUpload
           endpoint={`/organization/companies/${row.id}/logo`}

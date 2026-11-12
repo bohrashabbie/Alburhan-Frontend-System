@@ -81,7 +81,10 @@ const AREAS: Record<Area, SectionGroup[]> = {
     },
     {
       title: "Pay",
-      links: [{ href: "/hr/payroll", label: "Payroll", permission: "hr.payroll.view" }],
+      links: [
+        { href: "/hr/salaries", label: "Salaries", permission: "hr.salary.view" },
+        { href: "/hr/payroll", label: "Payroll", permission: "hr.payroll.view" },
+      ],
     },
     {
       title: "Setup",
