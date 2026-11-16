@@ -2,7 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, type ReactNode, Suspense, useState } from "react";
+import { Fragment, type ReactNode, Suspense, useEffect, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 
 import {
@@ -21,6 +21,7 @@ import {
   TextField,
 } from "@/components/ui";
 import { CountryPicker } from "@/components/country";
+import { PhoneField } from "@/components/phone-field";
 import { api, withQuery } from "@/lib/api";
 import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import type { Page } from "@/lib/types";
@@ -42,6 +43,7 @@ export type Field = {
     | "checkbox"
     | "country"
     | "password"
+    | "phone"
     | "custom";
   /** For type "custom": render your own control. */
   render?: (props: {
@@ -98,6 +100,7 @@ function ResourcePageInner<T extends { id: number }>({
   extraForm,
   drawerExtra,
   keepOpenAfterCreate = false,
+  readOnly,
   toPayload,
   wide = false,
   filters = [],
@@ -135,6 +138,8 @@ function ResourcePageInner<T extends { id: number }>({
   drawerExtra?: (row: T) => ReactNode;
   /** After creating, reopen the new row (e.g. to give a new user their access); otherwise close. */
   keepOpenAfterCreate?: boolean;
+  /** Rows that can't be changed (e.g. built-in roles): return the reason to show, or null. */
+  readOnly?: (row: T) => string | null;
   toPayload?: (values: Values) => Record<string, unknown>;
 }) {
   const { can, t } = useWorkspace();
@@ -279,6 +284,7 @@ function ResourcePageInner<T extends { id: number }>({
           initial={initial}
           extraForm={extraForm}
           drawerExtra={drawerExtra}
+          readOnly={readOnly}
           toPayload={toPayload}
           wide={wide}
           onClose={() => router.replace(pathname, { scroll: false })}
@@ -296,6 +302,7 @@ function ResourcePageInner<T extends { id: number }>({
           initial={initial}
           extraForm={extraForm}
           drawerExtra={drawerExtra}
+          readOnly={readOnly}
           toPayload={toPayload}
           wide={wide}
           onClose={() => setEditing(null)}
@@ -330,6 +337,7 @@ function EditDrawer<T extends { id: number }>({
   onClose,
   onSaved,
   onCreated,
+  readOnly,
 }: {
   wide: boolean;
   row?: T;
@@ -349,11 +357,19 @@ function EditDrawer<T extends { id: number }>({
   onSaved: () => void;
   /** When set, a newly created row stays open (e.g. so a new user can be given roles at once). */
   onCreated?: (row: T) => void;
+  readOnly?: (row: T) => string | null;
 }) {
   const { can, t } = useWorkspace();
   const [values, setValues] = useState<Values>(() => initial(row));
   const save = useAction();
   const remove = useAction();
+  const locked = row && readOnly ? readOnly(row) : null;
+  // A failed save shows its reason at the top of the form: bring it into view.
+  const errorBox = useRef<HTMLDivElement>(null);
+  const failure = save.error ?? remove.error;
+  useEffect(() => {
+    if (failure) errorBox.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [failure]);
   const set = (name: string, value: string | boolean) =>
     setValues((current) => ({ ...current, [name]: value }));
 
@@ -392,23 +408,30 @@ function EditDrawer<T extends { id: number }>({
       title={row ? `${t("Edit")} ${noun}` : `${t("Add")} ${noun}`}
       footer={
         <div className="flex items-center gap-2">
-          {row && can(`${permission}.delete`) ? (
+          {row && !locked && can(`${permission}.delete`) ? (
             <Button variant="danger" pending={remove.pending} onClick={destroy}>
               {t("Delete")}
             </Button>
           ) : null}
           <span className="flex-1" />
           <Button variant="secondary" onClick={onClose}>
-            {t("Cancel")}
+            {locked ? t("Close") : t("Cancel")}
           </Button>
-          <Button type="submit" form={formId} pending={save.pending}>
-            {t("Save")}
-          </Button>
+          {locked ? null : (
+            <Button type="submit" form={formId} pending={save.pending}>
+              {t("Save")}
+            </Button>
+          )}
         </div>
       }
     >
       <form id={formId} onSubmit={onSubmit(submit)} className="profile-section flex flex-col gap-4 pb-6">
-        <ErrorBanner error={save.error ?? remove.error} hideFields />
+        <div ref={errorBox} className="scroll-mt-4">
+          <ErrorBanner error={failure} hideFields />
+        </div>
+        {locked ? (
+          <p className="rounded-xl border border-line bg-surface-muted/50 px-4 py-3 text-sm text-ink-soft">{t(locked)}</p>
+        ) : null}
         <div className={`grid gap-x-4 gap-y-5 ${wide ? "sm:grid-cols-2" : ""}`}>
           {fields.map((field, index) => (
             <Fragment key={field.name}>
@@ -434,7 +457,7 @@ function EditDrawer<T extends { id: number }>({
                   field={typeof field.options === "function" ? { ...field, options: field.options(values) } : field}
                   value={values[field.name]}
                   error={save.field(field.name)}
-                  disabled={Boolean(row && field.lockOnEdit)}
+                  disabled={Boolean(locked) || Boolean(row && field.lockOnEdit)}
                   onChange={(value) => set(field.name, value)}
                 />
               </div>
@@ -470,6 +493,19 @@ function FieldInput({
   if (field.type === "country") {
     return (
       <CountryPicker
+        label={label}
+        hint={field.hint}
+        error={error}
+        required={field.required}
+        disabled={disabled}
+        value={String(value ?? "")}
+        onChange={onChange}
+      />
+    );
+  }
+  if (field.type === "phone") {
+    return (
+      <PhoneField
         label={label}
         hint={field.hint}
         error={error}

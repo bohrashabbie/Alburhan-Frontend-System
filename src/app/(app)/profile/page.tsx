@@ -4,6 +4,7 @@ import { KeyRound, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useSWRConfig } from "swr";
 
+import { PhoneField } from "@/components/phone-field";
 import { PhotoUpload } from "@/components/photo-upload";
 import { UserAvatar } from "@/components/user-avatar";
 import { Badge, Button, Card, ErrorBanner, PageHeader, SaveBar, SelectField, TextField } from "@/components/ui";
@@ -51,7 +52,7 @@ function Details() {
           <TextField label={t("First name")} value={values.first_name} onChange={set("first_name")} error={action.field("first_name")} />
           <TextField label={t("Last name")} value={values.last_name} onChange={set("last_name")} error={action.field("last_name")} />
           <TextField label={t("Email")} value={me.email} disabled hint={t("Your sign-in. Ask an administrator to change it.")} />
-          <TextField label={t("Phone")} value={values.phone} onChange={set("phone")} error={action.field("phone")} />
+          <PhoneField label={t("Phone")} value={values.phone} onChange={(phone) => set("phone")({ target: { value: phone } })} error={action.field("phone")} />
         </div>
       </Card>
       <Card title={t("Preferences")}>

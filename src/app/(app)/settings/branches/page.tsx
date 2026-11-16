@@ -37,7 +37,7 @@ export default function BranchesPage() {
         { name: "branch_type", label: "Type", type: "select", required: true, options: BRANCH_TYPES },
         { name: "name", label: "Name", required: true },
         { name: "name_ar", label: "Name (Arabic)" },
-        { name: "phone", label: "Phone" },
+        { name: "phone", label: "Phone", type: "phone" },
         { name: "email", label: "Email", type: "email" },
         { name: "address", label: "Address", type: "textarea" },
         { name: "is_active", label: "Active", type: "checkbox" },

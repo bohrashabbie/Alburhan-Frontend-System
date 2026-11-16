@@ -9,6 +9,23 @@ import { useResource } from "@/lib/hooks";
 import type { Company, Currency, Page } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
+/** Every time zone, with its current UTC offset, ordered by offset: "(UTC+03:00) Asia/Kuwait". */
+const TIME_ZONES: [string, string][] = (() => {
+  const zones = typeof Intl.supportedValuesOf === "function" ? Intl.supportedValuesOf("timeZone") : ["Asia/Kuwait", "Asia/Dubai", "Asia/Riyadh", "Asia/Shanghai", "Africa/Cairo", "UTC"];
+  const offset = (zone: string) => {
+    const part = new Intl.DateTimeFormat("en-US", { timeZone: zone, timeZoneName: "longOffset" }).formatToParts(new Date()).find((p) => p.type === "timeZoneName")?.value ?? "GMT";
+    const match = part.match(/GMT([+-])(\d{2}):(\d{2})/);
+    const minutes = match ? (match[1] === "-" ? -1 : 1) * (Number(match[2]) * 60 + Number(match[3])) : 0;
+    const sign = minutes < 0 ? "-" : "+";
+    const abs = Math.abs(minutes);
+    return { minutes, label: `UTC${sign}${String(Math.floor(abs / 60)).padStart(2, "0")}:${String(abs % 60).padStart(2, "0")}` };
+  };
+  return [...new Set([...zones, "UTC"])]
+    .map((zone) => ({ zone, ...offset(zone) }))
+    .sort((a, b) => a.minutes - b.minutes || a.zone.localeCompare(b.zone))
+    .map(({ zone, label }) => [zone, `(${label}) ${zone.replaceAll("_", " ")}`]);
+})();
+
 export default function CompaniesPage() {
   const { can, name } = useWorkspace();
   const { mutate } = useSWRConfig();
@@ -51,10 +68,10 @@ export default function CompaniesPage() {
         { name: "legal_name", label: "Legal name" },
         { name: "country", label: "Country", type: "country", required: true, section: "Country and books" },
         { name: "currency", label: "Currency", type: "select", required: true, options: currencyOptions, hint: "The currency this company keeps its books in." },
-        { name: "timezone", label: "Time zone", required: true },
+        { name: "timezone", label: "Time zone", type: "select", required: true, options: TIME_ZONES, hint: "Dates, times and the start of each business day follow this." },
         { name: "tax_registration_number", label: "Tax registration no.", section: "Registration", hint: "Printed on invoices; used for VAT returns." },
         { name: "commercial_registration_number", label: "Commercial registration no.", hint: "Used as the XBRL filing identifier." },
-        { name: "phone", label: "Phone", section: "Contact" },
+        { name: "phone", label: "Phone", type: "phone", section: "Contact" },
         { name: "email", label: "Email", type: "email" },
         { name: "address", label: "Address", type: "textarea", wide: true },
         { name: "is_active", label: "Active", type: "checkbox", wide: true },

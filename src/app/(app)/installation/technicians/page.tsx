@@ -27,7 +27,7 @@ export default function TechniciansPage() {
       fields={[
         { name: "name", label: "Name", required: true },
         { name: "name_ar", label: "Name (Arabic)" },
-        { name: "phone", label: "Phone" },
+        { name: "phone", label: "Phone", type: "phone" },
         { name: "branch", label: "Branch", type: "select", nullable: true, options: [["", t("Company")], ...branches.map((item): [string, string] => [String(item.id), name(item)])] },
         { name: "skills", label: "Skills", hint: "e.g. electrical, magnetic track, outdoor" },
         { name: "hourly_cost", label: `Hourly cost (${company.currency})`, type: "number", hint: "Internal cost, not what the customer pays." },

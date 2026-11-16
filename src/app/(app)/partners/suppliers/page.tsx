@@ -54,7 +54,7 @@ export default function SuppliersPage() {
         { name: "country", label: "Country", type: "country", nullable: true },
         { name: "currency", label: "Invoice currency", type: "select", required: true, options: currencyOptions },
         { name: "intercompany", label: "Group company", type: "select", nullable: true, options: groupCompanies, hint: "Set when this supplier is another Al-Burhan company." },
-        { name: "phone", label: "Phone" },
+        { name: "phone", label: "Phone", type: "phone" },
         { name: "email", label: "Email", type: "email" },
         { name: "website", label: "Website", type: "url", wide: true },
         { name: "address", label: "Address", type: "textarea" },

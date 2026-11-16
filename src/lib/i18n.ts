@@ -880,6 +880,15 @@ const AR: Record<string, string> = {
   "Leave and pay": "الإجازة والراتب",
   "Salary": "الراتب",
   "type to narrow the list": "اكتب لتضييق القائمة",
+  // Phones and roles
+  "Country code": "رمز الدولة",
+  "Country or code": "الدولة أو الرمز",
+  "No countries match.": "لا توجد دول مطابقة.",
+  "Opens at sign-in": "يفتح عند تسجيل الدخول",
+  "This is a built-in role. It always has every permission and can't be changed.": "هذا دور مدمج. يملك كل الصلاحيات دائماً ولا يمكن تعديله.",
+  "People who sign in. Add the person, then give them access: a job in a country, for the whole country or some stores.": "الأشخاص الذين يسجلون الدخول. أضف الشخص ثم امنحه الصلاحية: وظيفة في دولة، للدولة كاملة أو لبعض الفروع.",
+  "Time zone": "المنطقة الزمنية",
+  "Dates, times and the start of each business day follow this.": "تتبعها التواريخ والأوقات وبداية كل يوم عمل.",
 };
 
 export function translate(locale: Locale, text: string) {

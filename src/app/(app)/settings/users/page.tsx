@@ -62,6 +62,16 @@ function Access({ user }: { user: User }) {
     <section className="border-t border-line pt-6">
       <h3 className="text-base font-bold">{t("Access")}</h3>
       <p className="mt-1 text-sm text-ink-soft">{t("Country first, then the whole country or only some stores. Each line gives one role there.")}</p>
+      {user.default_company ? (
+        <p className="mt-2 text-sm">
+          <span className="text-ink-soft">{t("Opens at sign-in")}: </span>
+          <span className="font-medium">
+            {name(countries.find((item) => item.id === user.default_company)) || "—"}
+            {" · "}
+            {user.default_branch ? name(me.branches.find((item) => item.id === user.default_branch)) : t("Whole country")}
+          </span>
+        </p>
+      ) : null}
       {user.is_superuser ? (
         <p className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-surface-muted/50 px-4 py-3 text-sm">
           <Globe2 aria-hidden className="size-4 text-ink-soft" />
@@ -157,14 +167,12 @@ function AccessSummary({ user }: { user: User }) {
 }
 
 export default function UsersPage() {
-  const { me, company, companies, locale, name } = useWorkspace();
-  const storeOptions = (values: Record<string, string | boolean>): [string, string][] =>
-    me.branches.filter((item) => String(item.company) === String(values.default_company)).map((item) => [String(item.id), name(item)]);
+  const { me, company, locale } = useWorkspace();
 
   return (
     <ResourcePage<User>
       title="Users"
-      description="People who sign in. Each belongs to a country; what they can do, and in which stores, comes from their access."
+      description="People who sign in. Add the person, then give them access: a job in a country, for the whole country or some stores."
       endpoint="/users"
       permission="users.user"
       noun="user"
@@ -184,7 +192,7 @@ export default function UsersPage() {
         { name: "last_name", label: "Last name" },
         { name: "email", label: "Email", type: "email", required: true },
         { name: "username", label: "Username", required: true, lockOnEdit: true },
-        { name: "phone", label: "Phone" },
+        { name: "phone", label: "Phone", type: "phone" },
         {
           name: "preferred_language",
           label: "Language",
@@ -194,22 +202,6 @@ export default function UsersPage() {
             ["en", "English"],
             ["ar", "العربية"],
           ],
-        },
-        {
-          name: "default_company",
-          label: "Country",
-          type: "select",
-          required: true,
-          hint: "The country this person belongs to. Its administrators manage the account.",
-          options: companies.map((item) => [String(item.id), name(item)]),
-        },
-        {
-          name: "default_branch",
-          label: "Home store",
-          type: "select",
-          nullable: true,
-          hint: "Where they usually work; opens first when they sign in.",
-          options: storeOptions,
         },
         {
           name: "password",
@@ -230,12 +222,13 @@ export default function UsersPage() {
         phone: row?.phone ?? "",
         preferred_language: row?.preferred_language ?? "en",
         default_company: String(row?.default_company ?? company.id),
-        default_branch: row?.default_branch ? String(row.default_branch) : "",
         password: "",
         is_active: row?.is_active ?? true,
         ...(me.is_superuser ? { is_superuser: row?.is_superuser ?? false } : {}),
       })}
-      toPayload={(values) => (values.password ? {} : { password: undefined })}
+      // A new person starts in the country you're working in; after that their country and the
+      // store the app opens on follow their access (set below).
+      toPayload={(values) => ({ default_company: Number(values.default_company), ...(values.password ? {} : { password: undefined }) })}
       drawerExtra={(row) => <Access user={row} />}
       keepOpenAfterCreate
     />

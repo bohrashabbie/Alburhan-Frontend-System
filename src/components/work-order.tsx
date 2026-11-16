@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { CustomerPicker } from "@/components/customer-picker";
 import { Facts } from "@/components/document-list";
+import { PhoneField } from "@/components/phone-field";
 import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, Modal, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api, idOrNull } from "@/lib/api";
@@ -59,7 +60,7 @@ export function WorkOrderEditor({ doc, presetProject, onDone }: { doc?: WorkOrde
             <TextField label={t("Hours")} inputMode="decimal" value={form.duration_hours} onChange={set("duration_hours")} error={save.field("duration_hours")} />
           </div>
           <TextField label={t("Contact on site")} value={form.contact_name} onChange={set("contact_name")} />
-          <TextField label={t("Contact phone")} value={form.contact_phone} onChange={set("contact_phone")} />
+          <PhoneField label={t("Contact phone")} value={form.contact_phone} onChange={(phone) => set("contact_phone")({ target: { value: phone } })} />
           <div className="sm:col-span-2"><TextAreaField label={t("Site address")} rows={2} value={form.site_address} onChange={set("site_address")} /></div>
           <div className="sm:col-span-2"><TextAreaField label={t("Work to do")} rows={3} value={form.description} onChange={set("description")} /></div>
         </div>

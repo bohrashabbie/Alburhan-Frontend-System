@@ -283,6 +283,7 @@ export default function RolesPage() {
         permissions: (row?.permissions ?? []).join(","),
         is_system: row?.is_system ?? false,
       })}
+      readOnly={(row) => (row.is_system ? "This is a built-in role. It always has every permission and can't be changed." : null)}
       extraForm={(values, set) => (
         <PermissionGrid values={values} set={set} locked={Boolean(values.is_system)} />
       )}

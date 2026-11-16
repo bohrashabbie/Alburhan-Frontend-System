@@ -64,7 +64,7 @@ export default function EmployeesPage() {
         { name: "name_ar", label: "Name (Arabic)" },
         { name: "job_title", label: "Job title" },
         { name: "email", label: "Email", type: "email", hint: "Leave emails go here. Needed for managers: the approval link is emailed." },
-        { name: "phone", label: "Phone" },
+        { name: "phone", label: "Phone", type: "phone" },
         { name: "department", label: "Department", type: "select", nullable: true, options: pick(departments.data?.results, (item) => name(item), (item) => item.id), section: "Work" },
         { name: "manager", label: "Manager", type: "select", nullable: true, hint: "Approves this person's leave. Empty: HR decides.", options: (values) => pick(people.data?.results.filter((item) => String(item.id) !== String(values.__id ?? "")), (item) => `${item.full_name}${item.job_title ? ` · ${item.job_title}` : ""}`, (item) => item.id) },
         { name: "branch", label: "Store", type: "select", nullable: true, options: branches.map((item): [string, string] => [String(item.id), name(item)]) },

@@ -2,6 +2,7 @@
 
 import { Plus, Star, Trash2 } from "lucide-react";
 
+import { PhoneField } from "@/components/phone-field";
 import { Button, IconButton } from "@/components/ui";
 import type { Contact } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
@@ -82,13 +83,12 @@ export function ContactsEditor({
                   onChange={(event) => update(index, { job_title: event.target.value })}
                   className={CELL}
                 />
-                <input
-                  aria-label={t("Phone")}
+                <PhoneField
+                  compact
+                  label={t("Phone")}
                   placeholder={t("Phone")}
-                  inputMode="tel"
                   value={contact.phone}
-                  onChange={(event) => update(index, { phone: event.target.value })}
-                  className={CELL}
+                  onChange={(phone) => update(index, { phone })}
                 />
                 <input
                   aria-label={t("Email")}
