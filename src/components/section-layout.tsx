@@ -65,7 +65,7 @@ export function SectionLayout({ groups, children }: { groups: SectionGroup[]; ch
         <nav
           aria-label="Section"
           inert={!open ? true : undefined}
-          className={`flex gap-4 overflow-x-auto border-b border-line pb-2 lg:h-full lg:flex-col lg:gap-0 lg:overflow-x-hidden lg:overflow-y-auto lg:border-e lg:border-b-0 lg:bg-surface lg:px-3 lg:py-6 lg:transition-[opacity,transform] lg:duration-300 lg:ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          className={`quiet-scrollbar flex gap-4 overflow-x-auto border-b border-line pb-2 lg:h-full lg:flex-col lg:gap-0 lg:overflow-x-hidden lg:overflow-y-auto lg:border-e lg:border-b-0 lg:bg-surface lg:px-3 lg:py-6 lg:transition-[opacity,transform] lg:duration-300 lg:ease-[cubic-bezier(0.22,1,0.36,1)] ${
             open ? "lg:translate-x-0 lg:opacity-100" : "lg:pointer-events-none lg:-translate-x-6 lg:opacity-0 rtl:lg:translate-x-6"
           }`}
         >

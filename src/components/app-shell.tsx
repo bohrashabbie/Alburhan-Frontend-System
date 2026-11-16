@@ -198,7 +198,7 @@ function Flyout({
       <div
         role="menu"
         aria-label={t(item.label)}
-        className="h-full overflow-y-auto border-e border-line bg-surface py-4 text-ink shadow-xl"
+        className="quiet-scrollbar h-full overflow-y-auto border-e border-line bg-surface py-4 text-ink shadow-xl"
       >
         {groups.map((group, index) => (
           <div key={group.title}>
@@ -442,7 +442,7 @@ function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh ps-[4.5rem]">
       <aside className="fixed top-16 bottom-0 start-0 z-40 flex w-[4.5rem] flex-col items-center bg-panel pt-3 pb-4 text-panel-ink">
-        <nav aria-label="Main" className="flex min-h-0 flex-col gap-1 overflow-y-auto">
+        <nav aria-label="Main" className="rail-nav no-scrollbar flex min-h-0 flex-col gap-1 overflow-y-auto">
           {links.map((item) => (
             <RailLink
               key={item.href}

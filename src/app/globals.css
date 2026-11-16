@@ -189,15 +189,13 @@ dialog::backdrop {
   white-space: nowrap;
 }
 
-/* An area's pages slide out from behind the sidebar. */
+/* An area's pages wipe out from the sidebar edge (solid, never see-through). */
 @keyframes flyout-in {
   from {
-    opacity: 0;
-    transform: translateX(-16px);
+    clip-path: inset(0 100% 0 0);
   }
   to {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
 }
 .rail-flyout {
@@ -273,12 +271,10 @@ dialog.slide-panel[data-closing]::backdrop {
 }
 @keyframes flyout-in-rtl {
   from {
-    opacity: 0;
-    transform: translateX(16px);
+    clip-path: inset(0 0 0 100%);
   }
   to {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
 }
 [dir="rtl"] dialog.slide-panel {
@@ -396,22 +392,18 @@ input.input-bare:focus {
 /* ---- Navigation motion: flyout in/out, dimmed backdrop, staggered links, page entrance. ---- */
 @keyframes flyout-out {
   from {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
   to {
-    opacity: 0;
-    transform: translateX(-20px);
+    clip-path: inset(0 100% 0 0);
   }
 }
 @keyframes flyout-out-rtl {
   from {
-    opacity: 1;
-    transform: translateX(0);
+    clip-path: inset(0 0 0 0);
   }
   to {
-    opacity: 0;
-    transform: translateX(20px);
+    clip-path: inset(0 0 0 100%);
   }
 }
 .rail-flyout[data-closing] {
@@ -481,5 +473,39 @@ input.input-bare:focus {
   .link-in,
   .page-in {
     animation: none !important;
+  }
+}
+
+/* ---- Scrollbars in navigation ----
+ * The dark sidebar never shows a scrollbar (Windows draws a white one with arrow buttons that
+ * pushes the icons aside); it still scrolls with the wheel or touchpad on very short screens.
+ * Menus that slide out get a thin scrollbar that only shows on hover. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.quiet-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.quiet-scrollbar:hover {
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+/* On laptop-height screens the sidebar icons sit closer, so they all fit without scrolling. */
+@media (max-height: 820px) {
+  .rail-nav {
+    gap: 0;
+  }
+  .rail-nav > * {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+@media (max-height: 680px) {
+  .rail-nav > * {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
