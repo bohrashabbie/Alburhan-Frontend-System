@@ -7,6 +7,7 @@ import { Suspense, useState } from "react";
 import { CustomerPicker } from "@/components/customer-picker";
 import { DocumentList, Facts } from "@/components/document-list";
 import { type LineDraft, SalesLinesEditor, SalesLinesView, fromSalesLines, newLine, toPayload, useSalesDefaults } from "@/components/sales-lines";
+import { PrintLink } from "@/components/print-link";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -130,7 +131,7 @@ function Viewer({ doc, onDone }: { doc: Invoice; onDone: () => void }) {
     });
 
   return (
-    <Drawer open large wide onClose={onDone} title={doc.number} action={<SalesStatus status={doc.status} posted="Unpaid" />}>
+    <Drawer open large wide onClose={onDone} title={doc.number} action={<span className="flex items-center gap-2"><PrintLink kind="invoice" id={doc.id} /><SalesStatus status={doc.status} posted="Unpaid" /></span>}>
       <div className="profile-section flex flex-col gap-6 pb-6">
         <Facts items={[[t("Customer"), doc.customer_name], [t("Date"), formatDate(doc.date, locale)], [t("Due date"), formatDate(doc.due_date, locale)], [t("Branch"), doc.branch_name]]} />
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

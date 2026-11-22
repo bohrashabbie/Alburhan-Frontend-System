@@ -153,7 +153,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
   const found: Entry[] = [
     ...records.customers.map((c) => ({ key: `c${c.id}`, group: "Customers", label: name(c), hint: `${c.code}${c.mobile ? ` · ${c.mobile}` : ""}`, href: `/partners/customers?open=${c.id}`, icon: UserRound })),
     ...records.invoices.map((inv) => ({ key: `i${inv.id}`, group: "Invoices", label: inv.number || t("Draft invoice"), hint: `${inv.customer_name} · ${inv.total} ${inv.currency}`, href: `/sales/invoices?open=${inv.id}`, icon: FileText })),
-    ...records.products.map((p) => ({ key: `p${p.id}`, group: "Products", label: name(p), hint: p.sku, href: `/catalog/products?open=${p.id}`, icon: Lightbulb })),
+    ...records.products.map((p) => ({ key: `p${p.id}`, group: "Products", label: name(p), hint: p.sku, href: canSee("inventory.stock.view") ? `/inventory/items/${p.id}` : `/catalog/products?open=${p.id}`, icon: Lightbulb })),
     ...records.orders.map((o) => ({ key: `o${o.id}`, group: "Purchase orders", label: o.number || t("Draft order"), hint: `${o.supplier_name} · ${o.total} ${o.currency}`, href: `/purchasing/orders?open=${o.id}`, icon: Truck })),
     ...records.projects.map((p) => ({ key: `r${p.id}`, group: "Projects", label: name(p), hint: `${p.number} · ${p.customer_name}`, href: `/projects/list?open=${p.id}`, icon: FolderKanban })),
   ];

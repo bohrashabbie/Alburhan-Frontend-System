@@ -7,6 +7,7 @@ import { useState } from "react";
 import { CustomerPicker } from "@/components/customer-picker";
 import { DocumentList, Facts } from "@/components/document-list";
 import { type LineDraft, SalesLinesEditor, SalesLinesView, fromSalesLines, newLine, toPayload, useSalesDefaults } from "@/components/sales-lines";
+import { PrintLink } from "@/components/print-link";
 import { Button, Drawer, ErrorBanner, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -122,7 +123,7 @@ function Viewer({ doc, onDone }: { doc: Quotation; onDone: () => void }) {
     });
 
   return (
-    <Drawer open large wide onClose={onDone} title={doc.number} action={<SalesStatus status={doc.status} />}>
+    <Drawer open large wide onClose={onDone} title={doc.number} action={<span className="flex items-center gap-2"><PrintLink kind="quotation" id={doc.id} /><SalesStatus status={doc.status} /></span>}>
       <div className="profile-section flex flex-col gap-6 pb-6">
         <Facts items={[[t("Customer"), doc.customer_name], [t("Date"), formatDate(doc.date, locale)], [t("Valid until"), formatDate(doc.valid_until, locale)], [t("Branch"), doc.branch_name]]} />
         {doc.invoice_number ? <p className="text-sm text-ink-soft">{t("Invoice")}: <span className="font-mono text-ink">{doc.invoice_number}</span></p> : null}

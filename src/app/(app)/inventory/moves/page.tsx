@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 import { Badge, Button, EmptyState, ErrorBanner, Loading, PageHeader, SearchField, SelectField, Table, TextField } from "@/components/ui";
 import { withQuery } from "@/lib/api";
@@ -22,6 +24,18 @@ const TYPES: [StockMove["move_type"], string][] = [
 ];
 
 export default function MovesPage() {
+  return (
+    <Suspense fallback={<Loading />}>
+      <Moves />
+    </Suspense>
+  );
+}
+
+/** ?product=<id> (from an item card) shows one item's full history. */
+function Moves() {
+  const params = useSearchParams();
+  const router = useRouter();
+  const product = params.get("product") ?? "";
   const { company, locale, name, t } = useWorkspace();
   const warehouses = useWarehouses();
   const [search, setSearch] = useState("");
@@ -32,7 +46,7 @@ export default function MovesPage() {
   const [page, setPage] = useState(1);
   const list = useResource<Page<StockMove>>(
     withQuery("/inventory/moves", {
-      company: company.id, warehouse, move_type: type, search: search.trim(), date_from: from, date_to: to, page,
+      company: company.id, product, warehouse, move_type: type, search: search.trim(), date_from: from, date_to: to, page,
     }),
   );
   const typeName = Object.fromEntries(TYPES);
@@ -47,6 +61,12 @@ export default function MovesPage() {
 
   return (
     <>
+      {product ? (
+        <div className="mb-3 flex items-center gap-2 text-sm">
+          <span className="rounded-full bg-surface-muted px-3 py-1">{t("One item")}: <span className="font-medium">{rows[0] ? `${rows[0].sku} · ${rows[0].product_name}` : "…"}</span></span>
+          <button type="button" onClick={() => router.replace("/inventory/moves")} className="inline-flex items-center gap-1 text-ink-soft hover:text-ink"><X aria-hidden className="size-4" />{t("Show all")}</button>
+        </div>
+      ) : null}
       <PageHeader title={t("Movements")} description={`Every stock movement of ${name(company)}, newest first. Nothing here can be edited: corrections are new documents.`} />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <SearchField label={t("Search")} placeholder={t("Search…")} value={search} onChange={set(setSearch)} />

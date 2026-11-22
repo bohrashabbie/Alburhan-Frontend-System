@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 
 import { DocumentList, Facts } from "@/components/document-list";
 import { InvoicePicker } from "@/components/invoice-picker";
+import { PrintLink } from "@/components/print-link";
 import { Button, Drawer, ErrorBanner, Loading, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
@@ -131,7 +132,7 @@ function Editor({ doc, presetInvoice, onDone }: { doc?: DeliveryNote; presetInvo
 function Viewer({ doc, onDone }: { doc: DeliveryNote; onDone: () => void }) {
   const { locale, t } = useWorkspace();
   return (
-    <Drawer open large wide onClose={onDone} title={doc.number} action={<SalesStatus status={doc.status} posted="Delivered" />}>
+    <Drawer open large wide onClose={onDone} title={doc.number} action={<span className="flex items-center gap-2"><PrintLink kind="delivery" id={doc.id} /><SalesStatus status={doc.status} posted="Delivered" /></span>}>
       <div className="profile-section flex flex-col gap-6 pb-6">
         <Facts items={[[t("Invoice"), doc.invoice_number], [t("Customer"), doc.customer_name], [t("Date"), formatDate(doc.date, locale)], [t("Warehouse"), doc.warehouse_name]]} />
         <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-ink-soft">

@@ -118,7 +118,7 @@ function Viewer({ doc, onDone }: { doc: PurchaseOrder; onDone: () => void }) {
           {doc.reference ? <span>{t("Reference")}: <span className="text-ink">{doc.reference}</span></span> : null}
         </div>
         {doc.notes ? <p className="text-[15px]">{doc.notes}</p> : null}
-        <SalesLinesView lines={asSalesLines(doc.lines)} currency={doc.currency} priceLabel="Unit cost" extraLabel="Received" extra={(line) => `${qty((line as unknown as { received_quantity: string }).received_quantity ?? "0")} / ${qty(line.quantity)}`} />
+        <SalesLinesView lines={asSalesLines(doc.lines)} currency={doc.currency} priceLabel="Unit cost" extraLabel="Received" extra={(line) => { const got = Number((line as unknown as { received_quantity: string }).received_quantity ?? 0); const left = Number(line.quantity) - got; return `${qty(String(got))} / ${qty(line.quantity)}${left > 0 && got > 0 ? ` · ${qty(String(left))} ${t("to come")}` : ""}`; }} />
         <ErrorBanner error={action.error} />
         {doc.status !== "cancelled" && doc.status !== "closed" ? (
           <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line pt-5">

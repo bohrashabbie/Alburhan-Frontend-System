@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSWRConfig } from "swr";
 
 import { FamilyPicker, useFamilies } from "@/components/family-picker";
@@ -49,7 +50,7 @@ const text = (value: string | number | null | undefined) =>
   value === null || value === undefined ? "" : String(value);
 
 export default function ProductsPage() {
-  const { can, name } = useWorkspace();
+  const { can, name, t } = useWorkspace();
   const { mutate } = useSWRConfig();
   const families = useFamilies();
   const refresh = () => mutate((key) => typeof key === "string" && key.startsWith("/catalog/products"));
@@ -179,6 +180,13 @@ export default function ProductsPage() {
       })}
       keepOpenAfterCreate
       drawerExtra={(row) => (
+        <>
+        {can("inventory.stock.view") && row.product_type === "stock" ? (
+          <Link href={`/inventory/items/${row.id}`} className="mb-4 flex items-center justify-between rounded-xl border border-line px-4 py-3 text-sm hover:bg-surface-muted">
+            <span><span className="font-medium">{t("Stock, reservations and history")}</span><span className="block text-ink-soft">{t("Every location, what's on order and every movement.")}</span></span>
+            <span aria-hidden className="text-ink-soft">→</span>
+          </Link>
+        ) : null}
         <PhotoUpload
           endpoint={`/catalog/products/${row.id}/image`}
           name={row.name}
@@ -188,6 +196,7 @@ export default function ProductsPage() {
           title="Photo"
           hint="PNG, JPEG or WebP, up to 2 MB. Upload a file or take a photo with the camera. Save the product first, then add its photo."
         />
+        </>
       )}
     />
   );

@@ -200,14 +200,21 @@ function ReserveForm({ projectId, warehouses, onDone }: { projectId: number; war
   const { t } = useWorkspace();
   const [warehouse, setWarehouse] = useState(warehouses[0]?.[0] ?? "");
   const [result, setResult] = useState<number | null>(null);
+  const [short, setShort] = useState<{ sku: string; name: string; quantity: string }[]>([]);
   const action = useAction();
   return (
-    <form onSubmit={onSubmit(() => action.run(async () => { const body = await api.post<{ reserved: number }>(`/projects/projects/${projectId}/reserve`, { warehouse: Number(warehouse) }); setResult(body.reserved); }))} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit(() => action.run(async () => { const body = await api.post<{ reserved: number; still_needed: { sku: string; name: string; quantity: string }[] }>(`/projects/projects/${projectId}/reserve`, { warehouse: Number(warehouse) }); setResult(body.reserved); setShort(body.still_needed ?? []); }))} className="flex flex-col gap-4">
       <ErrorBanner error={action.error} />
       <p className="text-sm text-ink-soft">{t("Holds free stock for every BOQ item not yet reserved or issued, so showroom sales can't take it.")}</p>
       <SelectField label={t("Warehouse")} value={warehouse} onChange={(e) => setWarehouse(e.target.value)}>{warehouses.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</SelectField>
       {result !== null ? <p className="text-sm font-medium">{result} {t("reservations made.")}</p> : null}
-      <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>{result !== null ? t("Done") : t("Cancel")}</Button>{result === null ? <Button type="submit" pending={action.pending}>{t("Reserve stock")}</Button> : null}</div>
+      {result !== null && short.length ? (
+        <div className="rounded-xl border border-line bg-surface-muted/50 px-4 py-3 text-sm">
+          <p className="font-medium">{t("Still to reserve: choose another warehouse and reserve again.")}</p>
+          <ul className="mt-1 text-ink-soft">{short.map((row) => <li key={row.sku}><span className="font-mono text-xs">{row.sku}</span> {row.name} · {row.quantity}</li>)}</ul>
+        </div>
+      ) : null}
+      <div className="flex justify-end gap-2"><Button variant="secondary" onClick={onDone}>{result !== null ? t("Done") : t("Cancel")}</Button>{result === null || short.length ? <Button type="submit" pending={action.pending}>{t("Reserve stock")}</Button> : null}</div>
     </form>
   );
 }

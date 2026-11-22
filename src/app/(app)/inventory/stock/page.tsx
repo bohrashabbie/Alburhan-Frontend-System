@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { Card, EmptyState, ErrorBanner, Loading, PageHeader, SearchField, SelectField } from "@/components/ui";
@@ -91,7 +92,7 @@ export default function StockLevelsPage() {
                   return (
                     <tr key={`${row.warehouse}-${row.product}`}>
                       <td className="px-4 py-2.5">
-                        <span className="block font-medium">{row.product_name}</span>
+                        <Link href={`/inventory/items/${row.product}`} className="block font-medium hover:text-link hover:underline">{row.product_name}</Link>
                         <span className="block font-mono text-xs text-ink-soft">{row.sku} · {row.uom}</span>
                       </td>
                       <td className="px-3 py-2.5">{row.warehouse_name}</td>

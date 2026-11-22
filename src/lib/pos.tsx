@@ -210,6 +210,8 @@ export function CloseShiftForm({ shift, onDone, onCancel }: { shift: Shift; onDo
   const expected = toMinor(shift.totals.expected_cash, decimals);
   const counted = closingCash === "" ? null : toMinor(closingCash, decimals);
   const difference = counted === null ? null : counted - expected;
+  // A difference over a tenth of the expected cash (and at least 20) is probably a typing slip.
+  const big = difference !== null && (difference < 0n ? -difference : difference) > (expected / 10n > toMinor("20", decimals) ? expected / 10n : toMinor("20", decimals));
   const submit = () =>
     action.run(async () => {
       const closed = await api.post<Shift>(`/pos/shifts/${shift.id}/close`, { closing_cash: closingCash || "0", notes });
@@ -228,10 +230,11 @@ export function CloseShiftForm({ shift, onDone, onCancel }: { shift: Shift; onDo
           {difference === 0n ? t("Drawer balances.") : difference < 0n ? `${t("Short by")} ${formatMoney(fromMinor(-difference, decimals), company.currency, locale)}` : `${t("Over by")} ${formatMoney(fromMinor(difference, decimals), company.currency, locale)}`}
         </p>
       ) : null}
-      <TextAreaField label={t("Notes")} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+      {big ? <p role="alert" className="rounded-lg bg-danger-soft px-3 py-2 text-sm font-medium text-danger">{t("That's a big difference. Count the drawer again before closing.")}</p> : null}
+      <TextAreaField label={t("Notes")} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} required={difference !== null && difference !== 0n} error={action.field("notes")} hint={difference !== null && difference !== 0n ? t("Explain the difference, e.g. change given by mistake.") : undefined} />
       <div className="flex justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onCancel}>{t("Cancel")}</Button>
-        <Button type="submit" pending={action.pending} disabled={closingCash === ""}>{t("Close shift")}</Button>
+        <Button type="submit" pending={action.pending} disabled={closingCash === "" || (difference !== null && difference !== 0n && !notes.trim())}>{t("Close shift")}</Button>
       </div>
     </form>
   );
