@@ -928,6 +928,8 @@ const AR: Record<string, string> = {
   "Profit adds up": "الربح متطابق",
   "period": "الفترة",
   "balance date": "تاريخ الميزانية",
+  "Already turned into invoice": "تم تحويله إلى الفاتورة",
+  "Open invoice": "فتح الفاتورة",
 };
 
 export function translate(locale: Locale, text: string) {

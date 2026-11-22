@@ -126,7 +126,12 @@ function Viewer({ doc, onDone }: { doc: Quotation; onDone: () => void }) {
     <Drawer open large wide onClose={onDone} title={doc.number} action={<span className="flex items-center gap-2"><PrintLink kind="quotation" id={doc.id} /><SalesStatus status={doc.status} /></span>}>
       <div className="profile-section flex flex-col gap-6 pb-6">
         <Facts items={[[t("Customer"), doc.customer_name], [t("Date"), formatDate(doc.date, locale)], [t("Valid until"), formatDate(doc.valid_until, locale)], [t("Branch"), doc.branch_name]]} />
-        {doc.invoice_number ? <p className="text-sm text-ink-soft">{t("Invoice")}: <span className="font-mono text-ink">{doc.invoice_number}</span></p> : null}
+        {doc.invoice_number ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface-muted/40 px-4 py-3 text-sm">
+            <span className="text-ink-soft">{t("Already turned into invoice")} <span className="font-mono text-ink">{doc.invoice_number}</span></span>
+            <Button variant="secondary" className="h-9" onClick={() => { onDone(); router.push(`/sales/invoices?open=${doc.invoice}`); }}>{t("Open invoice")}</Button>
+          </div>
+        ) : null}
         {doc.notes ? <p className="text-[15px]">{doc.notes}</p> : null}
         <SalesLinesView lines={doc.lines} currency={doc.currency} />
         <p className="text-end text-lg font-semibold tabular-nums">{t("Grand total")}: {formatAmount(doc.total, decimals)} {doc.currency}</p>
