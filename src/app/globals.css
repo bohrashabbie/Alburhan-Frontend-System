@@ -509,3 +509,20 @@ input.input-bare:focus {
     height: 2.5rem;
   }
 }
+
+/* A full-page print of one part of a screen (a statement, a sheet of barcode labels). */
+@media print {
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible !important;
+  }
+  .print-sheet {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    width: 100%;
+    padding: 8mm;
+    background: #fff;
+    color: #000;
+  }
+}

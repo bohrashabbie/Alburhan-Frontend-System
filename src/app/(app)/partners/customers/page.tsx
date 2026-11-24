@@ -5,6 +5,7 @@ import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { formatMoney } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
 import type { Customer, CustomerGroup, Page, PriceList } from "@/lib/types";
+import { ImportCsv } from "@/components/import-csv";
 import { useWorkspace } from "@/lib/workspace";
 
 const TYPES: [Customer["customer_type"], string][] = [
@@ -15,7 +16,7 @@ const TYPES: [Customer["customer_type"], string][] = [
 ];
 
 export default function CustomersPage() {
-  const { company, locale, name } = useWorkspace();
+  const { can, company, locale, name } = useWorkspace();
   const priceLists = useResource<Page<PriceList>>(
     `/catalog/price-lists?company=${company.id}&is_active=true&page_size=200`,
   );
@@ -28,6 +29,7 @@ export default function CustomersPage() {
 
   return (
     <ResourcePage<Customer>
+      headerActions={can("partners.customer.create") ? <ImportCsv endpoint={`/partners/customers/import/?company=${company.id}`} refresh="/partners/customers" columns={["name", "name_ar", "type", "mobile", "phone", "email", "area", "address", "group"]} sample={["Al-Khaleej Contracting Co.", "", "contractor", "+96550001234", "", "", "Hawally", "", "Contractors"]} note="Customers are matched by mobile number (by name when there is none): new ones are added, existing ones updated. Type is individual, business, contractor or government." /> : undefined}
       title="Customers"
       description={`Customers of ${name(company)}. Codes are given automatically, e.g. ${company.code}-CUS-00001.`}
       endpoint="/partners/customers"

@@ -9,6 +9,7 @@ import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { useAccounts } from "@/lib/accounting";
 import { useResource } from "@/lib/hooks";
 import type { Brand, Page, Product, Unit } from "@/lib/types";
+import { ImportCsv } from "@/components/import-csv";
 import { useWorkspace } from "@/lib/workspace";
 
 const TYPES: [Product["product_type"], string][] = [
@@ -50,7 +51,7 @@ const text = (value: string | number | null | undefined) =>
   value === null || value === undefined ? "" : String(value);
 
 export default function ProductsPage() {
-  const { can, name, t } = useWorkspace();
+  const { can, company, name, t } = useWorkspace();
   const { mutate } = useSWRConfig();
   const families = useFamilies();
   const refresh = () => mutate((key) => typeof key === "string" && key.startsWith("/catalog/products"));
@@ -68,6 +69,7 @@ export default function ProductsPage() {
 
   return (
     <ResourcePage<Product>
+      headerActions={can("catalog.product.create") ? <ImportCsv endpoint={`/catalog/products/import/?company=${company.id}`} refresh="/catalog/products" columns={["sku", "name", "category", "name_ar", "brand", "unit", "barcode", "model_code", "rack_no", "price"]} sample={["MS-DL-R01-18W", "Round LED downlight 18W", "Downlights", "", "MS Lighting", "PCS", "", "MS-DL-R01", "A-12", "6.750"]} note="Products are matched by their code (sku): new codes are added, existing ones updated. A category or brand that doesn't exist yet is created. Price goes into the default price list." /> : undefined}
       title="Products"
       description="Every item the group sells, with its lighting specification. Shared by all companies; prices are set per company in price lists."
       endpoint="/catalog/products"

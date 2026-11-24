@@ -37,6 +37,7 @@ export const MENU: MenuGroup[] = [
     links: [
       { href: "/catalog/categories", label: "Category", permission: "catalog.category.view" },
       { href: "/catalog/products", label: "Product list", permission: "catalog.product.view" },
+      { href: "/catalog/barcodes", label: "Print barcode", permission: "catalog.product.view" },
       { href: "/catalog/price-lists", label: "Price lists", permission: "catalog.price_list.view" },
       { href: "/inventory/stock", label: "Stock levels", permission: "inventory.stock.view" },
       { href: "/inventory/moves", label: "Stock movements", permission: "inventory.stock.view" },

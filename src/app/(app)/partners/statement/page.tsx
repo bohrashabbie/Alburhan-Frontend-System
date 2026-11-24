@@ -51,7 +51,7 @@ function Statement() {
       {!customer ? (
         <EmptyState title={t("Choose a customer")} description={t("Their invoices, returns and payments appear here.")} />
       ) : !r ? (report.error ? null : <Loading label={t("Loading…")} />) : (
-        <>
+        <div className="print-sheet">
           <p className="mb-3 hidden text-lg font-semibold print:block">{r.customer.name} · {formatDate(r.date_from, locale)} – {formatDate(r.date_to, locale)}</p>
           <div className="mb-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
             {[[t("Opening balance"), r.opening], [t("Charged"), r.debit], [t("Paid and returned"), r.credit], [t("Balance due"), r.closing]].map(([label, value], index) => (
@@ -89,7 +89,7 @@ function Statement() {
               <tfoot className="bg-surface-muted/40 font-semibold"><tr><td className="px-4 py-3" colSpan={3}>{t("Total")}</td><td className={cell}>{formatAmount(r.debit, decimals)}</td><td className={cell}>{formatAmount(r.credit, decimals)}</td><td className={cell}>{formatAmount(r.closing, decimals)}</td></tr></tfoot>
             </table>
           </div>
-        </>
+        </div>
       )}
     </>
   );

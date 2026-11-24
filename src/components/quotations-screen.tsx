@@ -123,6 +123,8 @@ function Viewer({ doc, onDone }: { doc: Quotation; onDone: () => void }) {
   const open = ["draft", "sent", "accepted"].includes(doc.status);
   const warehouses = useResource<Page<Warehouse>>(open && !doc.frozen_warehouse && can("sales.quotation.freeze") ? withQuery("/organization/warehouses", { company: doc.company, is_active: "true", page_size: 100 }) : null);
   const [holdAt, setHoldAt] = useState("");
+  const [showHistory, setShowHistory] = useState(false);
+  const history = useResource<{ id: number; at: string; by: string; action: string; changes: { field: string; from: string; to: string }[] }[]>(showHistory ? `/sales/quotations/${doc.id}/history` : null);
   const freeze = () =>
     action.run(async () => {
       await api.post(`/sales/quotations/${doc.id}/freeze`, { warehouse: Number(holdAt) });
@@ -176,6 +178,23 @@ function Viewer({ doc, onDone }: { doc: Quotation; onDone: () => void }) {
         {doc.notes ? <p className="text-[15px]">{doc.notes}</p> : null}
         <SalesLinesView lines={doc.lines} currency={doc.currency} />
         <p className="text-end text-lg font-semibold tabular-nums">{t("Grand total")}: {formatAmount(doc.total, decimals)} {doc.currency}</p>
+        <details className="rounded-xl border border-line px-4 py-3 text-sm" onToggle={(e) => setShowHistory((e.target as HTMLDetailsElement).open)}>
+          <summary className="cursor-pointer font-medium">{t("Revision history")}</summary>
+          {!history.data ? <p className="mt-2 text-ink-soft">{t("Loading…")}</p> : history.data.length === 0 ? <p className="mt-2 text-ink-soft">{t("No changes recorded.")}</p> : (
+            <ol className="mt-3 space-y-3">
+              {history.data.map((entry) => (
+                <li key={entry.id} className="border-s-2 border-line ps-3">
+                  <p><span className="font-medium">{entry.by || t("System")}</span> <span className="text-ink-soft">· {t(entry.action)} · {new Date(entry.at).toLocaleString(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" })}</span></p>
+                  {entry.action === "changed" ? (
+                    <ul className="mt-1 space-y-0.5 text-ink-soft">
+                      {entry.changes.slice(0, 8).map((change) => <li key={change.field}><span className="text-ink">{change.field.replaceAll("_", " ")}</span>: {change.from === "None" ? "—" : change.from} → {change.to === "None" ? "—" : change.to}</li>)}
+                    </ul>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          )}
+        </details>
         <ErrorBanner error={action.error} />
         <div className="flex flex-wrap justify-end gap-2 border-t border-line pt-5">
           {["draft", "sent", "accepted"].includes(doc.status) && can("sales.quotation.update") ? (
