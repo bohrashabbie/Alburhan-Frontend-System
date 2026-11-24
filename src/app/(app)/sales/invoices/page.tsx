@@ -211,6 +211,8 @@ function InvoicesList() {
           { label: "Number", render: (row) => <span className="font-mono text-xs">{row.number || "—"}</span> },
           { label: "Customer", render: (row) => <span className="font-medium">{row.customer_name}</span> },
           { label: "Total", render: (row) => `${formatAmount(row.total, decimalsOf(row.currency))} ${row.currency}`, align: "end" },
+          { label: "Returned", render: (row) => (Number(row.amount_credited) ? formatAmount(row.amount_credited, decimalsOf(row.currency)) : <span className="text-ink-faint">—</span>), align: "end" },
+          { label: "Paid", render: (row) => (row.status === "draft" ? <span className="text-ink-faint">—</span> : formatAmount(row.amount_paid, decimalsOf(row.currency))), align: "end" },
           { label: "Amount due", render: (row) => <span className={Number(row.amount_due) > 0 && row.status !== "draft" ? "font-medium text-warning" : ""}>{formatAmount(row.amount_due, decimalsOf(row.currency))}</span>, align: "end" },
           { label: "Delivery", render: (row) => <DeliveryStatus status={row.delivery_status} /> },
           { label: "Status", render: (row) => <SalesStatus status={row.status} posted="Unpaid" /> },

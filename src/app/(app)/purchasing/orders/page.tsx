@@ -153,6 +153,8 @@ function OrdersList() {
           { label: "Deliver to", render: (row) => row.warehouse_name },
           { label: "Expected", render: (row) => <span className="tabular-nums">{formatDate(row.expected_date, locale)}</span> },
           { label: "Total", render: (row) => `${formatAmount(row.total, decimalsOf(row.currency))} ${row.currency}`, align: "end" },
+          { label: "Paid", render: (row) => (Number(row.billed_amount) ? formatAmount(row.paid_amount, decimalsOf(row.currency)) : <span className="text-ink-faint">—</span>), align: "end" },
+          { label: "Due", render: (row) => (Number(row.billed_amount) ? <span className={Number(row.due_amount) > 0 ? "font-medium text-warning" : ""}>{formatAmount(row.due_amount, decimalsOf(row.currency))}</span> : <span className="text-ink-faint">—</span>), align: "end" },
           { label: "Status", render: (row) => <PurchaseStatus status={row.status} /> },
         ]}
         renderOpen={(open, close) => (open === "new" ? <Editor onDone={close} /> : open.status === "draft" ? <Editor key={open.id} doc={open} onDone={close} /> : <Viewer key={open.id} doc={open} onDone={close} />)}

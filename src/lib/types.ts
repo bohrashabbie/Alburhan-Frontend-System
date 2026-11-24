@@ -936,6 +936,9 @@ export type PurchaseOrder = PurchaseHeader & {
   expected_date: string | null;
   intercompany: boolean;
   receipt_status: "pending" | "partial" | "received";
+  billed_amount: string;
+  paid_amount: string;
+  due_amount: string;
   sent_at: string | null;
   lines: PurchaseLine[];
 };
