@@ -6,6 +6,7 @@
 import {
   ArrowLeftRight,
   Banknote,
+  CalendarClock,
   BarChart3,
   FileText,
   FolderKanban,
@@ -25,7 +26,7 @@ import {
 
 import type { SectionLink } from "@/lib/sections";
 
-export type MenuGroup = { key: string; label: string; icon: LucideIcon; href?: string; links: SectionLink[] };
+export type MenuGroup = { key: string; label: string; icon: LucideIcon; href?: string; permission?: string; links: SectionLink[] };
 
 export const MENU: MenuGroup[] = [
   { key: "dashboard", label: "Dashboard", icon: Gauge, href: "/overview", links: [] },
@@ -77,6 +78,7 @@ export const MENU: MenuGroup[] = [
       { href: "/sales/receipts", label: "Payments received", permission: "sales.receipt.view" },
     ],
   },
+  { key: "delivery-schedule", label: "Delivery schedule", icon: CalendarClock, href: "/sales/delivery-schedule", permission: "sales.delivery.view", links: [] },
   {
     key: "projects",
     label: "Projects",
@@ -196,5 +198,5 @@ export function visibleMenu(canSee: (permission: string) => boolean) {
   return MENU.map((group) => ({
     ...group,
     links: group.links.filter((link) => !link.permission || canSee(link.permission)),
-  })).filter((group) => group.href || group.links.length > 0);
+  })).filter((group) => (group.href ? !group.permission || canSee(group.permission) : group.links.length > 0));
 }

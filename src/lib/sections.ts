@@ -31,6 +31,7 @@ const AREAS: Record<Area, SectionGroup[]> = {
         { href: "/sales/quotations", label: "Quotations", permission: "sales.quotation.view" },
         { href: "/sales/invoices", label: "Invoices", permission: "sales.invoice.view" },
         { href: "/sales/deliveries", label: "Delivery notes", permission: "sales.delivery.view" },
+        { href: "/sales/delivery-schedule", label: "Delivery schedule", permission: "sales.delivery.view" },
       ],
     },
     {

@@ -59,6 +59,7 @@ export type Warehouse = Audited &
     company: number;
     branch: number | null;
     code: string;
+    daily_delivery_limit: number | null;
     warehouse_type: WarehouseType;
     address: string;
     is_active: boolean;
@@ -653,12 +654,18 @@ export type DeliveryLine = {
   quantity: string;
 };
 
+export type ScheduleStatus = "pending" | "scheduled" | "out" | "delivered" | "cancelled";
+
 export type DeliveryNote = Audited & {
   id: number;
   company: number;
   number: string;
   date: string;
   invoice: number;
+  scheduled_date: string | null;
+  scheduled_time: string | null;
+  schedule_status: ScheduleStatus;
+  schedule_note: string;
   invoice_number: string;
   customer_name: string;
   warehouse: number;
