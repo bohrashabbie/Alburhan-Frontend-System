@@ -1349,6 +1349,7 @@ export type Employee = Audited & {
   department: number | null;
   department_name: string | null;
   job_title: string;
+  pf_number: string;
   manager: number | null;
   manager_name: string | null;
   report_count: number;
@@ -1580,3 +1581,63 @@ export type LegacyDocuments = { kinds: { kind: string; label: string; count: num
 export type Coupon = { id: number; company: number; code: string; discount_percent: string; valid_until: string | null; max_uses: number | null; used_count: number; is_active: boolean };
 
 export type GiftCard = { id: number; company: number; code: string; amount: string; balance: string; customer: number | null; customer_name: string | null; expires_on: string | null; paid_into: number; paid_into_name: string; is_active: boolean; created_at: string };
+
+// --- HR: attendance, leave report, announcements ------------------------------------------------
+
+export type AttendanceStatus = "present" | "late" | "half_day" | "absent";
+
+export type AttendanceRow = {
+  employee: number;
+  number: string;
+  name: string;
+  job_title: string;
+  branch_name: string | null;
+  department_name: string | null;
+  on_leave: string | null;
+  status: AttendanceStatus | null;
+  check_in: string | null;
+  check_out: string | null;
+  note: string;
+};
+
+export type AttendanceSheet = { date: string; today: string; weekend: boolean; rows: AttendanceRow[] };
+
+export type LeaveReportRow = {
+  employee: number;
+  number: string;
+  pf_number: string;
+  name: string;
+  job_title: string;
+  department_name: string | null;
+  branch_name: string | null;
+  entitled: string;
+  adjustment: string;
+  annual_taken: string;
+  annual_pending: string;
+  remaining: string;
+  other_leave: string;
+  unpaid_leave: string;
+  absent: number;
+  late: number;
+  half_day: number;
+  days_marked: number;
+};
+
+export type LeaveAdjustment = Audited & { id: number; company: number; employee: number; employee_name: string; year: number; days: string; reason: string };
+
+export type AbsenceDay = { date: string; status: AttendanceStatus; check_in: string | null; note: string };
+
+export type Announcement = Audited & {
+  id: number;
+  company: number;
+  title: string;
+  body: string;
+  branches: number[];
+  branch_names: string[];
+  show_until: string | null;
+  send_email: boolean;
+  emailed: number;
+  sender_name: string | null;
+  read_count: number;
+  is_read: boolean;
+};

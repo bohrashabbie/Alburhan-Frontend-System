@@ -155,13 +155,16 @@ export const MENU: MenuGroup[] = [
   },
   {
     key: "salary",
-    label: "Salary",
+    label: "HR",
     icon: Banknote,
     links: [
       { href: "/hr/employees", label: "Employee", permission: "hr.employee.view" },
+      { href: "/hr/attendance", label: "Attendance", permission: "hr.attendance.view" },
+      { href: "/hr/leave", label: "Leave requests", permission: "hr.leave.view" },
+      { href: "/hr/leave-report", label: "Leave and absence report", permission: "hr.report.view" },
+      { href: "/hr/announcements", label: "Announcements", permission: "hr.announcement.view" },
       { href: "/hr/salaries", label: "Salaries", permission: "hr.salary.view" },
       { href: "/hr/payroll", label: "Monthly salary", permission: "hr.payroll.view" },
-      { href: "/hr/leave", label: "Leave requests", permission: "hr.leave.view" },
       { href: "/hr/departments", label: "Departments", permission: "hr.department.view" },
       { href: "/hr/leave-types", label: "Leave types", permission: "hr.leave_type.view" },
       { href: "/hr/settings", label: "HR settings", permission: "hr.settings.view" },

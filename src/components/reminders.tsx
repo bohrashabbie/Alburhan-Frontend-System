@@ -1,11 +1,12 @@
 "use client";
 
-import { Bell, Check } from "lucide-react";
+import { Bell, Check, Megaphone } from "lucide-react";
 import { useState } from "react";
 
 import { Button, ErrorBanner, Modal, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api } from "@/lib/api";
 import { useAction, useResource } from "@/lib/hooks";
+import type { Announcement } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 type Reminder = { id: number; sender_name: string; recipient_name: string; message: string; remind_on: string | null; created_at: string };
@@ -24,10 +25,12 @@ export function Reminders() {
   const [message, setMessage] = useState("");
   const [day, setDay] = useState("");
   const action = useAction();
-  const count = inbox.data?.length ?? 0;
+  const notices = useResource<Announcement[]>("/hr/announcements/inbox");
+  const count = (inbox.data?.length ?? 0) + (notices.data?.length ?? 0);
   const when = new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { dateStyle: "medium", timeStyle: "short" });
 
   const done = (id: number) => action.run(async () => { await api.post(`/reminders/${id}/done/`); await inbox.mutate(); });
+  const seen = (id: number) => action.run(async () => { await api.post(`/hr/announcements/${id}/read/`); await notices.mutate(); });
   const send = () =>
     action.run(async () => {
       await api.post("/reminders/", { recipient: Number(to), message, remind_on: day || null });
@@ -63,7 +66,22 @@ export function Reminders() {
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {count === 0 ? <p className="py-4 text-center text-sm text-ink-soft">{t("Nothing waiting for you.")}</p> : (
+            {notices.data?.length ? (
+              <ul className="flex max-h-80 flex-col gap-2 overflow-y-auto">
+                {notices.data.map((item) => (
+                  <li key={item.id} className="flex items-start gap-3 rounded-xl border border-link/30 bg-link/5 p-3">
+                    <Megaphone aria-hidden className="mt-0.5 size-4 shrink-0 text-link" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-semibold">{item.title}</span>
+                      <span className="mt-0.5 block text-[15px] whitespace-pre-wrap">{item.body}</span>
+                      <span className="mt-1 block text-xs text-ink-soft">{t("Announcement")} · {item.sender_name} · {when.format(new Date(item.created_at))}</span>
+                    </span>
+                    <Button variant="secondary" className="!h-8 !px-3 !text-xs" pending={action.pending} onClick={() => seen(item.id)}><Check aria-hidden className="size-4" />{t("Got it")}</Button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {count === 0 ? <p className="py-4 text-center text-sm text-ink-soft">{t("Nothing waiting for you.")}</p> : !inbox.data?.length ? null : (
               <ul className="max-h-80 divide-y divide-line overflow-y-auto">
                 {(inbox.data ?? []).map((item) => (
                   <li key={item.id} className="flex items-start gap-3 py-3">

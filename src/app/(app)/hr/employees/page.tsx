@@ -7,6 +7,7 @@ import { Loading } from "@/components/ui";
 import { formatDate, formatMoney } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
 import { BalanceCards } from "@/lib/hr";
+import { EmployeeLeaveExtras } from "@/components/hr-extras";
 import type { Department, Employee, LeaveBalance, Page, User } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
@@ -28,6 +29,7 @@ function Balances({ employee }: { employee: Employee }) {
     <section className="border-t border-line pt-6">
       <h3 className="mb-3 text-base font-bold">{t("Leave this year")}</h3>
       {data.data ? <BalanceCards balances={data.data.balances} /> : <Loading />}
+      <EmployeeLeaveExtras employee={employee} onChange={() => data.mutate()} />
     </section>
   );
 }
@@ -50,7 +52,7 @@ export default function EmployeesPage() {
       wide
       query={{ company: company.id }}
       columns={[
-        { label: "Name", render: (row) => <span><span className="block font-medium">{row.full_name}</span><span className="block text-xs text-ink-soft">{row.number} · {row.job_title || "—"}</span></span> },
+        { label: "Name", render: (row) => <span><span className="block font-medium">{row.full_name}</span><span className="block text-xs text-ink-soft">{[row.number, row.pf_number ? `PF ${row.pf_number}` : null, row.job_title || "—"].filter(Boolean).join(" · ")}</span></span> },
         { label: "Department", render: (row) => row.department_name ?? "—" },
         { label: "Manager", render: (row) => row.manager_name ?? <span className="text-ink-faint">{t("HR decides")}</span> },
         { label: "Store", render: (row) => row.branch_name ?? "—" },
@@ -63,6 +65,8 @@ export default function EmployeesPage() {
         { name: "last_name", label: "Last name" },
         { name: "name_ar", label: "Name (Arabic)" },
         { name: "job_title", label: "Job title" },
+        { name: "number", label: "Employee number", hint: "Their staff number. Empty: the next number is given." },
+        { name: "pf_number", label: "PF number", hint: "Provident fund / social security number." },
         { name: "email", label: "Email", type: "email", hint: "Leave emails go here. Needed for managers: the approval link is emailed." },
         { name: "phone", label: "Phone", type: "phone" },
         { name: "department", label: "Department", type: "select", nullable: true, options: pick(departments.data?.results, (item) => name(item), (item) => item.id), section: "Work" },
@@ -84,6 +88,8 @@ export default function EmployeesPage() {
         last_name: row?.last_name ?? "",
         name_ar: row?.name_ar ?? "",
         job_title: row?.job_title ?? "",
+        number: row?.number ?? "",
+        pf_number: row?.pf_number ?? "",
         email: row?.email ?? "",
         phone: row?.phone ?? "",
         department: row?.department ? String(row.department) : "",

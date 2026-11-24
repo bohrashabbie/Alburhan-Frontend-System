@@ -78,12 +78,17 @@ const AREAS: Record<Area, SectionGroup[]> = {
       title: "People",
       links: [
         { href: "/hr/employees", label: "Employees", permission: "hr.employee.view" },
+        { href: "/hr/attendance", label: "Attendance", permission: "hr.attendance.view" },
+        { href: "/hr/announcements", label: "Announcements", permission: "hr.announcement.view" },
         { href: "/hr/departments", label: "Departments", permission: "hr.department.view" },
       ],
     },
     {
       title: "Leave",
-      links: [{ href: "/hr/leave", label: "Leave requests", permission: "hr.leave.view" }],
+      links: [
+        { href: "/hr/leave", label: "Leave requests", permission: "hr.leave.view" },
+        { href: "/hr/leave-report", label: "Leave and absence report", permission: "hr.report.view" },
+      ],
     },
     {
       title: "Pay",
