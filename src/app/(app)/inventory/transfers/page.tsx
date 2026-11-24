@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/format";
 import { onSubmit, useAction } from "@/lib/hooks";
 import { DocStatus, LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
 import type { Product, Transfer } from "@/lib/types";
+import { ImportTransfer } from "@/components/import-transfer";
 import { useWorkspace } from "@/lib/workspace";
 
 const today = () => new Date().toLocaleDateString("en-CA");
@@ -228,6 +229,7 @@ export default function TransfersPage() {
       endpoint="/inventory/transfers"
       createPermission="inventory.transfer.create"
       newLabel="New transfer"
+      extraFilters={<ImportTransfer />}
       statuses={[["draft", "Draft"], ["in_transit", "In transit"], ["partial", "Partly received"], ["received", "Received"]]}
       columns={[
         { label: "Date", render: (row) => <span className="tabular-nums">{formatDate(row.date, locale)}</span> },

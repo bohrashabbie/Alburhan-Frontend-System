@@ -8,9 +8,9 @@ import { ProductPicker } from "@/components/product-picker";
 import { Button, Drawer, ErrorBanner, IconButton, SelectField, TextAreaField, TextField } from "@/components/ui";
 import { api, idOrNull } from "@/lib/api";
 import { formatDate } from "@/lib/format";
-import { onSubmit, useAction } from "@/lib/hooks";
+import { onSubmit, useAction, useResource } from "@/lib/hooks";
 import { DocStatus, LINE_INPUT, qty, useWarehouses } from "@/lib/inventory";
-import type { Product, StockCount } from "@/lib/types";
+import type { Page, Product, StockCount } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const today = () => new Date().toLocaleDateString("en-CA");
@@ -27,6 +27,10 @@ function Editor({ doc, onDone }: { doc?: StockCount; onDone: () => void }) {
   );
   const save = useAction();
   const remove = useAction();
+  const [fillCategory, setFillCategory] = useState("");
+  const [fillBrand, setFillBrand] = useState("");
+  const families = useResource<Page<{ id: number; name: string }>>("/catalog/categories?page_size=300&is_active=true");
+  const brands = useResource<Page<{ id: number; name: string }>>("/catalog/brands?page_size=300&is_active=true");
   const warehouseValue = warehouse || (warehouses[0] ? String(warehouses[0].id) : "");
   const setLine = (index: number, patch: Partial<LineDraft>) => setLines(lines.map((line, i) => (i === index ? { ...line, ...patch } : line)));
 
@@ -42,7 +46,7 @@ function Editor({ doc, onDone }: { doc?: StockCount; onDone: () => void }) {
   const fill = () =>
     save.run(async () => {
       const saved = await persist();
-      const filled = await api.post<StockCount>(`/inventory/counts/${saved.id}/fill`);
+      const filled = await api.post<StockCount>(`/inventory/counts/${saved.id}/fill`, { category: fillCategory || null, brand: fillBrand || null });
       setLines(filled.lines.map((line) => ({ product: null, productId: line.product, label: `${line.sku} · ${line.product_name}`, expected: line.expected_quantity ?? "0", counted: qty(line.counted_quantity) })));
       if (!doc) onDone();  // re-open from the list so the draft has an id
     });
@@ -96,7 +100,15 @@ function Editor({ doc, onDone }: { doc?: StockCount; onDone: () => void }) {
                 {lines.length ? `${lines.length} products · ${differences} with differences` : "Fill the list from current stock, then type what you actually counted."}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <select aria-label={t("Category")} value={fillCategory} onChange={(e) => setFillCategory(e.target.value)} className="h-10 max-w-[11rem] rounded-full border border-line-strong bg-surface px-3 text-sm">
+                <option value="">{t("All categories")}</option>
+                {(families.data?.results ?? []).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+              </select>
+              <select aria-label={t("Brand")} value={fillBrand} onChange={(e) => setFillBrand(e.target.value)} className="h-10 max-w-[11rem] rounded-full border border-line-strong bg-surface px-3 text-sm">
+                <option value="">{t("All brands")}</option>
+                {(brands.data?.results ?? []).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+              </select>
               <Button variant="secondary" pending={save.pending} onClick={fill}>
                 <ListPlus aria-hidden className="size-4" />
                 {t("Fill from stock")}

@@ -1,15 +1,47 @@
 "use client";
 
+import { Paperclip } from "lucide-react";
+import { useSWRConfig } from "swr";
+
 import { CancelPosted } from "@/components/cancel-posted";
 import { ResourcePage } from "@/components/resource-page";
 import { Badge } from "@/components/ui";
-import { withQuery } from "@/lib/api";
+import { upload, withQuery } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
-import { useResource } from "@/lib/hooks";
+import { useAction, useResource } from "@/lib/hooks";
 import type { Expense, ExpenseCategory, Journal, Page } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const today = () => new Date().toLocaleDateString("en-CA");
+
+/** The scanned receipt: a link when there is one, otherwise a button to add it. */
+function Receipt({ expense }: { expense: Expense }) {
+  const { can, t } = useWorkspace();
+  const { mutate } = useSWRConfig();
+  const action = useAction();
+  if (expense.attachment_url) {
+    return <a href={expense.attachment_url} target="_blank" rel="noopener" onClick={(event) => event.stopPropagation()} className="inline-flex items-center gap-1 text-link hover:underline"><Paperclip aria-hidden className="size-4" />{t("Open")}</a>;
+  }
+  if (!can("accounting.expense.create") || expense.status === "cancelled") return <span className="text-ink-faint">—</span>;
+  return (
+    <label onClick={(event) => event.stopPropagation()} className="inline-flex cursor-pointer items-center gap-1 text-sm text-ink-soft hover:text-ink">
+      <Paperclip aria-hidden className="size-4" />
+      {action.pending ? t("Loading…") : t("Attach")}
+      <input
+        type="file"
+        accept=".pdf,image/*"
+        className="sr-only"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          const done = await action.run(() => upload(`/accounting/expenses/${expense.id}/attach/`, { file }));
+          if (done) await mutate((key) => typeof key === "string" && key.startsWith("/accounting/expenses"));
+          else window.alert(t("Use a PDF or an image up to 5 MB."));
+        }}
+      />
+    </label>
+  );
+}
 
 export default function ExpensesPage() {
   const { company, branches, branch, can, locale, name, t } = useWorkspace();
@@ -38,6 +70,7 @@ export default function ExpensesPage() {
         { label: "Branch", render: (row) => row.branch_name ?? "—" },
         { label: "Paid from", render: (row) => row.paid_from_name },
         { label: "Note", render: (row) => <span className="line-clamp-1 max-w-[18rem] text-ink-soft">{row.note || "—"}</span> },
+        { label: "Receipt", render: (row) => <Receipt expense={row} /> },
         { label: "Amount", render: (row) => <span className={`font-medium tabular-nums ${row.status === "cancelled" ? "text-ink-faint line-through" : ""}`}>{money(row.amount)}</span> },
         {
           label: "Status",

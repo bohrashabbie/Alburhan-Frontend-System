@@ -171,7 +171,10 @@ export type ProductCategory = Audited &
   };
 
 export type Unit = Audited &
-  Named & { id: number; code: string; allow_decimal: boolean; is_active: boolean };
+  Named & { id: number; code: string; base_unit: number | null;
+    base_unit_code: string | null;
+    factor: string;
+    allow_decimal: boolean; is_active: boolean };
 
 export type Product = Audited &
   Named & {
@@ -1508,6 +1511,7 @@ export type ExpenseCategory = Audited & { id: number; company: number; code: str
 export type Expense = Audited & {
   id: number; company: number; number: string; date: string; branch: number | null; branch_name: string | null;
   category: number; category_name: string; amount: string; paid_from: number; paid_from_name: string;
+  attachment_url: string | null;
   reference: string; note: string; status: "posted" | "cancelled"; status_label: string;
   journal_entry: number | null; journal_number: string | null;
 };

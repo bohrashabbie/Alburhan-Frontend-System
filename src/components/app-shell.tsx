@@ -34,6 +34,7 @@ import { session } from "@/lib/api";
 import { fullName } from "@/lib/format";
 import { useFreshStart, useMe } from "@/lib/hooks";
 import type { Locale } from "@/lib/i18n";
+import { Reminders } from "@/components/reminders";
 import { Sidebar } from "@/components/sidebar";
 import type { Area } from "@/lib/sections";
 import { useWorkspace, WorkspaceProvider } from "@/lib/workspace";
@@ -299,6 +300,7 @@ function Shell({ children }: { children: ReactNode }) {
         </button>
         <div className="flex shrink-0 items-center gap-2">
           <WorkspaceChip />
+          <Reminders />
           <AccountMenu />
         </div>
       </header>
