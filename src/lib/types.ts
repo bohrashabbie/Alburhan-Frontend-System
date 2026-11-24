@@ -774,7 +774,7 @@ export type Register = Audited &
     open_shift: { id: number; number: string; opened_at: string; opened_by: number } | null;
   };
 
-export type PosMethod = "cash" | "knet" | "card";
+export type PosMethod = "cash" | "knet" | "card" | "gift_card";
 
 export type ShiftTotals = {
   sales_count: string;
@@ -1561,6 +1561,10 @@ export type SalesTargets = { currency: string; year: number; month: number; unas
 
 export type CustomerGroup = Audited & { id: number; company: number; name: string; name_ar: string; discount_percent: string; is_active: boolean; customer_count: number };
 
-export type LegacyDocument = { id: number; kind: string; number: string; date: string | null; party: string; warehouse: string; status: string; payment_status: string; total: string | null; paid: string | null; due: string | null; details: Record<string, string | number | null> };
+export type LegacyDocument = { id: number; kind: string; number: string; date: string | null; party: string; warehouse: string; status: string; payment_status: string; total: string | null; paid: string | null; due: string | null; details: Record<string, string | number | null | (string | number | null)[][]> };
 
 export type LegacyDocuments = { kinds: { kind: string; label: string; count: number }[]; count: number; total: string; paid: string; due: string; page: number; pages: number; results: LegacyDocument[] };
+
+export type Coupon = { id: number; company: number; code: string; discount_percent: string; valid_until: string | null; max_uses: number | null; used_count: number; is_active: boolean };
+
+export type GiftCard = { id: number; company: number; code: string; amount: string; balance: string; customer: number | null; customer_name: string | null; expires_on: string | null; paid_into: number; paid_into_name: string; is_active: boolean; created_at: string };

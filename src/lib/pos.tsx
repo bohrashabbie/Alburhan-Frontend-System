@@ -15,6 +15,7 @@ export const POS_METHODS: [PosMethod, string][] = [
   ["cash", "Cash"],
   ["knet", "KNET"],
   ["card", "Card"],
+  ["gift_card", "Gift card"],
 ];
 
 /** Active registers of the current company, narrowed to the chosen branch. */

@@ -21,7 +21,11 @@ const AREAS: Record<Area, SectionGroup[]> = {
     },
     {
       title: "Setup",
-      links: [{ href: "/pos/registers", label: "Registers", permission: "pos.register.view" }],
+      links: [
+        { href: "/pos/registers", label: "Registers", permission: "pos.register.view" },
+        { href: "/pos/coupons", label: "Coupons", permission: "pos.coupon.view" },
+        { href: "/pos/gift-cards", label: "Gift cards", permission: "pos.gift_card.view" },
+      ],
     },
   ],
   sales: [

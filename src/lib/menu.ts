@@ -67,6 +67,8 @@ export const MENU: MenuGroup[] = [
       { href: "/pos/sales", label: "POS sales", permission: "pos.sale.view" },
       { href: "/pos/shifts", label: "Cash register", permission: "pos.shift.view" },
       { href: "/pos/registers", label: "Registers", permission: "pos.register.view" },
+      { href: "/pos/coupons", label: "Coupons", permission: "pos.coupon.view" },
+      { href: "/pos/gift-cards", label: "Gift cards", permission: "pos.gift_card.view" },
     ],
   },
   {

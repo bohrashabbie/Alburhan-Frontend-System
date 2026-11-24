@@ -1,6 +1,6 @@
 "use client";
 
-import { Banknote, CreditCard, Lightbulb, Minus, Plus, Search, Trash2, UserRound, X } from "lucide-react";
+import { Banknote, CreditCard, Gift, Lightbulb, Minus, PauseCircle, Plus, Search, TicketPercent, Trash2, UserRound, X } from "lucide-react";
 import { type KeyboardEvent, useDeferredValue, useRef, useState } from "react";
 
 import { CustomerPicker } from "@/components/customer-picker";
@@ -16,7 +16,18 @@ import { useWorkspace } from "@/lib/workspace";
 type CartLine = { product: PosProduct; quantity: string; discount: string };
 type Payment = { method: PosMethod; amount: string; reference: string };
 
-const METHOD_ICONS: Record<PosMethod, typeof Banknote> = { cash: Banknote, knet: CreditCard, card: CreditCard };
+const METHOD_ICONS: Record<PosMethod, typeof Banknote> = { cash: Banknote, knet: CreditCard, card: CreditCard, gift_card: Gift };
+
+/** A sale put aside to serve the next customer, kept on this computer until it is taken up again. */
+type HeldSale = { at: string; cart: CartLine[]; customer: Customer | null; coupon: string };
+const heldKey = (register: number) => `ab_held_sales_${register}`;
+function readHeld(register: number): HeldSale[] {
+  try {
+    return JSON.parse(window.localStorage.getItem(heldKey(register)) ?? "[]") as HeldSale[];
+  } catch {
+    return [];
+  }
+}
 
 // --- Register + shift, then the till -------------------------------------------------------------
 
@@ -125,6 +136,44 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
   const [pickingCustomer, setPickingCustomer] = useState(false);
   const [paying, setPaying] = useState(false);
   const [done, setDone] = useState<PosSale | null>(null);
+  // Read once when the till opens (it only ever renders in the browser, after the register loads).
+  const [held, setHeld] = useState<HeldSale[]>(() => (typeof window === "undefined" ? [] : readHeld(register.id)));
+  const [showHeld, setShowHeld] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; percent: string } | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const couponCheck = useAction();
+  const saveHeld = (next: HeldSale[]) => {
+    setHeld(next);
+    try {
+      window.localStorage.setItem(heldKey(register.id), JSON.stringify(next));
+    } catch {
+      // Private window: the list lives until the page closes.
+    }
+  };
+  const hold = () => {
+    saveHeld([{ at: new Date().toISOString(), cart, customer, coupon: coupon?.code ?? "" }, ...held]);
+    setCart([]);
+    setCustomer(null);
+    setCoupon(null);
+  };
+  const resume = (index: number) => {
+    const sale = held[index];
+    if (cart.length) saveHeld([{ at: new Date().toISOString(), cart, customer, coupon: coupon?.code ?? "" }, ...held.filter((_, i) => i !== index)]);
+    else saveHeld(held.filter((_, i) => i !== index));
+    setCart(sale.cart);
+    setCustomer(sale.customer);
+    setCoupon(null);
+    setCouponCode(sale.coupon);
+    setShowHeld(false);
+  };
+  const applyCoupon = () =>
+    couponCheck.run(async () => {
+      const found = await api.get<{ code: string; discount_percent: string }>(withQuery("/pos/coupons/check", { company: company.id, code: couponCode.trim() }));
+      const percent = String(Number(found.discount_percent));
+      setCoupon({ code: found.code, percent });
+      // Every line gets at least the coupon's discount.
+      setCart((lines) => lines.map((line) => (Number(line.discount || "0") < Number(percent) ? { ...line, discount: percent } : line)));
+    });
   const searchBox = useRef<HTMLInputElement>(null);
   const money = (minor: bigint) => formatMoney(fromMinor(minor, decimals), company.currency, locale);
 
@@ -137,7 +186,7 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
     if (soldOut(product)) return;
     setCart((lines) => {
       const existing = lines.find((line) => line.product.id === product.id);
-      if (!existing) return [...lines, { product, quantity: "1", discount: "" }];
+      if (!existing) return [...lines, { product, quantity: "1", discount: coupon?.percent ?? "" }];
       return lines.map((line) => (line === existing ? { ...line, quantity: String(Number(line.quantity) + 1) } : line));
     });
   };
@@ -173,6 +222,8 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
   const finished = (sale: PosSale) => {
     setDone(sale);
     setCart([]);
+    setCoupon(null);
+    setCouponCode("");
     setCustomer(null);
     setPickingCustomer(false);
     setPaying(false);
@@ -331,8 +382,26 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
             {totals.tax > 0n ? <div className="flex justify-between text-ink-soft"><dt>{t("VAT")} {trimQty(taxRate)}%</dt><dd>{money(totals.tax)}</dd></div> : null}
             <div className="flex justify-between text-lg font-bold"><dt>{t("Total")}</dt><dd>{money(totals.total)}</dd></div>
           </dl>
+          <div className="mt-3 flex items-center gap-2">
+            {coupon ? (
+              <p className="flex h-10 flex-1 items-center justify-between rounded-lg bg-[#f0ecff] px-3 text-sm">
+                <span><TicketPercent aria-hidden className="me-1.5 inline size-4 align-[-3px] text-link" />{t("Coupon")} <span className="font-semibold">{coupon.code}</span> · {coupon.percent}%</span>
+                <button type="button" aria-label={t("Remove coupon")} onClick={() => { setCoupon(null); setCouponCode(""); }}><X aria-hidden className="size-4" /></button>
+              </p>
+            ) : (
+              <>
+                <input aria-label={t("Coupon code")} placeholder={t("Coupon code")} value={couponCode} onChange={(e) => setCouponCode(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && couponCode.trim()) void applyCoupon(); }} className="h-10 min-w-0 flex-1 rounded-lg border border-line-strong bg-surface px-3 text-sm uppercase" />
+                <Button variant="secondary" className="h-10" disabled={!couponCode.trim() || cart.length === 0} pending={couponCheck.pending} onClick={applyCoupon}>{t("Apply")}</Button>
+              </>
+            )}
+          </div>
+          {couponCheck.error ? <p className="mt-1 text-xs text-danger">{couponCheck.error.fields.coupon ?? couponCheck.error.message}</p> : null}
           <div className="mt-3 flex gap-2">
             <Button variant="secondary" className="h-14 px-4" disabled={cart.length === 0} onClick={() => setCart([])} aria-label={t("Clear cart")}><Trash2 aria-hidden className="size-5" /></Button>
+            <Button variant="secondary" className="relative h-14 px-4" disabled={cart.length === 0 && held.length === 0} onClick={() => (cart.length ? hold() : setShowHeld(true))} aria-label={cart.length ? t("Hold this sale") : t("Held sales")} title={cart.length ? t("Hold this sale") : t("Held sales")}>
+              <PauseCircle aria-hidden className="size-5" />
+              {held.length ? <span className="absolute -end-1 -top-1 flex size-5 items-center justify-center rounded-full bg-link text-[11px] font-semibold text-white">{held.length}</span> : null}
+            </Button>
             <Button className="h-14 flex-1 text-base" disabled={cart.length === 0 || totals.total <= 0n} onClick={() => setPaying(true)}>
               {t("Charge")} {money(totals.total)}
             </Button>
@@ -351,11 +420,28 @@ function Till({ register, shiftId, onSold }: { register: Register; shiftId: numb
               customer: customer?.id ?? null,
               lines: cart.map((line) => ({ product: line.product.id, quantity: line.quantity || "1", discount_percent: line.discount || "0" })),
               payments: payments.map((payment) => ({ method: payment.method, amount: payment.amount, reference: payment.reference })),
+              coupon: coupon?.code ?? "",
             });
             finished(sale);
           }}
         />
       ) : null}
+      <Modal open={showHeld} onClose={() => setShowHeld(false)} title={t("Held sales")}>
+        {held.length === 0 ? <p className="text-sm text-ink-soft">{t("No sales are on hold.")}</p> : (
+          <ul className="divide-y divide-line">
+            {held.map((sale, index) => (
+              <li key={sale.at} className="flex items-center gap-3 py-3">
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">{sale.customer?.name ?? t("Walk-in customer")} · {sale.cart.reduce((sum, line) => sum + Number(line.quantity || "0"), 0)} {t("items")}</span>
+                  <span className="block truncate text-xs text-ink-soft">{formatTime(sale.at, locale)} · {sale.cart.map((line) => line.product.sku).slice(0, 4).join(", ")}</span>
+                </span>
+                <Button variant="secondary" className="!h-9" onClick={() => resume(index)}>{t("Resume")}</Button>
+                <IconButton label={t("Remove")} onClick={() => saveHeld(held.filter((_, i) => i !== index))}><Trash2 aria-hidden className="size-4" /></IconButton>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
       {done ? (
         <Modal open onClose={() => setDone(null)} title={t("Sale complete")}>
           <div className="flex flex-col gap-4">
@@ -442,7 +528,7 @@ function PayModal({ total, decimals, onCancel, onPay }: { total: bigint; decimal
               </div>
               <div className="grid gap-2 sm:grid-cols-2">
                 <TextField label={payment.method === "cash" ? t("Amount tendered") : t("Amount")} inputMode="decimal" autoFocus={index === payments.length - 1} value={payment.amount} onChange={(e) => set(index, { amount: e.target.value })} onFocus={(e) => e.target.select()} />
-                {payment.method !== "cash" ? <TextField label={t("Reference")} value={payment.reference} onChange={(e) => set(index, { reference: e.target.value })} placeholder={payment.method === "knet" ? "KNET ref." : "Auth. code"} /> : null}
+                {payment.method !== "cash" ? <TextField label={t("Reference")} value={payment.reference} onChange={(e) => set(index, { reference: e.target.value })} placeholder={payment.method === "knet" ? "KNET ref." : payment.method === "gift_card" ? t("Gift card number") : "Auth. code"} /> : null}
               </div>
               {payment.method === "cash" ? (
                 <div className="flex flex-wrap gap-2">

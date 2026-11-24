@@ -94,10 +94,26 @@ export default function PreviousSystemPage() {
             {([["Date", open.date ? formatDate(open.date, locale) : ""], ["Customer / supplier", open.party], ["Warehouse", open.warehouse], ["Status", open.status], ["Payment status", open.payment_status], ["Total", open.total], ["Paid", open.paid], ["Due", open.due]] as [string, string | null][])
               .filter(([, value]) => value)
               .map(([name, value]) => (<div key={name} className="contents"><dt className="text-ink-soft">{t(name)}</dt><dd className="font-medium break-words">{value}</dd></div>))}
-            {Object.entries(open.details).filter(([, value]) => value !== "" && value !== null).map(([name, value]) => (
+            {Object.entries(open.details).filter(([, value]) => value !== "" && value !== null && !Array.isArray(value)).map(([name, value]) => (
               <div key={name} className="contents"><dt className="text-ink-soft">{label(name)}</dt><dd className="break-words whitespace-pre-wrap">{String(value)}</dd></div>
             ))}
           </dl>
+        ) : null}
+        {open && Array.isArray(open.details.lines) ? (
+          <div className="mt-5 overflow-x-auto rounded-xl border border-line">
+            <table className="w-full text-sm">
+              <thead className="border-b border-line bg-surface-muted/60 text-xs tracking-wide text-ink-soft uppercase">
+                <tr><th className="px-3 py-2 text-start font-medium">{t("Product")}</th><th className="px-3 py-2 text-end font-medium">{t("Quantity")}</th><th className="px-3 py-2 text-end font-medium">{t("Discount")}</th><th className="px-3 py-2 text-end font-medium">{t("Subtotal")}</th></tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {open.details.lines.map((line, index) => (
+                  <tr key={index}><td className="px-3 py-2">{String(line[0] ?? "")}</td><td className="px-3 py-2 text-end tabular-nums">{String(line[1] ?? "")} {String(line[2] ?? "")}</td><td className="px-3 py-2 text-end tabular-nums">{Number(line[3]) ? String(line[3]) : "—"}</td><td className="px-3 py-2 text-end font-medium tabular-nums">{formatAmount(String(line[4] ?? 0), decimals)}</td></tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : open && ["sale", "purchase", "quotation", "sale_return"].includes(open.kind) ? (
+          <p className="mt-4 text-sm text-ink-soft">{t("The product lines of this document have not been brought over yet.")}</p>
         ) : null}
       </Modal>
     </>
