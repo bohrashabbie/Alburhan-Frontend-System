@@ -144,6 +144,8 @@ const AREAS: Record<Area, SectionGroup[]> = {
       title: "Bookkeeping",
       links: [
         { href: "/accounts/entries", label: "Journal entries", permission: "accounting.entry.view" },
+        { href: "/accounts/money-accounts", label: "Bank & cash accounts", permission: "accounting.money_transfer.view" },
+        { href: "/accounts/money-transfers", label: "Money transfer", permission: "accounting.money_transfer.view" },
         { href: "/accounts/expenses", label: "Expense list", permission: "accounting.expense.view" },
         { href: "/accounts/expense-categories", label: "Expense category", permission: "accounting.expense_category.view" },
       ],

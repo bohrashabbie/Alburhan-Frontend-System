@@ -127,6 +127,8 @@ export const MENU: MenuGroup[] = [
     label: "Accounting",
     icon: Landmark,
     links: [
+      { href: "/accounts/money-accounts", label: "Bank & cash accounts", permission: "accounting.money_transfer.view" },
+      { href: "/accounts/money-transfers", label: "Money transfer", permission: "accounting.money_transfer.view" },
       { href: "/accounts/entries", label: "Journal entries", permission: "accounting.entry.view" },
       { href: "/accounts/chart", label: "Chart of accounts", permission: "accounting.account.view" },
       { href: "/accounts/balance-sheet", label: "Balance sheet", permission: "accounting.report.view" },

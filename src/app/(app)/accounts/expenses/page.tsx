@@ -1,42 +1,15 @@
 "use client";
 
-import { useSWRConfig } from "swr";
-
+import { CancelPosted } from "@/components/cancel-posted";
 import { ResourcePage } from "@/components/resource-page";
-import { Badge, Button } from "@/components/ui";
-import { api, withQuery } from "@/lib/api";
+import { Badge } from "@/components/ui";
+import { withQuery } from "@/lib/api";
 import { formatDate, formatMoney } from "@/lib/format";
-import { useAction, useResource } from "@/lib/hooks";
+import { useResource } from "@/lib/hooks";
 import type { Expense, ExpenseCategory, Journal, Page } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const today = () => new Date().toLocaleDateString("en-CA");
-
-/** Cancelling reverses the expense in the books; the row stays, marked cancelled. */
-function CancelButton({ expense }: { expense: Expense }) {
-  const { t } = useWorkspace();
-  const { mutate } = useSWRConfig();
-  const action = useAction();
-  const cancel = async () => {
-    if (!window.confirm(`${t("Cancel expense")} ${expense.number}? ${t("Its entry in the accounts is reversed.")}`)) return;
-    const done = await action.run(() => api.post(`/accounting/expenses/${expense.id}/cancel/`, { date: today() }));
-    if (done) await mutate((key) => typeof key === "string" && key.startsWith("/accounting/expenses"));
-    else window.alert(action.error?.message ?? t("Something went wrong. Try again."));
-  };
-  return (
-    <Button
-      variant="danger"
-      pending={action.pending}
-      className="!h-8 !px-3 !text-xs"
-      onClick={(event) => {
-        event.stopPropagation();
-        void cancel();
-      }}
-    >
-      {t("Cancel")}
-    </Button>
-  );
-}
 
 export default function ExpensesPage() {
   const { company, branches, branch, can, locale, name, t } = useWorkspace();
@@ -72,7 +45,7 @@ export default function ExpensesPage() {
             row.status === "cancelled" ? (
               <Badge tone="danger">{t("Cancelled")}</Badge>
             ) : can("accounting.expense.cancel") ? (
-              <CancelButton expense={row} />
+              <CancelPosted endpoint="/accounting/expenses" id={row.id} label={row.number} />
             ) : (
               <Badge tone="success">{t("Posted")}</Badge>
             ),

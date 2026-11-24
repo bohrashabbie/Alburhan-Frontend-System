@@ -1514,3 +1514,10 @@ export type PurchaseReturn = PurchaseHeader & {
   posted_at: string | null;
   lines: PurchaseLine[];
 };
+
+export type MoneyAccount = { journal: number; code: string; name: string; name_ar: string; journal_type: "cash" | "bank"; is_active: boolean; account: number | null; account_code: string | null; balance: string };
+
+export type MoneyTransfer = Audited & {
+  id: number; company: number; number: string; date: string; from_journal: number; from_name: string; to_journal: number; to_name: string;
+  amount: string; note: string; status: "posted" | "cancelled"; journal_entry: number | null; journal_number: string | null;
+};
