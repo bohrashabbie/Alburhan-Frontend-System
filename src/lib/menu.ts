@@ -117,7 +117,10 @@ export const MENU: MenuGroup[] = [
     key: "return",
     label: "Return",
     icon: Undo2,
-    links: [{ href: "/sales/credit-notes", label: "Sale return", permission: "sales.credit_note.view" }],
+    links: [
+      { href: "/sales/credit-notes", label: "Sale return", permission: "sales.credit_note.view" },
+      { href: "/purchasing/returns", label: "Purchase return", permission: "purchasing.return.view" },
+    ],
   },
   {
     key: "accounting",

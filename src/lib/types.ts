@@ -1502,3 +1502,15 @@ export type Expense = Audited & {
   reference: string; note: string; status: "posted" | "cancelled"; status_label: string;
   journal_entry: number | null; journal_number: string | null;
 };
+
+export type PurchaseReturn = PurchaseHeader & {
+  status: "draft" | "posted";
+  warehouse: number;
+  warehouse_name: string;
+  invoice: number | null;
+  invoice_number: string | null;
+  journal_entry: number | null;
+  journal_number: string | null;
+  posted_at: string | null;
+  lines: PurchaseLine[];
+};

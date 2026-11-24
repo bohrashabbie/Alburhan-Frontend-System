@@ -109,6 +109,7 @@ const AREAS: Record<Area, SectionGroup[]> = {
       links: [
         { href: "/purchasing/bills", label: "Supplier bills", permission: "purchasing.invoice.view" },
         { href: "/purchasing/payments", label: "Supplier payments", permission: "purchasing.payment.view" },
+        { href: "/purchasing/returns", label: "Purchase return", permission: "purchasing.return.view" },
       ],
     },
   ],
