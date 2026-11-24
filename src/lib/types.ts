@@ -1220,7 +1220,17 @@ export type Dashboard = {
   jobs_today: number;
   open_shifts: number;
   purchase_orders: { open: number; value: string };
+  periods: Record<DashboardPeriod, { sale: string; sale_return: string; purchase: string; profit: string }>;
+  cash_flow: { month: string; received: string; sent: string }[];
+  month_mix: { purchase: string; revenue: string; expense: string };
+  yearly: { month: string; purchased: string; sold: string }[];
+  recent: Record<"sales" | "purchases" | "quotations" | "payments", RecentDocument[]>;
+  best_sellers: Record<"month_quantity" | "year_quantity" | "year_amount", BestSeller[]>;
 };
+
+export type DashboardPeriod = "today" | "week" | "month" | "year";
+export type RecentDocument = { id: number; date: string; number: string; party: string; status: string; status_label: string; amount: string; currency: string };
+export type BestSeller = { product: number; sku: string; name: string; quantity: string; amount: string };
 
 export type ReportGroup = { code: string; name: string; name_ar: string; rows: { account: number; code: string; name: string; name_ar: string; amount: string }[]; total: string };
 

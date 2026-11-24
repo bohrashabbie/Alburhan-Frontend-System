@@ -110,3 +110,66 @@ function compact(value: number) {
   if (value >= 10_000) return `${(value / 1000).toFixed(0)}K`;
   return value.toLocaleString("en-US", { maximumFractionDigits: 0 });
 }
+
+const SECOND = "#e8590c";
+
+export type PairPoint = { label: string; hint?: string; first: number; second: number };
+
+/**
+ * Two series side by side over time (bought against sold, money in against money out).
+ * A legend names both; hovering a month shows the two figures.
+ */
+export function PairedColumns({ points, names, title, format, height = 220, width = 600 }: { points: PairPoint[]; names: [string, string]; title: string; format: (value: number) => string; height?: number; width?: number }) {
+  const id = useId();
+  const [active, setActive] = useState<number | null>(null);
+  const max = Math.max(...points.flatMap((p) => [p.first, p.second]), 0);
+  const ticks = niceTicks(max);
+  const top = ticks[ticks.length - 1] || 1;
+  const padStart = 44;
+  const padBottom = 22;
+  const plotW = width - padStart - 8;
+  const plotH = height - padBottom - 8;
+  const band = plotW / Math.max(points.length, 1);
+  const barW = Math.min(18, Math.max(3, (band - 8) / 2));
+  const y = (value: number) => 8 + plotH - (value / top) * plotH;
+  return (
+    <div className="relative">
+      <ul className="mb-2 flex flex-wrap gap-x-5 gap-y-1 text-xs text-ink-soft">
+        {names.map((name, index) => (
+          <li key={name} className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2.5 rounded-sm" style={{ backgroundColor: index === 0 ? SERIES : SECOND }} />
+            {name}
+          </li>
+        ))}
+      </ul>
+      <svg viewBox={`0 0 ${width} ${height}`} className="h-auto w-full" role="img" aria-labelledby={`${id}-title`}>
+        <title id={`${id}-title`}>{title}</title>
+        {ticks.map((tick) => (
+          <g key={tick}>
+            <line x1={padStart} x2={width - 8} y1={y(tick)} y2={y(tick)} stroke="var(--color-line)" strokeWidth={1} />
+            <text x={padStart - 6} y={y(tick) + 3} textAnchor="end" className="fill-ink-soft" fontSize={10}>{compact(tick)}</text>
+          </g>
+        ))}
+        {points.map((point, index) => {
+          const x = padStart + index * band + (band - barW * 2 - 2) / 2;
+          const dim = active !== null && active !== index ? 0.45 : 1;
+          return (
+            <g key={point.label} opacity={dim} onMouseEnter={() => setActive(index)} onMouseLeave={() => setActive(null)}>
+              <rect x={padStart + index * band} y={8} width={band} height={plotH} fill="transparent" />
+              {point.first > 0 ? <path d={roundedTop(x, y(point.first), barW, (point.first / top) * plotH, 3)} fill={SERIES} /> : null}
+              {point.second > 0 ? <path d={roundedTop(x + barW + 2, y(point.second), barW, (point.second / top) * plotH, 3)} fill={SECOND} /> : null}
+              <text x={padStart + index * band + band / 2} y={height - 6} textAnchor="middle" className="fill-ink-soft" fontSize={10}>{point.label}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {active !== null ? (
+        <div className="pointer-events-none absolute top-6 rounded-md bg-panel px-2.5 py-1.5 text-xs text-panel-ink shadow-lg" style={{ insetInlineStart: `${Math.min(((padStart + active * band) / width) * 100, 70)}%` }}>
+          <span className="block text-panel-ink-soft">{points[active].hint ?? points[active].label}</span>
+          <span className="block tabular-nums">{names[0]}: <b className="font-semibold">{format(points[active].first)}</b></span>
+          <span className="block tabular-nums">{names[1]}: <b className="font-semibold">{format(points[active].second)}</b></span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
