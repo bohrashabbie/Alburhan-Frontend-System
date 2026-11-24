@@ -21,6 +21,8 @@ type DocumentListProps<T> = {
   statuses: [string, string][];
   columns: DocColumn<T>[];
   extraFilters?: ReactNode;
+  /** Fixed filters added to every request, e.g. { is_proforma: "true" }. */
+  query?: Record<string, string | number | undefined>;
   renderOpen: (open: T | "new", close: () => void) => ReactNode;
 };
 
@@ -47,6 +49,7 @@ function DocumentListInner<T extends { id: number; status: string }>({
   statuses,
   columns,
   extraFilters,
+  query,
   renderOpen,
 }: DocumentListProps<T>) {
   const { company, can, locale, t } = useWorkspace();
@@ -57,7 +60,7 @@ function DocumentListInner<T extends { id: number; status: string }>({
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState<T | "new" | null>(null);
   const list = useResource<Page<T>>(
-    withQuery(endpoint, { company: company.id, search: search.trim(), status, date_from: from, date_to: to, page }),
+    withQuery(endpoint, { company: company.id, ...query, search: search.trim(), status, date_from: from, date_to: to, page }),
   );
   const rows = list.data?.results ?? [];
   const pages = list.data ? Math.max(1, Math.ceil(list.data.count / 50)) : 1;

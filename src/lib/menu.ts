@@ -42,7 +42,7 @@ export const MENU: MenuGroup[] = [
       { href: "/inventory/moves", label: "Stock movements", permission: "inventory.stock.view" },
       { href: "/inventory/adjustments", label: "Adjustment list", permission: "inventory.adjustment.view" },
       { href: "/inventory/counts", label: "Stock count", permission: "inventory.count.view" },
-      { href: "/inventory/reservations", label: "Reservations", permission: "inventory.reservation.view" },
+      { href: "/inventory/reservations", label: "Frozen stock", permission: "inventory.reservation.view" },
       { href: "/inventory/reorder-rules", label: "Reorder rules", permission: "inventory.reorder_rule.view" },
     ],
   },
@@ -74,6 +74,7 @@ export const MENU: MenuGroup[] = [
     icon: ReceiptText,
     links: [
       { href: "/sales/invoices", label: "Invoice list", permission: "sales.invoice.view" },
+      { href: "/sales/proforma", label: "Dummy invoice", permission: "sales.quotation.view" },
       { href: "/sales/deliveries", label: "Delivery notes", permission: "sales.delivery.view" },
       { href: "/sales/receipts", label: "Payments received", permission: "sales.receipt.view" },
     ],

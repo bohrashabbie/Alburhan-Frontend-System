@@ -619,6 +619,9 @@ type SalesHeader = Audited & {
 
 export type Quotation = SalesHeader & {
   status: "draft" | "sent" | "accepted" | "invoiced" | "expired" | "cancelled";
+  is_proforma: boolean;
+  frozen_warehouse: number | null;
+  frozen_warehouse_name: string | null;
   valid_until: string | null;
   price_list: number | null;
   sent_at: string | null;

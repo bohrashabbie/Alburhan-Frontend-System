@@ -55,7 +55,7 @@ export default function PrintDocument() {
   const d = doc.data;
   const decimals = decimalsOf(d.currency ?? company.currency);
   const money = (value: string | undefined) => formatAmount(value ?? "0", decimals);
-  const [title, titleAr] = TITLE[kind];
+  const [title, titleAr] = kind === "quotation" && d.is_proforma ? ["Pro-forma invoice", "فاتورة مبدئية"] : TITLE[kind];
   const lines: Line[] = kind === "delivery" ? [] : (d.lines as Line[]);
   const showPhotos = kind === "quotation" && lines.some((line) => line.product_image && line.product_type !== "service");
   const anyDiscount = lines.some((line) => Number(line.discount_percent) > 0);
