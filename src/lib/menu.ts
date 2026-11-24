@@ -171,7 +171,10 @@ export const MENU: MenuGroup[] = [
     icon: UserRound,
     links: [
       { href: "/partners/customers", label: "Customer list", permission: "partners.customer.view" },
-      { href: "/accounts/ageing", label: "Customer balances", permission: "accounting.report.view" },
+      { href: "/sales/receipts", label: "Customer transactions", permission: "sales.receipt.view" },
+      { href: "/partners/balances", label: "Customer balance sheet", permission: "sales.invoice.view" },
+      { href: "/partners/statement", label: "Customer statement", permission: "sales.invoice.view" },
+      { href: "/accounts/ageing", label: "Overdue by age", permission: "accounting.report.view" },
     ],
   },
   {

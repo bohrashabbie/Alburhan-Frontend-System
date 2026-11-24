@@ -1521,3 +1521,15 @@ export type MoneyTransfer = Audited & {
   id: number; company: number; number: string; date: string; from_journal: number; from_name: string; to_journal: number; to_name: string;
   amount: string; note: string; status: "posted" | "cancelled"; journal_entry: number | null; journal_number: string | null;
 };
+
+export type CustomerStatement = {
+  currency: string; customer: { id: number; code: string; name: string }; date_from: string; date_to: string;
+  opening: string; debit: string; credit: string; closing: string;
+  rows: { date: string; kind: "invoice" | "receipt" | "return"; number: string; id: number; debit: string; credit: string; balance: string }[];
+};
+
+export type CustomerBalances = {
+  currency: string; as_of: string;
+  rows: { customer: number; code: string; name: string; phone: string; invoiced: string; returned: string; paid: string; balance: string }[];
+  totals: { invoiced: string; returned: string; paid: string; balance: string };
+};

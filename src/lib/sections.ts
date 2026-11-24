@@ -200,6 +200,8 @@ const AREAS: Record<Area, SectionGroup[]> = {
       links: [
         { href: "/partners/customers", label: "Customers", permission: "partners.customer.view" },
         { href: "/partners/suppliers", label: "Suppliers", permission: "partners.supplier.view" },
+        { href: "/partners/balances", label: "Customer balance sheet", permission: "sales.invoice.view" },
+        { href: "/partners/statement", label: "Customer statement", permission: "sales.invoice.view" },
       ],
     },
   ],
