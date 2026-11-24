@@ -3,7 +3,6 @@
 import {
   Boxes,
   CalendarDays,
-  ChevronLeft,
   Contact,
   FolderKanban,
   House,
@@ -11,6 +10,7 @@ import {
   Languages,
   Lightbulb,
   LogOut,
+  PanelLeft,
   type LucideIcon,
   Search,
   Settings,
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 
 import { Brand } from "@/components/brand";
 import { Loading, Menu, MenuDivider, MenuHeading, MenuItem, MenuLink } from "@/components/ui";
@@ -34,7 +34,8 @@ import { session } from "@/lib/api";
 import { fullName } from "@/lib/format";
 import { useFreshStart, useMe } from "@/lib/hooks";
 import type { Locale } from "@/lib/i18n";
-import { type Area, areaGroups, isActiveLink } from "@/lib/sections";
+import { Sidebar } from "@/components/sidebar";
+import type { Area } from "@/lib/sections";
 import { useWorkspace, WorkspaceProvider } from "@/lib/workspace";
 
 export type NavItem = {
@@ -47,8 +48,7 @@ export type NavItem = {
   permission?: string;
 };
 
-// Areas appear here as they are built: Sales, POS, Projects, Inventory, Purchasing,
-// Installation, Accounts, Reports (see the alburhan-ui skill for their icons).
+// The areas of the app by address; the menu people see is in lib/menu.ts.
 export const NAV: NavItem[] = [
   { href: "/overview", label: "Home", icon: House },
   { href: "/sales", label: "Sales", icon: Tag, section: "sales" },
@@ -64,170 +64,8 @@ export const NAV: NavItem[] = [
   { href: "/settings", label: "Settings", icon: Settings, section: "settings" },
 ];
 
-function isActive(item: NavItem, pathname: string) {
-  return pathname === item.href || pathname.startsWith(`${item.href}/`);
-}
-
-function RailLink({
-  item,
-  active,
-  open = false,
-  onToggle,
-}: {
-  item: NavItem;
-  active: boolean;
-  open?: boolean;
-  onToggle?: () => void;
-}) {
-  const { t } = useWorkspace();
-  const Icon = item.icon;
-  const label = t(item.label);
-  // Fixed, because the rail scrolls and would otherwise clip the label.
-  const [tip, setTip] = useState<number | null>(null);
-  const show = (element: HTMLElement) => {
-    const bounds = element.getBoundingClientRect();
-    setTip(bounds.top + bounds.height / 2);
-  };
-
-  const className = `group/rail relative flex size-12 shrink-0 items-center justify-center rounded-xl text-white transition-[background-color,transform] duration-200 hover:bg-link active:scale-95 active:bg-link ${
-    active ? "bg-link" : ""
-  } ${open ? "bg-link" : ""}`;
-  const hover = {
-    onMouseEnter: (event: { currentTarget: HTMLElement }) => show(event.currentTarget),
-    onMouseLeave: () => setTip(null),
-    onFocus: (event: { currentTarget: HTMLElement }) => show(event.currentTarget),
-    onBlur: () => setTip(null),
-  };
-  const bubble =
-    tip !== null && !open ? (
-      <span
-        aria-hidden
-        style={{ top: tip }}
-        className="pointer-events-none fixed start-[4.75rem] z-50 -translate-y-1/2 rounded-lg bg-black px-4 py-2.5 text-[15px] leading-5 font-medium whitespace-nowrap text-white shadow-lg"
-      >
-        <span className="absolute top-1/2 -start-1 size-3 -translate-y-1/2 rotate-45 bg-black" />
-        {label}
-      </span>
-    ) : null;
-
-  if (onToggle) {
-    return (
-      <button
-        type="button"
-        aria-label={label}
-        aria-expanded={open}
-        aria-haspopup="menu"
-        aria-current={active ? "page" : undefined}
-        data-rail-toggle=""
-        onClick={() => {
-          setTip(null);
-          onToggle();
-        }}
-        className={className}
-        {...hover}
-      >
-        <Icon aria-hidden className="size-6 transition-transform duration-200 group-hover/rail:scale-110" strokeWidth={1.5} />
-        {bubble}
-      </button>
-    );
-  }
-
-  return (
-    <Link
-      href={item.href}
-      aria-label={label}
-      aria-current={active ? "page" : undefined}
-      className={className}
-      {...hover}
-    >
-      <Icon aria-hidden className="size-6 transition-transform duration-200 group-hover/rail:scale-110" strokeWidth={1.5} />
-      {bubble}
-    </Link>
-  );
-}
-
-/** The pages of one area, sliding out beside the rail. */
-function Flyout({
-  item,
-  pathname,
-  onClose,
-  closing = false,
-}: {
-  item: NavItem;
-  pathname: string;
-  onClose: () => void;
-  closing?: boolean;
-}) {
-  const { canSee, t } = useWorkspace();
-  const box = useRef<HTMLDivElement>(null);
-  // Each group knows where its links start, so they can fade in one after another.
-  const raw = areaGroups(item.section as Area, canSee);
-  const groups = raw.map((group, index) => ({
-    ...group,
-    order: raw.slice(0, index).reduce((count, previous) => count + previous.links.length + 1, 0),
-  }));
-
-  useEffect(() => {
-    const outside = (event: Event) => {
-      const target = event.target as Element;
-      if (box.current?.contains(target) || target.closest?.("[data-rail-toggle]")) return;
-      onClose();
-    };
-    const key = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("mousedown", outside);
-    document.addEventListener("keydown", key);
-    return () => {
-      document.removeEventListener("mousedown", outside);
-      document.removeEventListener("keydown", key);
-    };
-  }, [onClose]);
-
-  return (
-    <div ref={box} data-closing={closing ? "" : undefined} className="rail-flyout fixed top-16 bottom-0 start-[4.5rem] z-[45] w-56">
-      <button
-        type="button"
-        aria-label={t("Close menu")}
-        title={t("Close menu")}
-        onClick={onClose}
-        className="absolute top-4 -end-[18px] z-10 inline-flex size-9 items-center justify-center rounded-full border border-line-strong bg-surface text-ink shadow-sm transition-colors hover:bg-surface-muted"
-      >
-        <ChevronLeft aria-hidden className="size-4 rtl:-scale-x-100" />
-      </button>
-      <div
-        role="menu"
-        aria-label={t(item.label)}
-        className="quiet-scrollbar h-full overflow-y-auto border-e border-line bg-surface py-4 text-ink shadow-xl"
-      >
-        {groups.map((group, index) => (
-          <div key={group.title}>
-            {index > 0 ? <hr className="mx-5 my-3 border-line" /> : null}
-            <p className="link-in px-6 pt-4 pb-2 text-[17px] font-semibold" style={{ animationDelay: `${60 + group.order * 24}ms` }}>{t(group.title)}</p>
-            {group.links.map((link) => {
-              const current = isActiveLink(link, pathname);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  role="menuitem"
-                  aria-current={current ? "page" : undefined}
-                  onClick={onClose}
-                  style={{ animationDelay: `${60 + (group.order + group.links.indexOf(link) + 1) * 24}ms` }}
-                  className={`link-in mx-3 block rounded-lg px-3 py-2.5 text-[15px] transition-colors ${
-                    current ? "bg-[#f0ecff] font-medium" : "hover:bg-surface-muted"
-                  }`}
-                >
-                  {t(link.label)}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// Pages under these have their own layout, which keeps them mounted from one to the next.
+const AREA_PATHS = NAV.filter((item) => item.section).map((item) => item.href);
 
 export function AccountMenu() {
   const { me, company, branch, companies, branches, companyWide, canSee, setCompany, setBranch, locale, setLocale, t, name } =
@@ -396,8 +234,10 @@ export function WorkspaceChip() {
 
 function Shell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { canSee, t } = useWorkspace();
+  const { t } = useWorkspace();
   const [palette, setPalette] = useState(false);
+  // null = the screen decides: shown on wide screens, tucked away on small ones.
+  const [menu, setMenu] = useState<boolean | null>(null);
 
   // Ctrl/⌘+K anywhere, or "/" when not typing, opens the search.
   useEffect(() => {
@@ -411,62 +251,43 @@ function Shell({ children }: { children: ReactNode }) {
     document.addEventListener("keydown", key);
     return () => document.removeEventListener("keydown", key);
   }, []);
-  // Remembers the page it opened on, so going anywhere else closes it.
-  const [flyoutState, setFlyoutState] = useState<{ href: string; at: string } | null>(null);
-  const flyout = flyoutState?.at === pathname ? flyoutState.href : null;
-  const setFlyout = (href: string | null) =>
-    setFlyoutState(href ? { href, at: pathname } : null);
-  // The flyout plays its exit before it unmounts.
-  const [leaving, setLeaving] = useState<string | null>(null);
-  const closeFlyout = useCallback(() => {
-    setFlyoutState((current) => {
-      if (current) {
-        setLeaving(current.href);
-        window.setTimeout(() => setLeaving((href) => (href === current.href ? null : href)), 180);
-      }
-      return null;
-    });
-  }, []);
 
-  const links = NAV.filter(
-    (item) =>
-      (!item.permission || canSee(item.permission)) &&
-      (!item.section || areaGroups(item.section, canSee).length > 0),
-  );
-  const openItem = links.find((item) => item.href === flyout && item.section) ?? null;
-  const leavingItem = !openItem && leaving ? (links.find((item) => item.href === leaving && item.section) ?? null) : null;
-  const shownItem = openItem ?? leavingItem;
-  // Areas with their own side menu take the full width.
-  const inSection = links.some((item) => item.section && isActive(item, pathname));
+  const wide = () => window.matchMedia("(min-width: 1024px)").matches;
+  const toggleMenu = () => setMenu((state) => !(state ?? wide()));
+  // On a small screen the menu covers the page, so picking a page puts it away again.
+  const afterPick = useCallback(() => {
+    if (!wide()) setMenu(null);
+  }, []);
+  // Areas keep their pages mounted while moving between them; other pages fade in.
+  const inSection = AREA_PATHS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  const shown = menu === null ? "max-lg:-translate-x-full rtl:max-lg:translate-x-full" : menu ? "" : "-translate-x-full rtl:translate-x-full";
 
   return (
-    <div className="min-h-dvh ps-[4.5rem]">
-      <aside className="fixed top-16 bottom-0 start-0 z-40 flex w-[4.5rem] flex-col items-center bg-panel pt-3 pb-4 text-panel-ink">
-        <nav aria-label="Main" className="rail-nav no-scrollbar flex min-h-0 flex-col gap-1 overflow-y-auto">
-          {links.map((item) => (
-            <RailLink
-              key={item.href}
-              item={item}
-              active={isActive(item, pathname)}
-              open={flyout === item.href}
-              onToggle={
-                item.section ? () => setFlyout(flyout === item.href ? null : item.href) : undefined
-              }
-            />
-          ))}
-        </nav>
+    <div className={`min-h-dvh transition-[padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${menu === false ? "" : "lg:ps-60"}`}>
+      <aside
+        inert={menu === false ? true : undefined}
+        className={`fixed top-16 bottom-0 start-0 z-40 w-60 bg-panel text-panel-ink transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${shown}`}
+      >
+        <Sidebar pathname={pathname} onNavigate={afterPick} />
       </aside>
-      {shownItem ? (
-        <>
-          <div aria-hidden data-closing={leavingItem ? "" : undefined} className="rail-scrim fixed inset-0 top-16 start-[4.5rem] z-[44] bg-black/10" />
-          <Flyout key={shownItem.href} item={shownItem} pathname={pathname} onClose={closeFlyout} closing={Boolean(leavingItem)} />
-        </>
-      ) : null}
+      {menu ? <button type="button" aria-label={t("Close menu")} onClick={() => setMenu(null)} className="fixed inset-0 top-16 z-[39] bg-black/30 lg:hidden" /> : null}
 
-      <header className="sticky top-0 z-40 -ms-[4.5rem] flex h-16 items-center justify-between gap-3 border-b border-line bg-surface ps-5 pe-4 sm:pe-6">
-        <Link href="/overview" aria-label="Al-Burhan home" className="shrink-0 text-ink">
-          <Brand large />
-        </Link>
+      <header className={`sticky top-0 z-40 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface ps-3 pe-4 transition-[margin] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:pe-6 ${menu === false ? "" : "lg:-ms-60"}`}>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            aria-label={t("Menu")}
+            title={t("Menu")}
+            aria-expanded={menu ?? undefined}
+            onClick={toggleMenu}
+            className="inline-flex size-10 items-center justify-center rounded-full text-ink transition-colors hover:bg-surface-muted"
+          >
+            <PanelLeft aria-hidden className="size-5 rtl:-scale-x-100" strokeWidth={1.75} />
+          </button>
+          <Link href="/overview" aria-label="Al-Burhan home" className="shrink-0 text-ink">
+            <Brand large />
+          </Link>
+        </div>
         <button
           type="button"
           onClick={() => setPalette(true)}
