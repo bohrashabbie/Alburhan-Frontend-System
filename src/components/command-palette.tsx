@@ -69,7 +69,7 @@ const CREATE: { label: string; href: string; permission: string; icon: LucideIco
   { label: "New purchase order", href: "/purchasing/orders?new=1", permission: "purchasing.order.create", icon: Truck },
   { label: "New supplier bill", href: "/purchasing/bills?new=1", permission: "purchasing.invoice.create", icon: Truck },
   { label: "New project", href: "/projects/list?new=1", permission: "projects.project.create", icon: FolderKanban },
-  { label: "New installation job", href: "/installation/work-orders?new=1", permission: "installation.work_order.create", icon: Wrench },
+  { label: "New installation request", href: "/installation/work-orders?new=1", permission: "installation.work_order.create", icon: Wrench },
   { label: "New stock transfer", href: "/inventory/transfers?new=1", permission: "inventory.transfer.create", icon: Boxes },
   { label: "New journal entry", href: "/accounts/entries?new=1", permission: "accounting.entry.create", icon: Landmark },
 ];

@@ -1,15 +1,16 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Inbox, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Button, ErrorBanner, Loading, PageHeader, SelectField } from "@/components/ui";
 import { WorkOrderEditor, WorkOrderViewer } from "@/components/work-order";
 import { withQuery } from "@/lib/api";
+import { formatDate } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
 import { qty } from "@/lib/inventory";
 import { JobStatusBadge, useTechnicians } from "@/lib/projects";
-import type { CalendarDay, WorkOrder } from "@/lib/types";
+import type { CalendarDay, Page, WorkOrder } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -32,15 +33,31 @@ export default function SchedulePage() {
   const end = new Date(start.getTime() + 13 * DAY);
   const days = useResource<CalendarDay[]>(withQuery("/installation/work-orders/calendar", { company: company.id, from: iso(start), to: iso(end) }));
   const opened = useResource<WorkOrder>(openId ? `/installation/work-orders/${openId}` : null);
+  const waiting = useResource<Page<WorkOrder>>(withQuery("/installation/work-orders", { company: company.id, status: "requested", ordering: "created_at", page_size: 50 }));
   const byDate = Object.fromEntries((days.data ?? []).map((day) => [day.date, day.jobs]));
   const todayIso = iso(new Date());
   const techName = technicians.find((item) => String(item.id) === technician);
-  const close = () => { setOpenId(null); setCreating(false); days.mutate(); };
+  const close = () => { setOpenId(null); setCreating(false); days.mutate(); waiting.mutate(); };
   const weekLabel = (from: Date) => `${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short" }).format(from)} – ${new Intl.DateTimeFormat(locale === "ar" ? "ar-KW-u-nu-latn" : "en-GB", { day: "numeric", month: "short", year: "numeric" }).format(new Date(from.getTime() + 6 * DAY))}`;
 
   return (
     <>
-      <PageHeader title={t("Schedule")} description="Two weeks of installation jobs. Click a job to start, complete or bill it." actions={can("installation.work_order.create") ? <Button onClick={() => setCreating(true)}><Plus aria-hidden className="size-5" />{t("New job")}</Button> : null} />
+      <PageHeader title={t("Installation schedule")} description="New requests wait at the top until the supervisor sets a date and technicians; then they appear on the board. Click a job to schedule, complete or sign it off." actions={can("installation.work_order.create") ? <Button onClick={() => setCreating(true)}><Plus aria-hidden className="size-5" />{t("New request")}</Button> : null} />
+      {waiting.data?.results.length ? (
+        <section className="mb-4 rounded-xl border border-warning/40 bg-warning-soft/40">
+          <h2 className="flex items-center gap-2 border-b border-warning/30 px-4 py-2.5 text-sm font-semibold"><Inbox aria-hidden className="size-4 text-warning" />{t("Waiting to be scheduled")}<span className="rounded-full bg-warning-soft px-2 text-xs text-warning tabular-nums">{waiting.data.count}</span></h2>
+          <div className="flex gap-2 overflow-x-auto p-2">
+            {waiting.data.results.map((job) => (
+              <button key={job.id} type="button" onClick={() => setOpenId(job.id)} className="w-60 shrink-0 rounded-lg border border-line bg-surface p-2.5 text-start text-xs transition-colors hover:border-link">
+                <span className="flex items-center justify-between gap-1"><span className="font-mono text-ink-soft">{job.number}</span>{job.requested_date ? <span className="text-ink-soft">{t("Preferred")}: {formatDate(job.requested_date, locale)}</span> : null}</span>
+                <span className="mt-0.5 line-clamp-2 font-medium text-ink">{job.title}</span>
+                <span className="block truncate text-ink-soft">{job.customer_name}</span>
+                {job.site_address ? <span className="block truncate text-ink-faint">{job.site_address.split("\n")[0]}</span> : null}
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <div className="mb-4 flex flex-wrap items-end gap-3">
         <div className="flex items-center gap-1">
           <Button variant="secondary" className="h-10 px-3" aria-label={t("Previous week")} onClick={() => setStart(new Date(start.getTime() - 7 * DAY))}><ChevronLeft aria-hidden className="size-4 rtl:-scale-x-100" /></Button>
@@ -70,12 +87,12 @@ export default function SchedulePage() {
                           <span className={`tabular-nums ${isToday ? "rounded-full bg-link px-1.5 text-white" : ""}`}>{date.getDate()}</span>
                         </div>
                         {jobs.map((job) => (
-                          <button key={job.id} type="button" onClick={() => setOpenId(job.id)} className={`rounded-lg border p-2 text-start text-xs transition-colors hover:border-link ${job.status === "completed" ? "border-line bg-surface-muted/60 text-ink-soft" : job.status === "in_progress" ? "border-warning/40 bg-warning-soft" : "border-line bg-surface"}`}>
+                          <button key={job.id} type="button" onClick={() => setOpenId(job.id)} className={`rounded-lg border p-2 text-start text-xs transition-colors hover:border-link ${job.status === "completed" && !job.signed ? "border-warning/40 bg-surface" : job.status === "completed" ? "border-line bg-surface-muted/60 text-ink-soft" : job.status === "in_progress" ? "border-warning/40 bg-warning-soft" : "border-line bg-surface"}`}>
                             <span className="flex items-center justify-between gap-1"><span className="font-semibold tabular-nums">{job.time ?? "—"}</span><span className="text-ink-faint tabular-nums">{qty(job.duration_hours)} h</span></span>
                             <span className="mt-0.5 line-clamp-2 font-medium text-ink">{job.title}</span>
                             <span className="block truncate text-ink-soft">{job.customer_name}</span>
                             {job.technicians.length ? <span className="block truncate text-ink-faint">{job.technicians.join(", ")}</span> : null}
-                            {job.status !== "scheduled" ? <span className="mt-1 block"><JobStatusBadge status={job.status} /></span> : null}
+                            {job.status !== "scheduled" ? <span className="mt-1 block"><JobStatusBadge status={job.status} awaitingSignature={!job.signed} /></span> : null}
                           </button>
                         ))}
                       </div>

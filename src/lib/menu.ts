@@ -22,6 +22,7 @@ import {
   UsersRound,
   Wallet,
   Truck,
+  Wrench,
 } from "lucide-react";
 
 import type { SectionLink } from "@/lib/sections";
@@ -90,8 +91,15 @@ export const MENU: MenuGroup[] = [
     links: [
       { href: "/projects/list", label: "Projects", permission: "projects.project.view" },
       { href: "/projects/issues", label: "Materials to site", permission: "projects.issue.view" },
+    ],
+  },
+  {
+    key: "installation",
+    label: "Installation",
+    icon: Wrench,
+    links: [
+      { href: "/installation/work-orders", label: "Installation requests", permission: "installation.work_order.view" },
       { href: "/installation/schedule", label: "Installation schedule", permission: "installation.work_order.view" },
-      { href: "/installation/work-orders", label: "Work orders", permission: "installation.work_order.view" },
       { href: "/installation/technicians", label: "Technicians", permission: "installation.technician.view" },
     ],
   },

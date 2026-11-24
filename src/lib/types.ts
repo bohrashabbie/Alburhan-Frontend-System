@@ -1167,7 +1167,7 @@ export type Technician = Audited &
     open_jobs: number;
   };
 
-export type WorkOrderStatus = "scheduled" | "in_progress" | "completed" | "cancelled";
+export type WorkOrderStatus = "requested" | "scheduled" | "in_progress" | "completed" | "cancelled";
 
 export type WorkOrder = Audited & {
   id: number;
@@ -1187,17 +1187,27 @@ export type WorkOrder = Audited & {
   site_address: string;
   contact_name: string;
   contact_phone: string;
-  scheduled_date: string;
+  location_link: string;
+  requested_date: string | null;
+  scheduled_date: string | null;
   scheduled_time: string | null;
   duration_hours: string;
   technicians: number[];
   technician_names: string[];
   description: string;
   status: WorkOrderStatus;
+  status_label: string;
+  requested_by_name: string | null;
+  scheduled_by_name: string | null;
+  scheduled_at: string | null;
   started_at: string | null;
   completed_at: string | null;
+  completed_by_name: string | null;
   completion_notes: string;
   signed_by: string;
+  signed_at: string | null;
+  signature_url: string | null;
+  awaiting_signature: boolean;
   labour_hours: string;
   labour_cost: string;
   cancel_reason: string;
@@ -1216,7 +1226,9 @@ export type CalendarDay = {
     time: string | null;
     duration_hours: string;
     status: WorkOrderStatus;
+    signed: boolean;
     technicians: string[];
+    technician_ids: number[];
     site_address: string;
   }[];
 };

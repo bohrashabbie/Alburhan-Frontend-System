@@ -32,7 +32,7 @@ export const NEXT_STATUS: Record<ProjectStatus, ProjectStatus[]> = {
 
 const TONES: Record<string, "neutral" | "success" | "warning" | "danger"> = {
   lead: "neutral", quoted: "warning", won: "success", in_progress: "warning", completed: "success", closed: "neutral", lost: "danger",
-  scheduled: "warning", cancelled: "danger",
+  requested: "neutral", scheduled: "warning", cancelled: "danger",
 };
 
 export function ProjectStatusBadge({ status }: { status: ProjectStatus }) {
@@ -42,14 +42,17 @@ export function ProjectStatusBadge({ status }: { status: ProjectStatus }) {
 }
 
 export const JOB_STATUSES: [WorkOrderStatus, string][] = [
+  ["requested", "Waiting to be scheduled"],
   ["scheduled", "Scheduled"],
   ["in_progress", "In progress"],
   ["completed", "Completed"],
   ["cancelled", "Cancelled"],
 ];
 
-export function JobStatusBadge({ status }: { status: WorkOrderStatus }) {
+/** A job's status; a completed job the customer has not signed yet says so. */
+export function JobStatusBadge({ status, awaitingSignature = false }: { status: WorkOrderStatus; awaitingSignature?: boolean }) {
   const { t } = useWorkspace();
+  if (status === "completed" && awaitingSignature) return <Badge tone="warning">{t("Awaiting signature")}</Badge>;
   const label = JOB_STATUSES.find(([value]) => value === status)?.[1] ?? status;
   return <Badge tone={TONES[status] ?? "neutral"}>{t(label)}</Badge>;
 }

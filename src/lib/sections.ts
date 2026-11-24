@@ -64,8 +64,8 @@ const AREAS: Record<Area, SectionGroup[]> = {
     {
       title: "Jobs",
       links: [
+        { href: "/installation/work-orders", label: "Installation requests", permission: "installation.work_order.view" },
         { href: "/installation/schedule", label: "Schedule", permission: "installation.work_order.view" },
-        { href: "/installation/work-orders", label: "Work orders", permission: "installation.work_order.view" },
       ],
     },
     {
