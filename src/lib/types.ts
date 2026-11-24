@@ -1480,3 +1480,12 @@ export type SalaryRow = {
   is_active: boolean;
   history: SalaryChange[];
 };
+
+export type ExpenseCategory = Audited & { id: number; company: number; code: string; name: string; name_ar: string; account: number; account_code: string; account_name: string; is_active: boolean };
+
+export type Expense = Audited & {
+  id: number; company: number; number: string; date: string; branch: number | null; branch_name: string | null;
+  category: number; category_name: string; amount: string; paid_from: number; paid_from_name: string;
+  reference: string; note: string; status: "posted" | "cancelled"; status_label: string;
+  journal_entry: number | null; journal_number: string | null;
+};

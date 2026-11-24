@@ -139,7 +139,11 @@ const AREAS: Record<Area, SectionGroup[]> = {
   accounts: [
     {
       title: "Bookkeeping",
-      links: [{ href: "/accounts/entries", label: "Journal entries", permission: "accounting.entry.view" }],
+      links: [
+        { href: "/accounts/entries", label: "Journal entries", permission: "accounting.entry.view" },
+        { href: "/accounts/expenses", label: "Expense list", permission: "accounting.expense.view" },
+        { href: "/accounts/expense-categories", label: "Expense category", permission: "accounting.expense_category.view" },
+      ],
     },
     {
       title: "Reports",

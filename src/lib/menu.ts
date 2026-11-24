@@ -5,6 +5,7 @@
  */
 import {
   ArrowLeftRight,
+  Banknote,
   BarChart3,
   FileText,
   FolderKanban,
@@ -89,6 +90,15 @@ export const MENU: MenuGroup[] = [
     ],
   },
   {
+    key: "expense",
+    label: "Expense",
+    icon: Wallet,
+    links: [
+      { href: "/accounts/expenses", label: "Expense list", permission: "accounting.expense.view" },
+      { href: "/accounts/expense-categories", label: "Expense category", permission: "accounting.expense_category.view" },
+    ],
+  },
+  {
     key: "quotation",
     label: "Quotation",
     icon: FileText,
@@ -127,7 +137,7 @@ export const MENU: MenuGroup[] = [
   {
     key: "salary",
     label: "Salary",
-    icon: Wallet,
+    icon: Banknote,
     links: [
       { href: "/hr/employees", label: "Employee", permission: "hr.employee.view" },
       { href: "/hr/salaries", label: "Salaries", permission: "hr.salary.view" },

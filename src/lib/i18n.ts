@@ -979,6 +979,20 @@ const AR: Record<string, string> = {
   "Top 5 by quantity": "أفضل 5 بالكمية",
   "Top 5 by value": "أفضل 5 بالقيمة",
   "No sales yet.": "لا توجد مبيعات بعد.",
+  // Expenses
+  "Expense list": "قائمة المصروفات",
+  "Expense category": "فئة المصروف",
+  "expense": "مصروف",
+  "expense category": "فئة مصروف",
+  "Receipt or bill number": "رقم الإيصال أو الفاتورة",
+  "Cancel expense": "إلغاء المصروف",
+  "Its entry in the accounts is reversed.": "سيتم عكس قيده في الحسابات.",
+  "The cash or bank the money came out of.": "الصندوق أو البنك الذي خرج منه المبلغ.",
+  "The showroom or office the cost belongs to.": "المعرض أو المكتب الذي تخصه التكلفة.",
+  "Day-to-day spending: rent, fuel, bank charges. Each one is booked to its expense account and taken out of the cash or bank it was paid from.": "المصروفات اليومية: الإيجار والوقود والرسوم البنكية. يُقيَّد كل مصروف في حسابه ويُخصم من الصندوق أو البنك الذي دُفع منه.",
+  "An expense is booked in the accounts as soon as it is saved, so it can't be changed. Cancel it and enter it again.": "يُقيَّد المصروف في الحسابات فور حفظه، لذلك لا يمكن تعديله. ألغِه وأدخله من جديد.",
+  "The kinds of spending staff choose from, and the account each one is booked to.": "أنواع المصروفات التي يختار منها الموظفون والحساب الذي يُقيَّد فيه كل نوع.",
+  "The expense account this spending is booked to.": "حساب المصروفات الذي يُقيَّد فيه هذا المصروف.",
 };
 
 export function translate(locale: Locale, text: string) {
