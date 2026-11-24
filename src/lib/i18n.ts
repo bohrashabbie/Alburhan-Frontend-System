@@ -1109,6 +1109,23 @@ const AR: Record<string, string> = {
   "created": "أُنشئ",
   "changed": "عُدِّل",
   "Bank": "بنك",
+  // Reminders, receipts, unit conversions, CSV transfer
+  "All brands": "كل العلامات",
+  "All categories": "كل الفئات",
+  "Attach": "إرفاق",
+  "Base unit": "الوحدة الأساسية",
+  "How many base units in one": "عدد الوحدات الأساسية في الواحدة",
+  "Import transfer by CSV": "استيراد تحويل من ملف CSV",
+  "Message": "الرسالة",
+  "Nothing waiting for you.": "لا يوجد شيء بانتظارك.",
+  "Reminder date": "تاريخ التذكير",
+  "Send notification": "إرسال إشعار",
+  "Empty = they see it straight away.": "فارغ = يراه المستلم فوراً.",
+  "The file needs two columns: sku and quantity. It becomes a draft transfer you can check before sending.": "يحتاج الملف إلى عمودين: sku و quantity. يتحول إلى مسودة تحويل يمكنك مراجعتها قبل الإرسال.",
+  "The smaller unit this one is made of, e.g. a box is made of pieces.": "الوحدة الأصغر التي تتكون منها هذه الوحدة، مثلاً العلبة تتكون من قطع.",
+  "To warehouse": "إلى المستودع",
+  "Use a PDF or an image up to 5 MB.": "استخدم ملف PDF أو صورة بحجم لا يتجاوز 5 ميغابايت.",
+  "e.g. 12 pieces in a box.": "مثلاً 12 قطعة في العلبة.",
 };
 
 export function translate(locale: Locale, text: string) {

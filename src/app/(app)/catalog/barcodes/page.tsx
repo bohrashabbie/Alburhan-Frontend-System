@@ -27,9 +27,17 @@ function Barcode({ value }: { value: string }) {
   return <svg ref={ref} className="mx-auto max-w-full" role="img" aria-label={value} />;
 }
 
+/** The product's price in the default list (asked per product, so a big catalogue is no problem). */
+function LabelPrice({ listId, currency, product }: { listId: number; currency: string; product: number }) {
+  const { locale } = useWorkspace();
+  const prices = useResource<Page<PriceListItem>>(withQuery("/catalog/price-list-items", { price_list: listId, product, page_size: 5 }));
+  const price = prices.data?.results.find((item) => Number(item.min_quantity) <= 1)?.unit_price;
+  return price ? <p className="text-[11px] leading-4 font-semibold">{formatMoney(price, currency, locale)}</p> : null;
+}
+
 /** Pick products and how many labels of each, then print them on a sheet or a label roll. */
 export default function BarcodesPage() {
-  const { company, locale, name, t } = useWorkspace();
+  const { company, name, t } = useWorkspace();
   const [picking, setPicking] = useState<Product | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [showName, setShowName] = useState(true);
@@ -37,8 +45,6 @@ export default function BarcodesPage() {
   const [columns, setColumns] = useState("3");
   const lists = useResource<Page<PriceList>>(showPrice ? withQuery("/catalog/price-lists", { company: company.id, is_default: "true", page_size: 1 }) : null);
   const list = lists.data?.results[0];
-  const prices = useResource<Page<PriceListItem>>(list ? withQuery("/catalog/price-list-items", { price_list: list.id, page_size: 1000 }) : null);
-  const priceOf = (product: Product) => prices.data?.results.find((item) => item.product === product.id && Number(item.min_quantity) <= 1)?.unit_price;
 
   const add = (product: Product | null) => {
     setPicking(null);
@@ -92,12 +98,11 @@ export default function BarcodesPage() {
       {labels.length ? (
         <div className="print-sheet grid gap-2" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
           {labels.map(({ key, product }) => {
-            const price = showPrice ? priceOf(product) : undefined;
             return (
               <div key={key} className="break-inside-avoid rounded-md border border-line bg-white p-2 text-center text-black print:border-neutral-300">
                 {showName ? <p className="truncate text-[11px] leading-4 font-semibold">{name(product)}</p> : null}
                 <Barcode value={product.barcode || product.sku} />
-                {price ? <p className="text-[11px] leading-4 font-semibold">{formatMoney(price, list?.currency ?? company.currency, locale)}</p> : null}
+                {showPrice && list ? <LabelPrice listId={list.id} currency={list.currency} product={product.id} /> : null}
               </div>
             );
           })}
