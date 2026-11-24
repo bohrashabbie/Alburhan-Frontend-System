@@ -112,6 +112,7 @@ export type User = {
   email: string;
   first_name: string;
   last_name: string;
+  monthly_target: string;
   phone: string;
   preferred_language: "en" | "ar";
   is_active: boolean;
@@ -175,6 +176,11 @@ export type Unit = Audited &
 export type Product = Audited &
   Named & {
     id: number;
+    mounting: string;
+    cover: string;
+    rack_no: string;
+    is_featured: boolean;
+    datasheet_url: string;
     sku: string;
     model_code: string;
     barcode: string | null;
@@ -252,6 +258,9 @@ export type Customer = Audited &
     id: number;
     company: number;
     code: string;
+    group: number | null;
+    group_name: string | null;
+    group_discount_percent: string | null;
     customer_type: "individual" | "business" | "contractor" | "government";
     phone: string;
     mobile: string;
@@ -1533,3 +1542,17 @@ export type CustomerBalances = {
   rows: { customer: number; code: string; name: string; phone: string; invoiced: string; returned: string; paid: string; balance: string }[];
   totals: { invoiced: string; returned: string; paid: string; balance: string };
 };
+
+export type TradeCalendar = {
+  currency: string; kind: "sale" | "purchase"; year: number; month: number | null;
+  rows: { date: string; count: number; net: string; tax: string; total: string }[];
+  totals: { count: number; net: string; tax: string; total: string };
+};
+
+export type BestSellers = { currency: string; date_from: string; date_to: string; rows: { product: number; sku: string; name: string; brand: string | null; quantity: string; amount: string }[] };
+
+export type WarehouseStock = { currency: string; total_value: string; rows: { warehouse: number; name: string; quantity: string; products: number; value: string }[] };
+
+export type SalesTargets = { currency: string; year: number; month: number; unassigned: string; rows: { user: number; name: string; target: string; sold: string; invoices: number; percent: string | null }[] };
+
+export type CustomerGroup = Audited & { id: number; company: number; name: string; name_ar: string; discount_percent: string; is_active: boolean; customer_count: number };

@@ -4,7 +4,7 @@ import { ContactsEditor, contactsPayload } from "@/components/contacts-editor";
 import { ActiveBadge, ResourcePage } from "@/components/resource-page";
 import { formatMoney } from "@/lib/format";
 import { useResource } from "@/lib/hooks";
-import type { Customer, Page, PriceList } from "@/lib/types";
+import type { Customer, CustomerGroup, Page, PriceList } from "@/lib/types";
 import { useWorkspace } from "@/lib/workspace";
 
 const TYPES: [Customer["customer_type"], string][] = [
@@ -19,6 +19,8 @@ export default function CustomersPage() {
   const priceLists = useResource<Page<PriceList>>(
     `/catalog/price-lists?company=${company.id}&is_active=true&page_size=200`,
   );
+  const groups = useResource<Page<CustomerGroup>>(`/partners/customer-groups?company=${company.id}&is_active=true&page_size=200`);
+  const groupOptions = (groups.data?.results ?? []).map((item) => [String(item.id), `${name(item)} · ${Number(item.discount_percent)}%`] as [string, string]);
   const typeName = Object.fromEntries(TYPES);
   const listOptions = (priceLists.data?.results ?? []).map(
     (item) => [String(item.id), `${name(item)} · ${item.currency}`] as [string, string],
@@ -75,6 +77,7 @@ export default function CustomersPage() {
         { name: "tax_number", label: "Tax number" },
 
         { name: "price_list", label: "Price list", type: "select", nullable: true, options: listOptions, section: "Sales terms", hint: "Empty = the company's default list." },
+        { name: "group", label: "Customer group", type: "select", nullable: true, options: groupOptions, hint: "Its discount is filled in on every new line sold to this customer." },
         { name: "credit_limit", label: `Credit limit (${company.currency})`, type: "number" },
         { name: "payment_terms_days", label: "Payment terms (days)", type: "number", hint: "0 = pay on invoice." },
         { name: "notes", label: "Notes", type: "textarea" },
@@ -94,6 +97,7 @@ export default function CustomersPage() {
         commercial_registration: row?.commercial_registration ?? "",
         tax_number: row?.tax_number ?? "",
         price_list: row?.price_list ? String(row.price_list) : "",
+        group: row?.group ? String(row.group) : "",
         credit_limit: row?.credit_limit ?? "0",
         payment_terms_days: String(row?.payment_terms_days ?? 0),
         notes: row?.notes ?? "",

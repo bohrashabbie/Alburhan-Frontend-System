@@ -171,6 +171,7 @@ export const MENU: MenuGroup[] = [
     icon: UserRound,
     links: [
       { href: "/partners/customers", label: "Customer list", permission: "partners.customer.view" },
+      { href: "/partners/groups", label: "Customer group", permission: "partners.customer_group.view" },
       { href: "/sales/receipts", label: "Customer transactions", permission: "sales.receipt.view" },
       { href: "/partners/balances", label: "Customer balance sheet", permission: "sales.invoice.view" },
       { href: "/partners/statement", label: "Customer statement", permission: "sales.invoice.view" },
@@ -182,6 +183,13 @@ export const MENU: MenuGroup[] = [
     label: "Reports",
     icon: BarChart3,
     links: [
+      { href: "/reports/best-sellers", label: "Best seller", permission: "reports.dashboard.view" },
+      { href: "/reports/daily-sale", label: "Daily sale", permission: "reports.dashboard.view" },
+      { href: "/reports/monthly-sale", label: "Monthly sale", permission: "reports.dashboard.view" },
+      { href: "/reports/daily-purchase", label: "Daily purchase", permission: "reports.dashboard.view" },
+      { href: "/reports/monthly-purchase", label: "Monthly purchase", permission: "reports.dashboard.view" },
+      { href: "/reports/warehouse-stock", label: "Warehouse stock chart", permission: "inventory.report.view" },
+      { href: "/reports/sales-targets", label: "Sales target report", permission: "reports.dashboard.view" },
       { href: "/inventory/reorder", label: "Product quantity alert", permission: "inventory.report.view" },
       { href: "/inventory/slow-moving", label: "Slow-moving stock", permission: "inventory.report.view" },
     ],

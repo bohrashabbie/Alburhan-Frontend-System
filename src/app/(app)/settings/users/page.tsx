@@ -193,6 +193,7 @@ export default function UsersPage() {
         { name: "email", label: "Email", type: "email", required: true },
         { name: "username", label: "Username", required: true, lockOnEdit: true },
         { name: "phone", label: "Phone", type: "phone" },
+        { name: "monthly_target", label: "Monthly sales target", type: "number", hint: "What this person aims to invoice each month. Shown on the sales target report." },
         {
           name: "preferred_language",
           label: "Language",
@@ -220,6 +221,7 @@ export default function UsersPage() {
         email: row?.email ?? "",
         username: row?.username ?? "",
         phone: row?.phone ?? "",
+        monthly_target: row ? String(Number(row.monthly_target)) : "0",
         preferred_language: row?.preferred_language ?? "en",
         default_company: String(row?.default_company ?? company.id),
         password: "",

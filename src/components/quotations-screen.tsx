@@ -33,6 +33,7 @@ function Editor({ doc, onDone }: { doc?: Quotation; onDone: () => void }) {
   const [reference, setReference] = useState(doc?.reference ?? "");
   const [notes, setNotes] = useState(doc?.notes ?? "");
   const { settings, priceList } = useSalesDefaults(customer?.price_list);
+  const groupDiscount = customer?.group_discount_percent ? String(Number(customer.group_discount_percent)) : "0";
   const defaultTax = settings ? String(Number(settings.default_tax_rate)) : "0";
   const [lines, setLines] = useState<LineDraft[]>(doc?.lines.length ? fromSalesLines(doc.lines) : [newLine(defaultTax)]);
   const save = useAction();
@@ -86,7 +87,13 @@ function Editor({ doc, onDone }: { doc?: Quotation; onDone: () => void }) {
             {doc && !customer ? (
               <TextField label={t("Customer")} value={doc.customer_name} disabled />
             ) : (
-              <CustomerPicker label={t("Customer")} value={customer} error={save.field("customer")} onChange={(picked) => { setCustomer(picked); setCustomerId(picked?.id ?? null); }} />
+              <CustomerPicker label={t("Customer")} value={customer} error={save.field("customer")} onChange={(picked) => {
+                setCustomer(picked);
+                setCustomerId(picked?.id ?? null);
+                // Lines not yet filled in take the group's discount straight away.
+                const discount = picked?.group_discount_percent ? String(Number(picked.group_discount_percent)) : "0";
+                setLines((current) => current.map((line) => (line.productId || Number(line.discount_percent) ? line : { ...line, discount_percent: discount })));
+              }} />
             )}
           </div>
           <SelectField label={t("Branch")} value={branchId} onChange={(e) => setBranchId(e.target.value)} error={save.field("branch")}>
@@ -101,7 +108,7 @@ function Editor({ doc, onDone }: { doc?: Quotation; onDone: () => void }) {
           <TextField label={t("Price list")} value={priceList ? name(priceList) : "—"} disabled hint="From the customer, or the company default." />
           <div className="sm:col-span-2"><TextAreaField label={t("Notes")} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
         </div>
-        <SalesLinesEditor lines={lines} onChange={setLines} currency={currency} priceListId={priceList?.id ?? null} defaultTax={defaultTax} error={save.field("lines")} />
+        <SalesLinesEditor lines={lines} onChange={setLines} currency={currency} priceListId={priceList?.id ?? null} defaultTax={defaultTax} defaultDiscount={groupDiscount} error={save.field("lines")} />
       </form>
     </Drawer>
   );

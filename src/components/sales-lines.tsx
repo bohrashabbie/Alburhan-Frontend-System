@@ -26,8 +26,8 @@ export type LineDraft = {
   account?: number | null;
 };
 
-export const newLine = (tax = "0"): LineDraft => ({
-  product: null, productId: null, label: "", description: "", quantity: "1", unit_price: "", discount_percent: "0", tax_rate: tax,
+export const newLine = (tax = "0", discount = "0"): LineDraft => ({
+  product: null, productId: null, label: "", description: "", quantity: "1", unit_price: "", discount_percent: discount, tax_rate: tax,
 });
 
 export function fromSalesLines(lines: SalesLine[]): LineDraft[] {
@@ -93,6 +93,7 @@ export function SalesLinesEditor({
   currency,
   priceListId,
   defaultTax,
+  defaultDiscount = "0",
   error,
   priceLabel = "Unit price",
 }: {
@@ -101,6 +102,8 @@ export function SalesLinesEditor({
   currency: string;
   priceListId: number | null;
   defaultTax: string;
+  /** The customer's group discount: the starting discount on each new line. */
+  defaultDiscount?: string;
   error?: string;
   /** "Unit cost" on purchasing documents. */
   priceLabel?: string;
@@ -148,7 +151,7 @@ export function SalesLinesEditor({
     <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold">{t("Lines")}</h3>
-        <Button variant="secondary" onClick={() => onChange([...lines, newLine(defaultTax)])}>
+        <Button variant="secondary" onClick={() => onChange([...lines, newLine(defaultTax, defaultDiscount)])}>
           <Plus aria-hidden className="size-4" />
           {t("Add line")}
         </Button>
