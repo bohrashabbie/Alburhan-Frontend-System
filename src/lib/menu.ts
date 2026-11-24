@@ -192,6 +192,7 @@ export const MENU: MenuGroup[] = [
       { href: "/reports/warehouse-stock", label: "Warehouse stock chart", permission: "inventory.report.view" },
       { href: "/reports/sales-targets", label: "Sales target report", permission: "reports.dashboard.view" },
       { href: "/inventory/reorder", label: "Product quantity alert", permission: "inventory.report.view" },
+      { href: "/reports/previous-system", label: "Previous system", permission: "reports.legacy.view" },
       { href: "/inventory/slow-moving", label: "Slow-moving stock", permission: "inventory.report.view" },
     ],
   },

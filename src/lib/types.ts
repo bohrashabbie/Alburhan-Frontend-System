@@ -1560,3 +1560,7 @@ export type WarehouseStock = { currency: string; total_value: string; rows: { wa
 export type SalesTargets = { currency: string; year: number; month: number; unassigned: string; rows: { user: number; name: string; target: string; sold: string; invoices: number; percent: string | null }[] };
 
 export type CustomerGroup = Audited & { id: number; company: number; name: string; name_ar: string; discount_percent: string; is_active: boolean; customer_count: number };
+
+export type LegacyDocument = { id: number; kind: string; number: string; date: string | null; party: string; warehouse: string; status: string; payment_status: string; total: string | null; paid: string | null; due: string | null; details: Record<string, string | number | null> };
+
+export type LegacyDocuments = { kinds: { kind: string; label: string; count: number }[]; count: number; total: string; paid: string; due: string; page: number; pages: number; results: LegacyDocument[] };

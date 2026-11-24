@@ -1126,6 +1126,18 @@ const AR: Record<string, string> = {
   "To warehouse": "إلى المستودع",
   "Use a PDF or an image up to 5 MB.": "استخدم ملف PDF أو صورة بحجم لا يتجاوز 5 ميغابايت.",
   "e.g. 12 pieces in a box.": "مثلاً 12 قطعة في العلبة.",
+  // Previous system archive
+  "Previous system": "النظام السابق",
+  "Invoices, quotations, purchases and other documents made before the move. They are kept to look up; they change neither stock nor the accounts.": "الفواتير وعروض الأسعار والمشتريات وغيرها من المستندات التي أُنشئت قبل الانتقال. تُحفظ للرجوع إليها ولا تؤثر على المخزون أو الحسابات.",
+  "Nothing found": "لم يُعثر على شيء",
+  "Try another type, date or search.": "جرّب نوعاً أو تاريخاً أو بحثاً آخر.",
+  "documents": "مستند",
+  "Customer / supplier": "العميل / المورد",
+  "Document": "مستند",
+  "Payment status": "حالة الدفع",
+  "Stock adjustment": "تسوية مخزون",
+  "Project invoice": "فاتورة مشروع",
+  "Customer transaction": "معاملة عميل",
 };
 
 export function translate(locale: Locale, text: string) {
